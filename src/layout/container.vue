@@ -1,11 +1,22 @@
 <template>
   <div class="container">
-    <div class="btn" @click="scroll"></div>
-    <div :style="{width: `${leftWidth}px`, marginRight: `-${leftWidth}px`}" class="left"></div>
+    <!-- <div class="btn" @click="toggleLeftPannel"></div> -->
+    <div :style="{width: `${leftWidth}px`, marginRight: `-${leftWidth}px`}" class="left">
+      <div class="top-bar">
+        <div class="title">组件</div>
+        <div class="btn" @click="toggleLeftPannel">
+          <i class="el-icon-d-arrow-left"></i>
+        </div>
+      </div>
+    </div>
     <div class="mid">
       <div :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content"></div>
     </div>
-    <div :style="{width: `${rightWidth}px`, marginLeft: `-${rightWidth}px`}" class="right"></div>
+    <div :style="{width: `${rightWidth}px`, marginLeft: `-${rightWidth}px`}" class="right">
+      <div class="top-bar">
+        <div class="title">属性</div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -17,18 +28,22 @@ export default {
     };
   },
   methods: {
-    scroll() {
+    toggleLeftPannel() {
       this.leftWidth = !this.leftWidth ? 230 : 0;
+    },
+    toggleRightPannel() {
       this.rightWidth = !this.rightWidth ? 230 : 0;
     }
   }
 };
 </script>
-<style scoped>
+<style scoped lang="scss">
 .container {
   position: relative;
   overflow: hidden;
   height: 100%;
+  color: #bbb;
+  font-size: 12px;
 }
 .left,
 .right {
@@ -36,20 +51,43 @@ export default {
   float: left;
   height: 100%;
   background-color: #414146;
-  transition: all 0.5s;
+  transition: all 0.3s;
+  outline: 1px solid #252527;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.52), 0 0 6px rgba(0, 0, 0, 0.04);
 }
 .right {
   float: right;
-  margin: 0 0 0 -190px;
+}
+.left {
+  overflow: hidden;
+
+  .btn {
+    position: relative;
+    float: right;
+    height: 20px;
+    padding-top: 1px;
+    box-sizing: border-box;
+    &:active {
+      top: 1px;
+    }
+  }
+}
+.top-bar {
+  height: 20px;
+  width: 100%;
+  line-height: 20px;
+  border-bottom: 1px solid #313134;
+  box-sizing: border-box;
+  padding: 0 5px;
+  overflow: hidden;
+  .title {
+    float: left;
+  }
 }
 .mid {
   float: left;
   width: 100%;
   height: 100%;
-}
-.mid-content {
-  height: 100%;
-  transition: all 0.5s;
   background-image: linear-gradient(
       45deg,
       #666 25%,
@@ -69,19 +107,10 @@ export default {
   background-position: 0 0, 8px 8px;
   background-size: 16px 16px;
   background-color: #444;
-}
-.left,
-.right {
-  outline: 1px solid #252527;
-}
-.btn {
-  position: absolute;
-  left: 20px;
-  top: 20px;
-  background-color: red;
-  width: 40px;
-  height: 40px;
-  z-index: 9;
+  .mid-content {
+    height: 100%;
+    transition: all 0.5s;
+  }
 }
 </style>
 
