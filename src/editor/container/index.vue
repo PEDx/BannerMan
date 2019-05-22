@@ -9,8 +9,12 @@
       </div>
     </div>
     <div class="mid">
-      <div ref="viewport" :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content">
-        <viewport ></viewport>
+      <div
+        ref="viewport"
+        :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}"
+        class="mid-content"
+      >
+        <viewport></viewport>
       </div>
     </div>
     <div :style="{width: `${rightWidth}px`, marginLeft: `-${rightWidth}px`}" class="right">
@@ -57,7 +61,7 @@ export default {
           if (_wid <= EDITOR_RIGHT_PANEL_MIN_WIDTH) return;
           this.rightWidth = _wid;
         }
-      }, 20)
+      }, 30)
     );
     document.addEventListener("mouseup", () => {
       this.dragLeftStatus = false;
@@ -154,6 +158,10 @@ export default {
   background-color: #444;
   .mid-content {
     height: 100%;
+    box-sizing: border-box;
+    padding: 30px 0;
+    overflow-y: auto;
+    overflow-x: hidden;
     // transition: all 0.5s;
   }
 }
