@@ -12,7 +12,7 @@
   </div>
 </template>
 <script>
-import container from "./container";
+import container from "./container/index";
 import topBar from "./topBar";
 import bottomBar from "./bottomBar";
 export default {

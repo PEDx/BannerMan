@@ -1,26 +1,24 @@
 <template>
   <div class="container">
-    <!-- <div class="btn" @click="toggleLeftPannel"></div> -->
     <div :style="{width: `${leftWidth}px`, marginRight: `-${leftWidth}px`}" class="left">
-      <div class="top-bar">
-        <div class="title">组件</div>
-        <div class="btn" @click="toggleLeftPannel">
-          <i class="el-icon-d-arrow-left"></i>
-        </div>
-      </div>
+      <left-panel></left-panel>
     </div>
     <div class="mid">
       <div :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content"></div>
     </div>
     <div :style="{width: `${rightWidth}px`, marginLeft: `-${rightWidth}px`}" class="right">
-      <div class="top-bar">
-        <div class="title">属性</div>
-      </div>
+      <right-panel></right-panel>
     </div>
   </div>
 </template>
 <script>
+import rightPanel from "./rightPanel";
+import leftPanel from "./leftPanel";
 export default {
+  components: {
+    "right-panel": rightPanel,
+    "left-panel": leftPanel
+  },
   data() {
     return {
       leftWidth: 230,
