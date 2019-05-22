@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Layout from '../layout/index';
+import Editor from '../editor/index';
+import Dashboard from '../pages/dashboard';
 
 Vue.use(Router);
 
@@ -9,13 +10,13 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Layout1',
-      component: Layout
+      name: 'dashboard',
+      component: Dashboard
     },
     {
-      path: '/layout',
-      name: 'Layout',
-      component: Layout
+      path: '/editor',
+      name: 'editor',
+      component: Editor
     }
   ]
 });
