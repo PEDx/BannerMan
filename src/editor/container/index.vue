@@ -2,11 +2,23 @@
   <div class="container">
     <div :style="{width: `${leftWidth}px`, marginRight: `-${leftWidth}px`}" class="left">
       <left-panel></left-panel>
+      <div class="drag">
+        <el-button type="text" @mousedown.native="dragLeftStatus = true">
+          <i class="el-icon-more"></i>
+        </el-button>
+      </div>
     </div>
     <div class="mid">
-      <div :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content"></div>
+      <div ref="viewport" :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content">
+        <viewport ></viewport>
+      </div>
     </div>
     <div :style="{width: `${rightWidth}px`, marginLeft: `-${rightWidth}px`}" class="right">
+      <div class="drag">
+        <el-button type="text" @mousedown.native="dragRightStatus = true">
+          <i class="el-icon-more"></i>
+        </el-button>
+      </div>
       <right-panel></right-panel>
     </div>
   </div>
@@ -14,24 +26,52 @@
 <script>
 import rightPanel from "./rightPanel";
 import leftPanel from "./leftPanel";
+import viewport from "./viewport";
+import throttle from "../../utils";
+const EDITOR_LEFT_PANEL_MIN_WIDTH = 260;
+const EDITOR_RIGHT_PANEL_MIN_WIDTH = 300;
 export default {
   components: {
     "right-panel": rightPanel,
+    viewport: viewport,
     "left-panel": leftPanel
   },
   data() {
     return {
-      leftWidth: 230,
-      rightWidth: 230
+      leftWidth: EDITOR_LEFT_PANEL_MIN_WIDTH,
+      rightWidth: EDITOR_RIGHT_PANEL_MIN_WIDTH,
+      dragLeftStatus: false,
+      dragRightStatus: false
     };
+  },
+  mounted() {
+    document.addEventListener(
+      "mousemove",
+      throttle(e => {
+        if (this.dragLeftStatus) {
+          if (e.clientX <= EDITOR_LEFT_PANEL_MIN_WIDTH) return;
+          this.leftWidth = e.clientX;
+        }
+        if (this.dragRightStatus) {
+          const _wid = document.body.clientWidth - e.clientX;
+          if (_wid <= EDITOR_RIGHT_PANEL_MIN_WIDTH) return;
+          this.rightWidth = _wid;
+        }
+      }, 20)
+    );
+    document.addEventListener("mouseup", () => {
+      this.dragLeftStatus = false;
+      this.dragRightStatus = false;
+    });
   },
   methods: {
     toggleLeftPannel() {
-      this.leftWidth = !this.leftWidth ? 230 : 0;
+      this.leftWidth = !this.leftWidth ? EDITOR_LEFT_PANEL_MIN_WIDTH : 0;
     },
     toggleRightPannel() {
-      this.rightWidth = !this.rightWidth ? 230 : 0;
-    }
+      this.rightWidth = !this.rightWidth ? EDITOR_RIGHT_PANEL_MIN_WIDTH : 0;
+    },
+    dragStart(e) {}
   }
 };
 </script>
@@ -49,24 +89,31 @@ export default {
   float: left;
   height: 100%;
   background-color: #414146;
-  transition: all 0.3s;
   outline: 1px solid #252527;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.52), 0 0 6px rgba(0, 0, 0, 0.04);
 }
 .right {
   float: right;
+  .drag {
+    position: absolute;
+    top: 45%;
+    left: -14px;
+    transform: rotate(90deg);
+    button {
+      cursor: col-resize;
+    }
+  }
 }
 .left {
   overflow: hidden;
-
-  .btn {
-    position: relative;
-    float: right;
-    height: 20px;
-    padding-top: 1px;
-    box-sizing: border-box;
-    &:active {
-      top: 1px;
+  position: relative;
+  .drag {
+    position: absolute;
+    top: 45%;
+    right: -14px;
+    transform: rotate(90deg);
+    button {
+      cursor: col-resize;
     }
   }
 }
@@ -107,7 +154,7 @@ export default {
   background-color: #444;
   .mid-content {
     height: 100%;
-    transition: all 0.5s;
+    // transition: all 0.5s;
   }
 }
 </style>

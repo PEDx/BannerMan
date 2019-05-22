@@ -26,7 +26,10 @@
     color: #343438 !important;
   }
 }
-
+.el-button--mini{
+  border: 0;
+  padding: 4px 12px;
+}
 .el-select-dropdown__item {
   font-size: 12px;
   height: 28px;
