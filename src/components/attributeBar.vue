@@ -6,7 +6,7 @@
       </div>
       <div class="title">{{ title }}</div>
     </div>
-    <div ref="content" :style="{height: `${contentHeight}px`}" class="content">
+    <div ref="content" :style="{maxHeight: `${contentHeight}px`}" class="content">
       <div class="pad">
         <slot></slot>
       </div>
@@ -46,7 +46,8 @@ export default {
   height: 20px;
   width: 100%;
   line-height: 20px;
-  border-bottom: 1px solid #313134;
+  // border-bottom: 1px solid #313134;
+  outline: 1px solid #313134;
   box-sizing: border-box;
   padding: 0 5px;
   overflow: hidden;
@@ -75,7 +76,7 @@ export default {
 }
 .content {
   overflow: hidden;
-  transition: height 0.2s;
+  transition: max-height 0.2s;
   .pad {
     padding: 6px;
   }

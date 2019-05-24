@@ -84,7 +84,7 @@ export default {
   position: relative;
   overflow: hidden;
   height: 100%;
-  color: #bbb;
+  color: #eee;
   font-size: 12px;
 }
 .left,

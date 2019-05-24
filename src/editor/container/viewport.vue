@@ -15,7 +15,8 @@ export default {
     this.$nextTick(() => {
       new Sortable(this.$refs.content, {
         group: "shared",
-        animation: 150
+        animation: 150,
+        sort: false
       });
     });
   },
