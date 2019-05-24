@@ -12,11 +12,13 @@
       <div :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content">
         <div :style="{width: `${viewSize[0]}px`,height: `${viewSize[1]}px`}" class="viewport">
           <transition name="fade">
-            <div v-if="viewportLoading" class="loading"></div>
+            <div v-if="viewportLoading" class="mask">
+              <div class="loading"></div>
+            </div>
           </transition>
           <iframe
             style="width: 100%;height: 100%"
-            src="/editor/viewport"
+            src="/editer/viewport"
             frameborder="0"
             @load="handleLoad"
           ></iframe>
@@ -83,8 +85,7 @@ export default {
     },
     handleLoad() {
       this.viewportLoading = false;
-    },
-    dragStart(e) {}
+    }
   }
 };
 </script>
@@ -182,6 +183,14 @@ export default {
     overflow: hidden;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.42), 0 0 24px rgba(0, 0, 0, 0.04);
     border-radius: 2px;
+    .mask {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: #1f1f2250;
+    }
     .loading {
       position: absolute;
       top: 45%;

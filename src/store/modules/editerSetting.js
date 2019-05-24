@@ -1,10 +1,6 @@
 const app = {
   state: {
-    sidebar: {
-      opened: false,
-      withoutAnimation: false
-    },
-    device: 'desktop'
+    device: []
   },
   mutations: {
     TOGGLE_SIDEBAR: state => {

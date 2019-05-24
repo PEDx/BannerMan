@@ -2,15 +2,15 @@
   <div class="topBar">
     <el-row style="height: 100%;">
       <el-col :span="8">
-        <el-select v-model="value" placeholder="请选择">
+        <el-select v-model="value" placeholder="请选择" style="width: 210px;">
           <template slot="prefix">
             <i class="el-icon-mobile-phone"></i>
           </template>
           <el-option
-            v-for="item in options"
-            :key="item.desc"
+            v-for="(item, key) in options"
+            :key="key"
             :label="`${item.desc} / (${item.resolution.width}x${item.resolution.height})`"
-            :value="item.desc"
+            :value="key"
           ></el-option>
         </el-select>
         <el-button type="primary" icon="el-icon-edit" style="margin-left: 10px;">页面信息配置</el-button>
@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       options: deviceModelList,
-      value: ""
+      value: "iphone6"
     };
   }
 };

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Editor from '../editor/index';
+import Editer from '../editer/index';
 import Viewport from '../viewport/index';
 
 Vue.use(Router);
@@ -11,17 +11,17 @@ export default new Router({
     {
       path: '/',
       name: 'dashboard',
-      component: Editor
+      component: Editer
     },
     {
-      path: '/editor/viewport',
+      path: '/editer/viewport',
       name: 'viewport',
       component: Viewport
     },
     {
-      path: '/editor',
-      name: 'editor',
-      component: Editor
+      path: '/editer',
+      name: 'editer',
+      component: Editer
     }
   ]
 });
