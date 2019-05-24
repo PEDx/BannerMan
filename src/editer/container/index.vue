@@ -38,7 +38,7 @@
 <script>
 import rightPanel from "./rightPanel";
 import leftPanel from "./leftPanel";
-import throttle from "../../utils";
+import { throttle } from "../../utils";
 const EDITOR_LEFT_PANEL_MIN_WIDTH = 260;
 const EDITOR_RIGHT_PANEL_MIN_WIDTH = 300;
 export default {
@@ -48,8 +48,8 @@ export default {
   },
   data() {
     return {
-      leftWidth: EDITOR_LEFT_PANEL_MIN_WIDTH,
-      rightWidth: EDITOR_RIGHT_PANEL_MIN_WIDTH,
+      leftWidth: +this.$store.state.editerSetting.leftPanelWidth || EDITOR_LEFT_PANEL_MIN_WIDTH,
+      rightWidth: +this.$store.state.editerSetting.rightPanelWidth || EDITOR_RIGHT_PANEL_MIN_WIDTH,
       dragLeftStatus: false,
       dragRightStatus: false,
       viewportLoading: true,
@@ -63,11 +63,13 @@ export default {
         if (this.dragLeftStatus) {
           if (e.clientX <= EDITOR_LEFT_PANEL_MIN_WIDTH) return;
           this.leftWidth = e.clientX;
+          this.$store.dispatch("update_lt_wid", e.clientX);
         }
         if (this.dragRightStatus) {
           const _wid = document.body.clientWidth - e.clientX;
           if (_wid <= EDITOR_RIGHT_PANEL_MIN_WIDTH) return;
           this.rightWidth = _wid;
+          this.$store.dispatch("update_rt_wid", _wid);
         }
       }, 30)
     );

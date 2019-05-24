@@ -1,30 +1,34 @@
+import { localstore, debounce } from '../../utils';
 const app = {
   state: {
-    device: []
+    deviceType: localstore.getItem('device_type'),
+    leftPanelWidth: localstore.getItem('lt_wid'),
+    rightPanelWidth: localstore.getItem('rt_wid')
   },
   mutations: {
-    TOGGLE_SIDEBAR: state => {
-      state.sidebar.opened = !state.sidebar.opened;
-      state.sidebar.withoutAnimation = false;
+    UPDATE_RT_WID: (state, width) => {
+      state.rightPanelWidth = width;
     },
-    CLOSE_SIDEBAR: (state, withoutAnimation) => {
-      state.sidebar.opened = false;
-      state.sidebar.withoutAnimation = withoutAnimation;
+    UPDATE_LT_WID: (state, width) => {
+      state.leftPanelWidth = width;
     },
-    TOGGLE_DEVICE: (state, device) => {
-      state.device = device;
+    UPDATE_DEVICE_TYPE: (state, type) => {
+      state.deviceType = type;
     }
   },
   actions: {
-    ToggleSideBar: ({ commit }) => {
-      commit('TOGGLE_SIDEBAR');
-    },
-    CloseSideBar({ commit }, { withoutAnimation }) {
-      commit('CLOSE_SIDEBAR', withoutAnimation);
-    },
-    ToggleDevice({ commit }, device) {
-      commit('TOGGLE_DEVICE', device);
-    }
+    update_rt_wid: debounce(({ commit }, width) => {
+      commit('UPDATE_RT_WID', width);
+      localstore.setItem('rt_wid', width);
+    }, 800),
+    update_lt_wid: debounce(({ commit }, width) => {
+      commit('UPDATE_LT_WID', width);
+      localstore.setItem('lt_wid', width);
+    }, 800),
+    update_device_type: debounce(({ commit }, type) => {
+      commit('UPDATE_DEVICE_TYPE', type);
+      localstore.setItem('device_type', type);
+    }, 800)
   }
 };
 

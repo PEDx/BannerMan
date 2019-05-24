@@ -2,7 +2,7 @@
   <div class="topBar">
     <el-row style="height: 100%;">
       <el-col :span="8">
-        <el-select v-model="value" placeholder="请选择" style="width: 210px;">
+        <el-select v-model="value" placeholder="请选择" style="width: 210px;" @change="handleChange">
           <template slot="prefix">
             <i class="el-icon-mobile-phone"></i>
           </template>
@@ -15,9 +15,7 @@
         </el-select>
         <el-button type="primary" icon="el-icon-edit" style="margin-left: 10px;">页面信息配置</el-button>
       </el-col>
-      <el-col :span="8">
-        <!-- <div class="title">情人节活动</div> -->
-      </el-col>
+      <el-col :span="8"></el-col>
       <el-col :span="8" style="text-align: right;">
         <el-button type="primary" icon="el-icon-view" style="margin-left: 10px;">预览</el-button>
         <el-button type="primary" icon="el-icon-document-checked">保存</el-button>
@@ -33,6 +31,14 @@ export default {
       options: deviceModelList,
       value: "iphone6"
     };
+  },
+  mounted() {
+    this.handleChange();
+  },
+  methods: {
+    handleChange() {
+      console.log(this.value);
+    }
   }
 };
 </script>
