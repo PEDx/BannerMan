@@ -1,6 +1,6 @@
 <template>
   <div class="right-panel">
-    <attribute-bar title="控件">
+    <fold-bar title="控件">
       <div class="box">
         <div
           v-for="(val, idx) in widgets"
@@ -13,21 +13,23 @@
           <div
             v-for="(item, index) in val.items"
             :key="index"
+            :draggable="true"
             class="widget"
             style="overflow: hidden"
+            @dragstart="handleDragstart"
           >
             <i :class="item.icon"></i>
             <p>{{ item.name }}</p>
           </div>
         </div>
       </div>
-    </attribute-bar>
-    <attribute-bar title="资源"></attribute-bar>
+    </fold-bar>
+    <fold-bar title="资源"></fold-bar>
   </div>
 </template>
 <script>
-import Sortable from "sortablejs";
-import attributeBar from "../../components/attributeBar";
+// import Sortable from "sortablejs";
+import foldBar from "../../components/foldBar";
 const widgets = [
   {
     group: "BASICS",
@@ -80,28 +82,18 @@ const widgets = [
 ];
 export default {
   components: {
-    "attribute-bar": attributeBar
+    "fold-bar": foldBar
   },
   data() {
     return {
       widgets
     };
   },
-  mounted() {
-    this.$nextTick(() => {
-      this.$refs.groupBox.forEach(val => {
-        new Sortable(val, {
-          group: {
-            name: "shared",
-            pull: "clone", // To clone: set pull to 'clone'
-            put: false
-          },
-          draggable: "div.widget",
-          sort: false,
-          animation: 150
-        });
-      });
-    });
+  mounted() {},
+  methods: {
+    handleDragstart(e) {
+      e.dataTransfer.setData("WIDGET_TYPE", "hello")
+    }
   }
 };
 </script>

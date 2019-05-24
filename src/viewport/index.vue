@@ -22,12 +22,12 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 html,
 body,
 .content {
   height: 100%;
-  background-color: #aaa;
+  background-color: #eee;
 }
 </style>
 

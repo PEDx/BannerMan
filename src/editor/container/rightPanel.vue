@@ -1,14 +1,14 @@
 <template>
   <div class="right-panel">
-    <attribute-bar title="属性">
-    </attribute-bar>
+    <fold-bar title="属性">
+    </fold-bar>
   </div>
 </template>
 <script>
-import attributeBar from "../../components/attributeBar";
+import foldBar from "../../components/foldBar";
 export default {
   components: {
-    "attribute-bar": attributeBar
+    "fold-bar": foldBar
   }
 };
 </script>

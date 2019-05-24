@@ -9,12 +9,18 @@
       </div>
     </div>
     <div class="mid">
-      <div
-        ref="viewport"
-        :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}"
-        class="mid-content"
-      >
-        <viewport></viewport>
+      <div :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content">
+        <div :style="{width: `${viewSize[0]}px`,height: `${viewSize[1]}px`}" class="viewport">
+          <transition name="fade">
+            <div v-if="viewportLoading" class="loading"></div>
+          </transition>
+          <iframe
+            style="width: 100%;height: 100%"
+            src="/editor/viewport"
+            frameborder="0"
+            @load="handleLoad"
+          ></iframe>
+        </div>
       </div>
     </div>
     <div :style="{width: `${rightWidth}px`, marginLeft: `-${rightWidth}px`}" class="right">
@@ -30,14 +36,12 @@
 <script>
 import rightPanel from "./rightPanel";
 import leftPanel from "./leftPanel";
-import viewport from "./viewport";
 import throttle from "../../utils";
 const EDITOR_LEFT_PANEL_MIN_WIDTH = 260;
 const EDITOR_RIGHT_PANEL_MIN_WIDTH = 300;
 export default {
   components: {
     "right-panel": rightPanel,
-    viewport: viewport,
     "left-panel": leftPanel
   },
   data() {
@@ -45,7 +49,9 @@ export default {
       leftWidth: EDITOR_LEFT_PANEL_MIN_WIDTH,
       rightWidth: EDITOR_RIGHT_PANEL_MIN_WIDTH,
       dragLeftStatus: false,
-      dragRightStatus: false
+      dragRightStatus: false,
+      viewportLoading: true,
+      viewSize: [375, 667]
     };
   },
   mounted() {
@@ -74,6 +80,9 @@ export default {
     },
     toggleRightPannel() {
       this.rightWidth = !this.rightWidth ? EDITOR_RIGHT_PANEL_MIN_WIDTH : 0;
+    },
+    handleLoad() {
+      this.viewportLoading = false;
     },
     dragStart(e) {}
   }
@@ -166,6 +175,59 @@ export default {
     overflow-x: hidden;
     // transition: all 0.5s;
   }
+  .viewport {
+    position: relative;
+    margin: 0 auto;
+    background: rgb(73, 69, 69);
+    overflow: hidden;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.42), 0 0 24px rgba(0, 0, 0, 0.04);
+    border-radius: 2px;
+    .loading {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      width: 2em;
+      height: 2em;
+      margin-left: -1em;
+      border: 3px solid rgb(251, 49, 113);
+      overflow: hidden;
+      animation: spin 3s ease infinite;
+      &::before {
+        content: "";
+        position: absolute;
+        width: 2em;
+        height: 2em;
+        background-color: rgba(251, 49, 113, 0.75);
+        transform-origin: center bottom;
+        transform: scaleY(0);
+        animation: fill 3s linear infinite;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  50%,
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fill {
+  50%,
+  75% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(0);
+  }
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
 

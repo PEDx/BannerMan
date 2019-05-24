@@ -4,6 +4,7 @@ import router from './router';
 import './style/cssrest.css';
 import './style/element-style-reload.scss';
 import { Row, Col, Select, Option, Button } from 'element-ui';
+import store from './store';
 
 Vue.config.productionTip = false;
 Vue.use(Row)
@@ -16,5 +17,6 @@ Vue.prototype.$ELEMENT = { size: 'mini' };
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 });
