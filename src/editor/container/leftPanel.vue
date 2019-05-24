@@ -1,6 +1,6 @@
 <template>
   <div class="right-panel">
-    <attribute-bar title="组件">
+    <attribute-bar title="控件">
       <div class="box">
         <div
           v-for="(val, idx) in widgets"
@@ -122,10 +122,17 @@ export default {
   cursor: pointer;
   i {
     font-size: 28px;
+    display: inline-block;
+    max-width: 30px;
+    max-height: 30px;
+    margin-bottom: 5px;
   }
   p {
     padding: 4px;
     user-select: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>

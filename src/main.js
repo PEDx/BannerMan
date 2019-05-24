@@ -2,7 +2,6 @@ import Vue from 'vue';
 import App from './app';
 import router from './router';
 import './style/cssrest.css';
-import './style/element-variables-reload.scss';
 import './style/element-style-reload.scss';
 import { Row, Col, Select, Option, Button } from 'element-ui';
 

@@ -80,6 +80,8 @@ export default {
 };
 </script>
 <style scoped lang="scss">
+// #c9a11c
+// #ef9319
 .container {
   position: relative;
   overflow: hidden;
