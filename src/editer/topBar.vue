@@ -25,11 +25,12 @@
 </template>
 <script>
 import deviceModelList from "./device";
+import { EventBus } from "../bus";
 export default {
   data() {
     return {
       options: deviceModelList,
-      value: "iphone6"
+      value: this.$store.state.editerSetting.deviceType
     };
   },
   mounted() {
@@ -37,7 +38,8 @@ export default {
   },
   methods: {
     handleChange() {
-      console.log(this.value);
+      this.value && this.$store.dispatch("update_device_type", this.value);
+      EventBus.$emit("reload-viewport");
     }
   }
 };

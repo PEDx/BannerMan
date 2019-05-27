@@ -25,10 +25,10 @@ const app = {
       commit('UPDATE_LT_WID', width);
       localstore.setItem('lt_wid', width);
     }, 800),
-    update_device_type: debounce(({ commit }, type) => {
+    update_device_type: ({ commit }, type) => {
       commit('UPDATE_DEVICE_TYPE', type);
       localstore.setItem('device_type', type);
-    }, 800)
+    }
   }
 };
 

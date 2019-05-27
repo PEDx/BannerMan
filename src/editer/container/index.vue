@@ -10,14 +10,18 @@
     </div>
     <div class="mid">
       <div :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content">
-        <div :style="{width: `${viewSize[0]}px`,height: `${viewSize[1]}px`}" class="viewport">
+        <div
+          :style="{width: `${viewSize.width}px`,height: `${viewSize.height}px`}"
+          class="viewport"
+        >
           <transition name="fade">
             <div v-if="viewportLoading" class="mask">
               <div class="loading"></div>
             </div>
           </transition>
           <iframe
-            style="width: 100%;height: 100%"
+            ref="iframe"
+            :style="`width: 100%;height: 100%;pointer-events: ${draging ? 'none': 'auto'};`"
             src="/editer/viewport"
             frameborder="0"
             @load="handleLoad"
@@ -38,7 +42,9 @@
 <script>
 import rightPanel from "./rightPanel";
 import leftPanel from "./leftPanel";
+import deviceModelList from "../device";
 import { throttle } from "../../utils";
+import { EventBus } from "../../bus";
 const EDITOR_LEFT_PANEL_MIN_WIDTH = 260;
 const EDITOR_RIGHT_PANEL_MIN_WIDTH = 300;
 export default {
@@ -47,16 +53,33 @@ export default {
     "left-panel": leftPanel
   },
   data() {
+    const editerSetting = this.$store.state.editerSetting;
     return {
-      leftWidth: +this.$store.state.editerSetting.leftPanelWidth || EDITOR_LEFT_PANEL_MIN_WIDTH,
-      rightWidth: +this.$store.state.editerSetting.rightPanelWidth || EDITOR_RIGHT_PANEL_MIN_WIDTH,
+      leftWidth: +editerSetting.leftPanelWidth || EDITOR_LEFT_PANEL_MIN_WIDTH,
+      rightWidth:
+        +editerSetting.rightPanelWidth || EDITOR_RIGHT_PANEL_MIN_WIDTH,
       dragLeftStatus: false,
       dragRightStatus: false,
-      viewportLoading: true,
-      viewSize: [375, 667]
+      viewportLoading: true
     };
   },
+  computed: {
+    viewSize: function() {
+      const editerSetting = this.$store.state.editerSetting;
+      return deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
+    },
+    draging() {
+      return this.dragLeftStatus || this.dragRightStatus;
+    }
+    // canNotMovePanel: function() {
+    // const window_wid = document.body.clientWidth;
+    // const panel_wid = this.leftWidth + this.rightWidth;
+    // const device_wid = this.viewSize.width;
+    // return panel_wid > window_wid - 20;
+    // }
+  },
   mounted() {
+    EventBus.$on("reload-viewport", () => {});
     document.addEventListener(
       "mousemove",
       throttle(e => {
@@ -71,7 +94,7 @@ export default {
           this.rightWidth = _wid;
           this.$store.dispatch("update_rt_wid", _wid);
         }
-      }, 30)
+      }, 40)
     );
     document.addEventListener("mouseup", () => {
       this.dragLeftStatus = false;
@@ -185,6 +208,7 @@ export default {
     overflow: hidden;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.42), 0 0 24px rgba(0, 0, 0, 0.04);
     border-radius: 2px;
+    transition: all 0.3s ease;
     .mask {
       position: absolute;
       top: 0;
