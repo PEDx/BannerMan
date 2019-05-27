@@ -1,10 +1,10 @@
 <template>
   <div class="faq">
     <div class="content">
-      <div v-for="(val, idx) in qlist" :key="idx" class="item">
+      <div v-for="(val, idx) in qlist" :key="idx" class="item" @click="rollUp(val)">
         <div class="item-title border-line-1px">{{ val.title }}</div>
         <span :class="['arrow', val.roll && 'down-arrow']"></span>
-        <transition name="slideInDown" mode="out-in">
+        <transition name="fade" mode="out-in">
           <p v-show="val.roll" class="item-content border-line-1px">{{ val.content }}</p>
         </transition>
       </div>
@@ -46,8 +46,8 @@ export default {
     leftClickEvent() {
       console.log("leftClickEvent");
     },
-    rollUp(event) {
-      event.val.roll = !event.val.roll;
+    rollUp(val) {
+      val.roll = !val.roll;
     }
   }
 };
@@ -61,7 +61,6 @@ export default {
   font-size: 0.373333rem;
   box-sizing: border-box;
   padding-top: 10px;
-  overflow: scroll;
   -webkit-overflow-scrolling: touch;
   .content {
     min-height: 2.666667rem;

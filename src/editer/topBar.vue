@@ -17,6 +17,7 @@
       </el-col>
       <el-col :span="8"></el-col>
       <el-col :span="8" style="text-align: right;">
+        <el-button type="danger" icon="el-icon-delete-solid" style="margin-left: 10px;" class="danger">清空</el-button>
         <el-button type="primary" icon="el-icon-view" style="margin-left: 10px;">预览</el-button>
         <el-button type="primary" icon="el-icon-document-checked">保存</el-button>
       </el-col>
@@ -52,6 +53,9 @@ export default {
     height: 100%;
     padding: 0 8px;
     padding-top: 6px;
+    .danger{
+      // color: #eee;
+    }
   }
   .title {
     color: #aaa;

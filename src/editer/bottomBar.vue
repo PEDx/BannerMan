@@ -1,35 +1,54 @@
 <template>
   <div class="bottom-bar">
-    <div class="editer-version-info">
-      <span class="right">thruster-build-v0.0.1-beta</span>
-    </div>
-    <div class="return">
-      <el-button type="text" title="还原" @click="initScale">
-        <i class="el-icon-refresh-left"></i>
-      </el-button>
-    </div>
-    <div class="scaler">
-      <span class="demonstration">缩放</span>
-      <div class="number">
-        <input v-model.number="rangeValue" type="number" @change="handleInputChange">
-      </div>
-      <div class="slider">
-        <el-slider
-          v-model="rangeValue"
-          :min="0"
-          :max="200"
-          :format-tooltip="formatTooltip"
-          @change="handleChange"
-        ></el-slider>
-      </div>
-    </div>
+    <el-row>
+      <el-col :span="8" class="lock-layout">
+        <el-button
+          :class="{'lock': lockStatus}"
+          type="text"
+          title="锁定"
+          style="marginLeft: -8px;"
+          @click="lockLayout"
+        >
+          <i :class="{'el-icon-lock': lockStatus, 'el-icon-s-home': !lockStatus}"></i>
+          {{ lockStatus ? '' : '' }}
+        </el-button>
+      </el-col>
+      <el-col :span="8" style="textAlign: center;">
+        <div class="scaler">
+          <span class="demonstration">缩放</span>
+          <div class="return">
+            <el-button type="text" title="还原" @click="initScale">
+              <i class="el-icon-refresh-left"></i>
+            </el-button>
+          </div>
+          <div class="number">
+            <input v-model.number="rangeValue" type="number" @change="handleInputChange">
+          </div>
+          <div class="slider">
+            <el-slider
+              v-model="rangeValue"
+              :min="0"
+              :max="200"
+              :format-tooltip="formatTooltip"
+              @change="handleChange"
+            ></el-slider>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="8" style="textAlign: right;">
+        <div class="editer-version-info">
+          <span class="right">thruster-build-v0.0.1-beta</span>
+        </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
 <script>
 export default {
   data() {
     return {
-      rangeValue: +this.$store.state.editerSetting.viewportScale || 100
+      rangeValue: +this.$store.state.editerSetting.viewportScale || 100,
+      lockStatus: false
     };
   },
   methods: {
@@ -47,6 +66,9 @@ export default {
     initScale() {
       this.$store.dispatch("update_viewport_scale", 100);
       this.rangeValue = 100;
+    },
+    lockLayout() {
+      this.lockStatus = !this.lockStatus;
     }
   }
 };
@@ -58,17 +80,30 @@ export default {
   overflow: hidden;
   color: #eee;
   line-height: 20px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  .lock-layout {
+    i {
+      font-size: 14px;
+    }
+    .lock {
+      color: rgb(170, 85, 43);
+    }
+  }
   .editer-version-info {
-    float: left;
     height: 100%;
-    padding-left: 8px;
+    color: rgb(170, 85, 43);
+    // color: #d94b09;
   }
-  .return {
-    float: right;
-  }
+
   .scaler {
-    float: right;
-    // overflow: hidden;
+    display: inline-block;
+    .return {
+      float: right;
+      i {
+        font-size: 14px;
+      }
+    }
     .demonstration {
       margin-right: 8px;
     }
