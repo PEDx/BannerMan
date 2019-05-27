@@ -3,13 +3,14 @@ import App from './app';
 import router from './router';
 import './style/cssrest.css';
 import './style/element-style-reload.scss';
-import { Row, Col, Select, Option, Button } from 'element-ui';
+import { Row, Col, Select, Option, Button, Slider } from 'element-ui';
 import store from './store';
 
 Vue.config.productionTip = false;
 Vue.use(Row)
   .use(Col)
   .use(Option)
+  .use(Slider)
   .use(Button)
   .use(Select);
 Vue.prototype.$ELEMENT = { size: 'mini' };

@@ -30,7 +30,7 @@ export default {
   data() {
     return {
       options: deviceModelList,
-      value: this.$store.state.editerSetting.deviceType
+      value: this.$store.state.editerSetting.deviceType || 'iphone6'
     };
   },
   mounted() {

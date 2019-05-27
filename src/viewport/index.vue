@@ -5,11 +5,15 @@
     @dragenter="handleDropon"
     @dragover="handleDropon"
     @dragleave="handleDropon"
-  ></div>
+  >
+    <Content/>
+  </div>
 </template>
 <script>
 import { debounce } from "../utils";
+import Content from "./content";
 export default {
+  components: { Content },
   mounted() {
     console.log("iframe");
     window.onresize = debounce(

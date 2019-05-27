@@ -35,3 +35,24 @@
   height: 28px;
   padding: 0 10px;
 }
+
+.el-slider{
+  .el-slider__runway{
+    margin: 7px 0;
+    height: 4px;
+  }
+  .el-slider__button{
+    width: 10px;
+    height: 10px;
+  }
+
+  .el-slider__bar{
+    height: 4px;
+  }
+  .el-slider__button-wrapper{
+    top: -16px;
+  }
+}
+.el-button--text{
+  color: #d3d0dc;
+}

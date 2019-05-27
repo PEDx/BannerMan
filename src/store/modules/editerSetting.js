@@ -2,6 +2,7 @@ import { localstore, debounce } from '../../utils';
 const app = {
   state: {
     deviceType: localstore.getItem('device_type'),
+    viewportScale: localstore.getItem('viewport_scale'),
     leftPanelWidth: localstore.getItem('lt_wid'),
     rightPanelWidth: localstore.getItem('rt_wid')
   },
@@ -14,6 +15,9 @@ const app = {
     },
     UPDATE_DEVICE_TYPE: (state, type) => {
       state.deviceType = type;
+    },
+    UPDATE_VIEWPORT_SCALE: (state, scale) => {
+      state.viewportScale = scale;
     }
   },
   actions: {
@@ -28,6 +32,10 @@ const app = {
     update_device_type: ({ commit }, type) => {
       commit('UPDATE_DEVICE_TYPE', type);
       localstore.setItem('device_type', type);
+    },
+    update_viewport_scale: ({ commit }, scale) => {
+      commit('UPDATE_VIEWPORT_SCALE', scale);
+      localstore.setItem('viewport_scale', scale);
     }
   }
 };

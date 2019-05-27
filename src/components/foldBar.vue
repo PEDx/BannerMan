@@ -1,6 +1,6 @@
 <template>
-  <div class="attribute">
-    <div class="bar" @click="togglePannel">
+  <div class="fold-bar">
+    <div class="title-bar" @click="togglePannel">
       <div class="btn">
         <i :class="{'icon-rotate': !contentHeight}" class="el-icon-caret-bottom icon"></i>
       </div>
@@ -42,43 +42,46 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.bar {
-  height: 20px;
-  width: 100%;
-  line-height: 20px;
-  // border-bottom: 1px solid #313134;
-  outline: 1px solid #313134;
-  box-sizing: border-box;
-  padding: 0 5px;
-  overflow: hidden;
-  cursor: pointer;
-  .title {
-    float: left;
-    user-select: none;
-  }
+.fold-bar {
+  .title-bar {
+    height: 20px;
+    width: 100%;
+    line-height: 20px;
+    // border-bottom: 1px solid #313134;
+    outline: 1px solid #313134;
+    box-sizing: border-box;
+    padding: 0 5px;
+    overflow: hidden;
+    cursor: pointer;
+    .title {
+      float: left;
+      user-select: none;
+    }
 
-  .btn {
-    position: relative;
-    float: left;
-    padding-right: 4px;
-    .icon {
-      transition: all 0.2s;
-      transform: rotate(0deg);
-    }
-    .icon-rotate {
-      transition: all 0.2s;
-      transform: rotate(180deg);
-    }
-    &:active {
-      // top: 1px;
+    .btn {
+      position: relative;
+      float: left;
+      padding-right: 4px;
+      .icon {
+        transition: all 0.2s;
+        transform: rotate(0deg);
+      }
+      .icon-rotate {
+        transition: all 0.2s;
+        transform: rotate(180deg);
+      }
+      &:active {
+        // top: 1px;
+      }
     }
   }
-}
-.content {
-  overflow: hidden;
-  transition: max-height 0.2s;
-  .pad {
-    padding: 6px;
+  .content {
+    // overflow: auto;
+    overflow: hidden;
+    transition: max-height 0.2s;
+    .pad {
+      padding: 8px;
+    }
   }
 }
 </style>

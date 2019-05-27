@@ -1,26 +1,24 @@
 <template>
   <div class="right-panel">
     <fold-bar title="控件">
-      <div class="box">
+      <div
+        v-for="(val, idx) in widgets"
+        ref="groupBox"
+        :key="idx"
+        class="group"
+        style="overflow: hidden"
+      >
+        <div class="group-title">{{ val.groupName }}</div>
         <div
-          v-for="(val, idx) in widgets"
-          ref="groupBox"
-          :key="idx"
-          class="group"
+          v-for="(item, index) in val.items"
+          :key="index"
+          :draggable="true"
+          class="widget"
           style="overflow: hidden"
+          @dragstart="handleDragstart"
         >
-          <div class="group-title">{{ val.groupName }}</div>
-          <div
-            v-for="(item, index) in val.items"
-            :key="index"
-            :draggable="true"
-            class="widget"
-            style="overflow: hidden"
-            @dragstart="handleDragstart"
-          >
-            <i :class="item.icon"></i>
-            <p>{{ item.name }}</p>
-          </div>
+          <i :class="item.icon"></i>
+          <p>{{ item.name }}</p>
         </div>
       </div>
     </fold-bar>
@@ -92,7 +90,7 @@ export default {
   mounted() {},
   methods: {
     handleDragstart(e) {
-      e.dataTransfer.setData("WIDGET_TYPE", "hello")
+      e.dataTransfer.setData("WIDGET_TYPE", "hello");
     }
   }
 };
@@ -100,31 +98,31 @@ export default {
 <style lang="scss" scoped>
 .right-panel {
   height: 100%;
-}
-.group-title {
-  user-select: none;
-}
-.widget {
-  float: left;
-  width: 80px;
-  height: 90px;
-  text-align: center;
-  box-sizing: border-box;
-  padding-top: 20px;
-  cursor: pointer;
-  i {
-    font-size: 28px;
-    display: inline-block;
-    max-width: 30px;
-    max-height: 30px;
-    margin-bottom: 5px;
-  }
-  p {
-    padding: 4px;
+  .group-title {
     user-select: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  }
+  .widget {
+    float: left;
+    width: 80px;
+    height: 90px;
+    text-align: center;
+    box-sizing: border-box;
+    padding-top: 20px;
+    cursor: pointer;
+    i {
+      font-size: 28px;
+      display: inline-block;
+      max-width: 30px;
+      max-height: 30px;
+      margin-bottom: 5px;
+    }
+    p {
+      padding: 4px;
+      user-select: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 </style>
