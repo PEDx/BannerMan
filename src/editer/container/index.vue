@@ -2,7 +2,7 @@
   <div class="container">
     <div :style="{width: `${leftWidth}px`, marginRight: `-${leftWidth}px`}" class="left">
       <left-panel></left-panel>
-      <div class="drag">
+      <div class="drag-panel">
         <el-button type="text" @mousedown.native="dragLeftStatus = true">
           <i class="el-icon-more"></i>
         </el-button>
@@ -20,9 +20,16 @@
             </div>
           </transition>
           <transition name="fade">
-            <div v-show="shotLoading" class="screenshotMask">
+            <div v-show="shotAnim" class="screenshotMask">
               <i class="el-icon-camera-solid"></i>
             </div>
+          </transition>
+          <transition name="scale" @after-leave="afterLeave" @after-enter="afterEnter">
+            <div
+              v-show="dragAnim"
+              :style="{transformOrigin: `${percentage.x}% ${percentage.y}%`}"
+              class="dragAnim"
+            ></div>
           </transition>
           <iframe
             id="iframe-view"
@@ -36,7 +43,7 @@
       </div>
     </div>
     <div :style="{width: `${rightWidth}px`, marginLeft: `-${rightWidth}px`}" class="right">
-      <div class="drag">
+      <div class="drag-panel">
         <el-button type="text" @mousedown.native="dragRightStatus = true">
           <i class="el-icon-more"></i>
         </el-button>
@@ -67,8 +74,13 @@ export default {
       dragLeftStatus: false,
       dragRightStatus: false,
       viewportLoading: true,
-      shotLoading: false,
-      window_wid: document.body.clientWidth
+      shotAnim: false,
+      dragAnim: false,
+      window_wid: document.body.clientWidth,
+      percentage: {
+        x: 0,
+        y: 10
+      }
     };
   },
   computed: {
@@ -92,14 +104,31 @@ export default {
   },
   mounted() {
     EventBus.$on("screenshot-start", () => {
-      this.shotLoading = true;
+      this.shotAnim = true;
     });
     EventBus.$on("screenshot-end", () => {
-      this.shotLoading = false;
+      this.shotAnim = false;
     });
-    window.onresize = debounce(() => {
-      this.window_wid = document.body.clientWidth;
-    }, 1000, true);
+    window.addEventListener(
+      "message",
+      e => {
+        if (e.data.type === "drag-end") {
+          this.percentage.x =
+            (e.data.axis.x / this.viewSize.width).toFixed(6) * 100;
+          this.percentage.y =
+            (e.data.axis.y / this.viewSize.height).toFixed(6) * 100;
+          this.dragAnim = true;
+        }
+      },
+      false
+    );
+    window.onresize = debounce(
+      () => {
+        this.window_wid = document.body.clientWidth;
+      },
+      1000,
+      true
+    );
     document.addEventListener(
       "mousemove",
       throttle(e => {
@@ -132,6 +161,12 @@ export default {
     },
     handleLoad() {
       this.viewportLoading = false;
+    },
+    afterEnter() {
+      this.dragAnim = false;
+    },
+    afterLeave() {
+      // this.dragAnim = false;
     }
   }
 };
@@ -154,29 +189,24 @@ export default {
     outline: 1px solid #252527;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.52), 0 0 6px rgba(0, 0, 0, 0.04);
   }
+  .drag-panel {
+    position: absolute;
+    top: 45%;
+    transform: rotate(90deg);
+    button {
+      cursor: col-resize;
+    }
+  }
   .right {
     float: right;
-    .drag {
-      position: absolute;
-      top: 45%;
+    .drag-panel {
       left: -14px;
-      transform: rotate(90deg);
-      button {
-        cursor: col-resize;
-      }
     }
   }
   .left {
     overflow: hidden;
-    position: relative;
-    .drag {
-      position: absolute;
-      top: 45%;
+    .drag-panel {
       right: -14px;
-      transform: rotate(90deg);
-      button {
-        cursor: col-resize;
-      }
     }
   }
   .top-bar {
@@ -249,6 +279,17 @@ export default {
           margin-left: -20px;
         }
       }
+      .dragAnim {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9;
+        background-color: #c5c5c50a;
+        border: 2px solid #f3f3f32d;
+        box-sizing: border-box;
+      }
       .loading {
         position: absolute;
         top: 45%;
@@ -294,7 +335,35 @@ export default {
 .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    -webkit-transform: scale3d(0.1, 0.1, 0.1);
+    transform: scale3d(0.1, 0.1, 0.1);
+  }
+  40% {
+    opacity: 1;
+    -webkit-transform: scale3d(0.12, 0.12, 0.12);
+    transform: scale3d(0.12, 0.12, 0.12);
+  }
+}
+
+.zoomIn {
+  -webkit-animation-name: zoomIn;
+  animation-name: zoomIn;
+}
+
+.scale-enter-active,
+.scale-leave-active {
+  animation: zoomIn 0.3s;
+}
+.scale-enter,
+.scale-leave-to {
   opacity: 0;
 }
 </style>

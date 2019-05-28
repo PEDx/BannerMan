@@ -15,19 +15,25 @@ import Content from "./content";
 export default {
   components: { Content },
   mounted() {
-    window.onresize = debounce(
-      () => {
-        console.log("iframe resize");
-      },
-      1000
-    );
+    window.onresize = debounce(() => {
+      console.log("iframe resize");
+    }, 1000);
   },
   methods: {
     handleDropon(e) {
       e.preventDefault();
     },
     handleDrop(e) {
-      console.log(e.dataTransfer.getData("WIDGET_TYPE"));
+      const msg = e.dataTransfer.getData("WIDGET_TYPE");
+      if (msg) {
+        window.parent.postMessage({
+          type: "drag-end",
+          axis: {
+            x: e.x,
+            y: e.y
+          }
+        });
+      }
       e.preventDefault();
     }
   }
