@@ -2,7 +2,7 @@
   <div class="bottom-bar">
     <el-row>
       <el-col :span="8" class="lock-layout">
-        <el-button type="text" title="生成截图" style="marginLeft: -8px;" @click="getScreenshot">
+        <el-button type="text" title="生成截图" style="marginLeft: -8px;" @click="handleClick">
           <i class="el-icon-camera-solid"></i>
         </el-button>
       </el-col>
@@ -39,6 +39,7 @@
 <script>
 import * as rasterizeHTML from "rasterizehtml";
 import deviceModelList from "./device";
+import { throttle } from "../utils";
 import { EventBus } from "../bus";
 export default {
   data() {
@@ -53,6 +54,11 @@ export default {
       const editerSetting = this.$store.state.editerSetting;
       return deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
     }
+  },
+  created() {
+    this.handleClick = throttle(this.getScreenshot, 3000, {
+      leading: true
+    });
   },
   methods: {
     formatTooltip(val) {
@@ -71,8 +77,8 @@ export default {
       this.rangeValue = 100;
     },
     getScreenshot() {
-      if (!this.notfClose) return;
-      this.notfClose = false;
+      // if (!this.notfClose) return;
+      // this.notfClose = false;
       const node = document.getElementById("iframe-view").contentDocument;
       const canvas = document.createElement("canvas");
       canvas.width = this.device.width;
@@ -90,7 +96,7 @@ export default {
             showClose: false,
             position: "bottom-right",
             onClose: () => {
-              this.notfClose = true;
+              // this.notfClose = true;
               // this.downloadImg(canvas.toDataURL("image/jpeg"));
             }
           });

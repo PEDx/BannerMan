@@ -19,10 +19,7 @@ export default {
       () => {
         console.log("iframe resize");
       },
-      1000,
-      {
-        trailing: false
-      }
+      1000
     );
   },
   methods: {

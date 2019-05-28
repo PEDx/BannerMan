@@ -97,15 +97,9 @@ export default {
     EventBus.$on("screenshot-end", () => {
       this.shotLoading = false;
     });
-    window.onresize = debounce(
-      () => {
-        this.window_wid = document.body.clientWidth;
-      },
-      1000,
-      {
-        trailing: false
-      }
-    );
+    window.onresize = debounce(() => {
+      this.window_wid = document.body.clientWidth;
+    }, 1000, true);
     document.addEventListener(
       "mousemove",
       throttle(e => {
