@@ -19,7 +19,13 @@
               <div class="loading"></div>
             </div>
           </transition>
+          <transition name="fade">
+            <div v-show="shotLoading" class="screenshotMask">
+              <i class="el-icon-camera-solid"></i>
+            </div>
+          </transition>
           <iframe
+            id="iframe-view"
             ref="iframe"
             :style="`width: 100%;height: 100%;pointer-events: ${draging ? 'none': 'auto'};`"
             src="/editer/viewport"
@@ -61,6 +67,7 @@ export default {
       dragLeftStatus: false,
       dragRightStatus: false,
       viewportLoading: true,
+      shotLoading: false,
       window_wid: document.body.clientWidth
     };
   },
@@ -84,7 +91,12 @@ export default {
     // }
   },
   mounted() {
-    EventBus.$on("reload-viewport", () => {});
+    EventBus.$on("screenshot-start", () => {
+      this.shotLoading = true;
+    });
+    EventBus.$on("screenshot-end", () => {
+      this.shotLoading = false;
+    });
     window.onresize = debounce(
       () => {
         this.window_wid = document.body.clientWidth;
@@ -224,6 +236,7 @@ export default {
       box-shadow: 0 2px 20px rgba(0, 0, 0, 0.42), 0 0 24px rgba(0, 0, 0, 0.04);
       border-radius: 2px;
       transition: all 0.3s ease;
+      .screenshotMask,
       .mask {
         position: absolute;
         top: 0;
@@ -232,13 +245,23 @@ export default {
         left: 0;
         background-color: #1f1f2250;
       }
+      .screenshotMask {
+        background-color: #ffffff8e;
+        i {
+          position: absolute;
+          top: 45%;
+          left: 50%;
+          font-size: 40px;
+          margin-left: -20px;
+        }
+      }
       .loading {
         position: absolute;
         top: 45%;
         left: 50%;
         width: 2em;
         height: 2em;
-        margin-left: -1em;
+        margin-left: -1.5em;
         border: 3px solid rgb(251, 49, 113);
         overflow: hidden;
         animation: spin 3s ease infinite;

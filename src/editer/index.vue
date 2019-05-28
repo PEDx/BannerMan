@@ -20,6 +20,14 @@ export default {
     container,
     bottomBar,
     topBar
+  },
+  mounted() {
+    // 防止样式污染
+    this.$nextTick(() => {
+      document.documentElement.style.height = "100%";
+      document.body.style.height = "100%";
+      document.getElementById("app").style.height = "100%";
+    });
   }
 };
 </script>

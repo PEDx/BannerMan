@@ -4,7 +4,7 @@
       <el-col :span="8">
         <el-select v-model="value" placeholder="请选择" style="width: 210px;" @change="handleChange">
           <template slot="prefix">
-            <i class="el-icon-mobile-phone"></i>
+            <i class="el-icon-view"></i>
           </template>
           <el-option
             v-for="(item, key) in options"
@@ -18,7 +18,7 @@
       <el-col :span="8"></el-col>
       <el-col :span="8" style="text-align: right;">
         <el-button type="danger" icon="el-icon-delete-solid" style="margin-left: 10px;" class="danger">清空</el-button>
-        <el-button type="primary" icon="el-icon-view" style="margin-left: 10px;">预览</el-button>
+        <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">预览</el-button>
         <el-button type="primary" icon="el-icon-document-checked">保存</el-button>
       </el-col>
     </el-row>

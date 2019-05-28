@@ -2,15 +2,8 @@
   <div class="bottom-bar">
     <el-row>
       <el-col :span="8" class="lock-layout">
-        <el-button
-          :class="{'lock': lockStatus}"
-          type="text"
-          title="锁定"
-          style="marginLeft: -8px;"
-          @click="lockLayout"
-        >
-          <i :class="{'el-icon-lock': lockStatus, 'el-icon-s-home': !lockStatus}"></i>
-          {{ lockStatus ? '' : '' }}
+        <el-button type="text" title="生成截图" style="marginLeft: -8px;" @click="getScreenshot">
+          <i class="el-icon-camera-solid"></i>
         </el-button>
       </el-col>
       <el-col :span="8" style="textAlign: center;">
@@ -44,12 +37,22 @@
   </div>
 </template>
 <script>
+import * as rasterizeHTML from "rasterizehtml";
+import deviceModelList from "./device";
+import { EventBus } from "../bus";
 export default {
   data() {
+    const editerSetting = this.$store.state.editerSetting;
     return {
-      rangeValue: +this.$store.state.editerSetting.viewportScale || 100,
-      lockStatus: false
+      rangeValue: +editerSetting.viewportScale || 100,
+      notfClose: true
     };
+  },
+  computed: {
+    device() {
+      const editerSetting = this.$store.state.editerSetting;
+      return deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
+    }
   },
   methods: {
     formatTooltip(val) {
@@ -67,8 +70,41 @@ export default {
       this.$store.dispatch("update_viewport_scale", 100);
       this.rangeValue = 100;
     },
-    lockLayout() {
-      this.lockStatus = !this.lockStatus;
+    getScreenshot() {
+      if (!this.notfClose) return;
+      this.notfClose = false;
+      const node = document.getElementById("iframe-view").contentDocument;
+      const canvas = document.createElement("canvas");
+      canvas.width = this.device.width;
+      canvas.height = this.device.height;
+      EventBus.$emit("screenshot-start");
+      rasterizeHTML
+        .drawDocument(node, canvas)
+        .then(data => {
+          EventBus.$emit("screenshot-end");
+          this.$notify({
+            title: "截图预览",
+            dangerouslyUseHTMLString: true,
+            message: `<div id="screenshot-content" style="border: 1px solid #fd9527;font-size: 0;box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);"></div>`,
+            duration: 1000,
+            showClose: false,
+            position: "bottom-right",
+            onClose: () => {
+              this.notfClose = true;
+              // this.downloadImg(canvas.toDataURL("image/jpeg"));
+            }
+          });
+          document.getElementById("screenshot-content").appendChild(canvas);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    downloadImg(url) {
+      var link = document.createElement("a");
+      link.download = `thruster_screenshot_${new Date().getTime()}.png`;
+      link.href = url;
+      link.click();
     }
   }
 };
@@ -87,12 +123,13 @@ export default {
       font-size: 14px;
     }
     .lock {
-      color: rgb(170, 85, 43);
+      color: #fd9527;
     }
   }
   .editer-version-info {
     height: 100%;
-    color: rgb(170, 85, 43);
+    color: #fd9527;
+    font-weight: 900;
     // color: #d94b09;
   }
 
@@ -112,12 +149,12 @@ export default {
       margin-left: 8px;
       input {
         -webkit-appearance: none;
-        background-color: #fff;
+        background-color: #252525;
         background-image: none;
         border-radius: 4px;
-        border: 1px solid #dcdfe6;
+        border: 1px solid #898989;
         box-sizing: border-box;
-        color: #606266;
+        color: #fd9527;
         display: inline-block;
         font-size: inherit;
         height: 16px;

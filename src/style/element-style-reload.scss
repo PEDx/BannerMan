@@ -61,3 +61,10 @@
   height: 20px;
   line-height: 20px;
 }
+.el-notification{
+  width: auto;
+  padding: 14px;
+  .el-notification__content{
+    line-height: 0;
+  }
+}
