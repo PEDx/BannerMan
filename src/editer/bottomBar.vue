@@ -39,7 +39,7 @@
 <script>
 import * as rasterizeHTML from "rasterizehtml";
 import deviceModelList from "./device";
-import { throttle } from "../utils";
+import { throttle } from "../utils/index";
 import { EventBus } from "../bus";
 export default {
   data() {

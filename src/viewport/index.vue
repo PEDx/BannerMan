@@ -10,10 +10,17 @@
   </div>
 </template>
 <script>
-import { debounce } from "../utils";
+import { debounce } from "../utils/index";
+import { stringify } from "../utils/index";
 import Content from "./content";
 export default {
   components: { Content },
+  props: {
+    value: {
+      default: 100,
+      type: Number
+    }
+  },
   mounted() {
     window.onresize = debounce(() => {
       console.log("iframe resize");
@@ -31,7 +38,8 @@ export default {
           axis: {
             x: e.x,
             y: e.y
-          }
+          },
+          instance: stringify(this)
         });
       }
       e.preventDefault();
@@ -39,7 +47,4 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-</style>
 

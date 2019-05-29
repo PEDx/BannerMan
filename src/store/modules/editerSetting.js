@@ -1,10 +1,11 @@
-import { localstore, debounce } from '../../utils';
+import { debounce } from '../../utils/index';
+import storage from '../../utils/storage';
 const app = {
   state: {
-    deviceType: localstore.getItem('device_type'),
-    viewportScale: localstore.getItem('viewport_scale'),
-    leftPanelWidth: localstore.getItem('lt_wid'),
-    rightPanelWidth: localstore.getItem('rt_wid')
+    deviceType: storage.get('device_type'),
+    viewportScale: storage.get('viewport_scale'),
+    leftPanelWidth: storage.get('lt_wid'),
+    rightPanelWidth: storage.get('rt_wid')
   },
   mutations: {
     UPDATE_RT_WID: (state, width) => {
@@ -23,19 +24,19 @@ const app = {
   actions: {
     update_rt_wid: debounce(({ commit }, width) => {
       commit('UPDATE_RT_WID', width);
-      localstore.setItem('rt_wid', width);
+      storage.set('rt_wid', width);
     }, 800),
     update_lt_wid: debounce(({ commit }, width) => {
       commit('UPDATE_LT_WID', width);
-      localstore.setItem('lt_wid', width);
+      storage.set('lt_wid', width);
     }, 800),
     update_device_type: ({ commit }, type) => {
       commit('UPDATE_DEVICE_TYPE', type);
-      localstore.setItem('device_type', type);
+      storage.set('device_type', type);
     },
     update_viewport_scale: ({ commit }, scale) => {
       commit('UPDATE_VIEWPORT_SCALE', scale);
-      localstore.setItem('viewport_scale', scale);
+      storage.set('viewport_scale', scale);
     }
   }
 };
