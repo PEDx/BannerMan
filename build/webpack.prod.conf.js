@@ -50,25 +50,23 @@ const webpackConfig = merge(baseWebpackConfig, {
     // generate dist index.html with correct asset hash for caching.
     // you can customize output by editing /index.html
     // see https://github.com/ampedandwired/html-webpack-plugin
-    new HtmlWebpackPlugin({
-      filename: config.build.index,
-      template: 'index.html',
-      inject: true,
-      favicon: resolve('favicon.ico'),
-      title: 'vue-admin-template',
-      minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeAttributeQuotes: true
-        // more options:
-        // https://github.com/kangax/html-minifier#options-quick-reference
-      }
-      // default sort mode uses toposort which cannot handle cyclic deps
-      // in certain cases, and in webpack 4, chunk order in HTML doesn't
-      // matter anyway
-    }),
+    ...config.pages.map(
+      val =>
+        new HtmlWebpackPlugin({
+          filename: val.output,
+          template: val.template,
+          inject: true,
+          title: val.title,
+          minify: {
+            removeComments: true,
+            collapseWhitespace: true,
+            removeAttributeQuotes: true
+          },
+          chunks: ['manifest', 'vendor', val.name]
+        })
+    ),
     new ScriptExtHtmlWebpackPlugin({
-      // `runtime` must same as runtimeChunk name. default is `runtime`
+      // `runtime` must same as runtimbeChunk name. default is `runtime`
       inline: /runtime\..*\.js$/
     }),
     // keep chunk.id stable when chunk has no name

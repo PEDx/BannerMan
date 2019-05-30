@@ -3,7 +3,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path');
-
+const pages = require('./pages.config');
 module.exports = {
   dev: {
     // Paths
@@ -91,5 +91,6 @@ module.exports = {
 
     // `npm run build:prod --generate_report`
     generateAnalyzerReport: process.env.npm_config_generate_report || false
-  }
+  },
+  pages: pages
 };

@@ -30,7 +30,6 @@ const devWebpackConfig = merge(baseWebpackConfig, {
   // these devServer options should be customized in /config/index.js
   devServer: {
     clientLogLevel: 'warning',
-    historyApiFallback: true,
     hot: true,
     compress: true,
     host: HOST || config.dev.host,
@@ -44,6 +43,18 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     quiet: true, // necessary for FriendlyErrorsPlugin
     watchOptions: {
       poll: config.dev.poll
+    },
+    historyApiFallback: {
+      rewrites: [
+        {
+          from: 'editer',
+          to: path.posix.join(config.dev.assetsPublicPath, 'index.html')
+        },
+        {
+          from: /\/viewport/,
+          to: path.posix.join(config.dev.assetsPublicPath, 'viewport.html')
+        }
+      ]
     }
   },
   plugins: [
@@ -52,13 +63,16 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     }),
     new webpack.HotModuleReplacementPlugin(),
     // https://github.com/ampedandwired/html-webpack-plugin
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: 'index.html',
-      inject: true,
-      favicon: resolve('favicon.ico'),
-      title: 'vue-admin-template'
-    })
+    ...(config.pages.map(
+      val =>
+        new HtmlWebpackPlugin({
+          filename: val.output,
+          template: val.template,
+          title: val.title,
+          inject: true,
+          chunks: [val.name]
+        })
+    ))
   ]
 });
 
