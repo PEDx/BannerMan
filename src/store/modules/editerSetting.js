@@ -25,11 +25,11 @@ const app = {
     update_rt_wid: debounce(({ commit }, width) => {
       commit('UPDATE_RT_WID', width);
       storage.set('rt_wid', width);
-    }, 800),
+    }, 500),
     update_lt_wid: debounce(({ commit }, width) => {
       commit('UPDATE_LT_WID', width);
       storage.set('lt_wid', width);
-    }, 800),
+    }, 500),
     update_device_type: ({ commit }, type) => {
       commit('UPDATE_DEVICE_TYPE', type);
       storage.set('device_type', type);

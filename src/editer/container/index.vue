@@ -34,7 +34,7 @@
           <iframe
             id="iframe-view"
             ref="iframe"
-            :style="`width: 100%;height: 100%;pointer-events: ${draging ? 'none': 'auto'};`"
+            :style="`width: 100%;height: 100%;pointer-events: ${draging ? 'none': 'auto'};border: 1px solid #6b6b6b;box-sizing: border-box;`"
             src="/editer/viewport"
             frameborder="0"
             @load="handleLoad"
@@ -105,9 +105,9 @@ export default {
   mounted() {
     EventBus.$on("screenshot-start", () => {
       this.shotAnim = true;
-    });
-    EventBus.$on("screenshot-end", () => {
-      this.shotAnim = false;
+      setTimeout(() => {
+        this.shotAnim = false;
+      }, 500);
     });
     window.addEventListener(
       "message",

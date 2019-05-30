@@ -77,27 +77,28 @@ export default {
       this.rangeValue = 100;
     },
     getScreenshot() {
-      // if (!this.notfClose) return;
-      // this.notfClose = false;
+      if (!this.notfClose) return;
+      this.notfClose = false;
       const node = document.getElementById("iframe-view").contentDocument;
       const canvas = document.createElement("canvas");
       canvas.width = this.device.width;
-      canvas.height = this.device.height;
+      canvas.height = node.body.clientHeight;
       EventBus.$emit("screenshot-start");
       rasterizeHTML
         .drawDocument(node, canvas)
         .then(data => {
-          EventBus.$emit("screenshot-end");
           this.$notify({
             title: "截图预览",
             dangerouslyUseHTMLString: true,
-            message: `<div id="screenshot-content" style="border: 1px solid #fd9527;font-size: 0;box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);"></div>`,
+            message: `<div id="screenshot-content" style="border: 1px solid #fd9527;font-size: 0;box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);height: ${
+              this.device.height
+            }px;overflow-y: scroll;overflow-x: hidden;"></div>`,
             duration: 1000,
             showClose: false,
             position: "bottom-right",
             onClose: () => {
-              // this.notfClose = true;
-              // this.downloadImg(canvas.toDataURL("image/jpeg"));
+              this.notfClose = true;
+              this.downloadImg(canvas.toDataURL("image/jpeg"));
             }
           });
           document.getElementById("screenshot-content").appendChild(canvas);
