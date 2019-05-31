@@ -6,7 +6,7 @@
   </div>
 </template>
 <script>
-import foldBar from "../components/foldBar";
+import foldBar from "../components/fold-bar";
 export default {
   components: {
     "fold-bar": foldBar
@@ -20,7 +20,7 @@ export default {
   methods: {
     handleChange() {
       const iframeWindow = window.frames.viewport;
-      console.log(iframeWindow._CURRENT_SELECTED_VUE_WIDGET_INSTANCE_);
+      console.log(iframeWindow._CURRENT_SELECTED_VUE_WIDGET_INSTANCE_._profile_);
     }
   }
 };

@@ -26,7 +26,7 @@
   </div>
 </template>
 <script>
-import foldBar from "../components/foldBar";
+import foldBar from "../components/fold-bar";
 const widgets = [
   {
     group: "BASICS",
