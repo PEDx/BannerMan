@@ -19,52 +19,86 @@
 
   .el-input__prefix {
     top: 4px;
-    color: #343438;
   }
-
-  .el-input__suffix-inner i {
-    color: #343438 !important;
+  i {
+    color: #FFFFFF;
   }
 }
-.el-button--mini{
+
+.el-button--mini {
   border: 0;
   padding: 4px 12px;
 }
+
 .el-select-dropdown__item {
   font-size: 12px;
   height: 28px;
   padding: 0 10px;
 }
 
-.el-slider{
-  .el-slider__runway{
+.el-slider {
+  .el-slider__runway {
     margin: 8px 0;
     height: 4px;
   }
-  .el-slider__button{
+
+  .el-slider__button {
     width: 10px;
     height: 10px;
   }
 
-  .el-slider__bar{
+  .el-slider__bar {
     height: 4px;
   }
-  .el-slider__button-wrapper{
+
+  .el-slider__button-wrapper {
     top: -16px;
   }
 }
-.el-button--text{
+
+.el-button--text {
   color: #d3d0dc;
 }
 
-.el-input--mini .el-input__inner{
+.el-input--mini .el-input__inner {
   height: 20px;
   line-height: 20px;
+  color: #fd9527;
+  background-color: #252525;
+  border: 1px solid #898989;
 }
-.el-notification{
+
+.el-notification {
   width: auto;
   padding: 14px;
-  .el-notification__content{
+
+  .el-notification__content {
     line-height: 0;
+  }
+}
+
+.el-input-number--mini {
+  line-height: 20px;
+  width: 100px;
+  border-color: #898989;
+  .el-input-number__increase{
+    top: 0;
+    background-color: #898989;
+    border-color: #898989;
+    right: 0px;
+  }
+  .el-input-number__decrease {
+    top: 0;
+    background-color: #898989;
+    border-color: #898989;
+    left: 0;
+  }
+
+  .el-input__inner {
+    border: 1px solid #898989 !important;
+  }
+
+  i {
+    color: #FFFFFF;
   }
 }

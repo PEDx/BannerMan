@@ -76,8 +76,8 @@ export default {
     }
   }
   .content {
-    overflow: auto;
-    // overflow: hidden;
+    // overflow: auto;
+    overflow: hidden;
     transition: max-height 0.2s;
     .pad {
       padding: 8px;

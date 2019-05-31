@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>thruster</title>
   <script>
-    setTimeout(function () {
-      var clientWidth =
-        window.innerWidth || document.documentElement.clientWidth || 375;
-      document.getElementsByTagName('html')[0].style.fontSize =
-        clientWidth / 10 + 'px';
-    });
+    var baseWidth = 375;
+    var scale = 1;
+    if (/Android (\d+\.\d+)/.test(navigator.userAgent)) {
+      var version = parseFloat(RegExp.$1);
+      if (version > 2.3) {
+        var phoneScale = parseInt(window.screen.width) * scale / baseWidth;
+        document.write('<meta name="viewport" content="width=' + baseWidth + ', minimum-scale = ' + phoneScale +
+          ', maximum-scale = ' + phoneScale + ', target-densitydpi=device-dpi">');
+      } else {
+        document.write(' <meta name="viewport"content="width=' + baseWidth + ', target-densitydpi=device-dpi" > ');
+      }
+    } else {
+      document.write(' <meta name="viewport" content="width=' + baseWidth +
+        ', user-scalable=no, target-densitydpi=device-dpi" > ');
+    }
     // 禁止缩放
     document.documentElement.addEventListener(
       'touchstart',

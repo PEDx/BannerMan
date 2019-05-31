@@ -1,5 +1,5 @@
 <template>
-  <div :style="{width: width}" class="widget-search">
+  <div :style="{width: `${width}px`}" class="widget-search">
     <input v-model="value" type="text">
   </div>
 </template>
@@ -17,7 +17,7 @@ export default {
     };
   },
   mounted() {
-    // console.log(this);
+    console.log(this);
   }
 };
 </script>

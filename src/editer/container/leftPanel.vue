@@ -26,8 +26,7 @@
   </div>
 </template>
 <script>
-// import Sortable from "sortablejs";
-import foldBar from "../../components/foldBar";
+import foldBar from "../components/foldBar";
 const widgets = [
   {
     group: "BASICS",

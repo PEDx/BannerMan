@@ -1,22 +1,27 @@
 <template>
   <div class="viewport-content">
-    <component v-for="val in components" :is="val.name" :key="val.name" :props="val.props"></component>
+    <component
+      v-for="(val, idx) in componentList"
+      :is="val.name"
+      :key="val.name"
+      v-bind="val.props"
+      @click.native="selectComponent(idx)"
+    ></component>
   </div>
 </template>
 <script>
-import { debounce } from "../utils/index";
-import { stringify } from "../utils/index";
-import WidgetSearch from "./widgetSearch";
+import { debounce, stringify } from "../utils/index";
+import widgets from "../widgets";
 export default {
-  components: { WidgetSearch },
+  components: widgets,
   data() {
     return {
-      components: [{ name: "WidgetSearch", props: { width: 200 }}]
+      componentList: [{ name: "widget-search", props: { width: undefined } }]
     };
   },
   mounted() {
     window.onresize = debounce(() => {
-      console.log("iframe resize");
+      // console.log("iframe resize");
     }, 1000);
     document.addEventListener("dragenter", e => e.preventDefault());
     document.addEventListener("dragover", e => e.preventDefault());
@@ -36,7 +41,12 @@ export default {
       e.preventDefault();
     });
   },
-  methods: {}
+  methods: {
+    selectComponent(idx) {
+      console.log(idx);
+      window._CURRENT_SELECTED_VUE_WIDGET_INSTANCE_ = this.componentList[idx];
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
