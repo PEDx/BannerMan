@@ -20,6 +20,7 @@
   .el-input__prefix {
     top: 4px;
   }
+
   i {
     color: #FFFFFF;
   }
@@ -81,24 +82,41 @@
   line-height: 20px;
   width: 100px;
   border-color: #898989;
-  .el-input-number__increase{
+
+  .el-input-number__increase,
+  .el-input-number__decrease {
+    width: 24px;
+    height: 9px !important;
+    line-height: 9px !important;
+    border: none!important;
+    i{
+      line-height: 9px;
+    }
+  }
+
+  .el-input-number__increase {
     top: 0;
     background-color: #898989;
     border-color: #898989;
     right: 0px;
+    border-bottom: 1px solid #252525;
   }
+
   .el-input-number__decrease {
     top: 0;
     background-color: #898989;
     border-color: #898989;
-    left: 0;
+    right: 0 !important;
   }
 
   .el-input__inner {
     border: 1px solid #898989 !important;
+    padding: 0 32px 0 8px !important;
   }
 
   i {
     color: #FFFFFF;
   }
+
+
 }

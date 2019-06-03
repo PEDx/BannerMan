@@ -5,8 +5,13 @@ export default {
   controllers: [
     {
       propName: 'width',
-      controllerType: 'INPUT_NUMBER',
+      controllerType: 'CTRL_NUMBER_INPUT',
       label: '宽度'
+    },
+    {
+      propName: 'text',
+      controllerType: 'CTRL_TEXT_INPUT',
+      label: '文本内容'
     }
   ]
 };

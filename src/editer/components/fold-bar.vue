@@ -6,7 +6,7 @@
       </div>
       <div class="title">{{ title }}</div>
     </div>
-    <div ref="content" :style="{maxHeight: `${contentHeight}px`}" class="content">
+    <div ref="content" class="content">
       <div class="pad">
         <slot></slot>
       </div>
