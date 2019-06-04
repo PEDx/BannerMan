@@ -17,9 +17,6 @@ export default {
       num: 200
     };
   },
-  beforeUpdate() {
-    console.log('mout')
-  },
   methods: {
     handleChange() {
       this.$emit("submit-update", this.num);

@@ -1,7 +1,7 @@
 <template>
   <div class="right-panel">
     <fold-bar title="属性" ref="foldBar">
-      <controller-item v-for="(val, idx) in controllerList" :key="idx" ref="ctrls">
+      <controller-item v-for="(val, idx) in controllerList" :key="`${new Date().getTime()}-${idx}`" ref="ctrls">
         <span slot="label">{{ val.label }}</span>
         <component
           :is="controllerTypeMap[val.controllerType]"
@@ -38,7 +38,6 @@ export default {
         if (e.data.type === "select-component") {
           const profile = e.data.profile;
           this.controllerList = profile.controllers;
-          // console.log(this.$refs.ctrls);
           this.$nextTick(() => {
             EventBus.$emit("reset-fold-bar");
           });
