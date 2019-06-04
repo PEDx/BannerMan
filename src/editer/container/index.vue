@@ -58,7 +58,7 @@ import rightPanel from "./rightPanel";
 import leftPanel from "./leftPanel";
 import deviceModelList from "../device";
 import { throttle, debounce, parse } from "../../utils/index";
-import { EventBus } from "../../bus";
+import EventBus from "../../bus";
 const EDITOR_LEFT_PANEL_MIN_WIDTH = 260;
 const EDITOR_RIGHT_PANEL_MIN_WIDTH = 300;
 export default {
@@ -140,6 +140,7 @@ export default {
           if (e.clientX <= EDITOR_LEFT_PANEL_MIN_WIDTH) return;
           this.leftWidth = e.clientX;
           this.$store.dispatch("update_lt_wid", e.clientX);
+          EventBus.$emit("reset-fold-bar");
         }
         if (this.dragRightStatus) {
           const _wid = document.body.clientWidth - e.clientX;

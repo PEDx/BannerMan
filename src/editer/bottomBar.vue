@@ -40,7 +40,7 @@
 import * as rasterizeHTML from "rasterizehtml";
 import deviceModelList from "./device";
 import { throttle } from "../utils/index";
-import { EventBus } from "../bus";
+import EventBus from "../bus";
 export default {
   data() {
     const editerSetting = this.$store.state.editerSetting;

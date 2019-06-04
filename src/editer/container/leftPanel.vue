@@ -1,5 +1,5 @@
 <template>
-  <div class="right-panel">
+  <div class="left-panel">
     <fold-bar title="控件">
       <div
         v-for="(val, idx) in widgets"
@@ -95,7 +95,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.right-panel {
+.left-panel {
   height: 100%;
   .group-title {
     user-select: none;

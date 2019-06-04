@@ -6,14 +6,15 @@
       </div>
       <div class="title">{{ title }}</div>
     </div>
-    <div ref="content" class="content">
-      <div class="pad">
+    <div :style="{maxHeight: `${contentHeight}px`}" class="content">
+      <div class="pad" ref="box">
         <slot></slot>
       </div>
     </div>
   </div>
 </template>
 <script>
+import EventBus from "../../bus";
 export default {
   props: {
     title: {
@@ -24,18 +25,30 @@ export default {
   data() {
     return {
       contentHeight: "auto",
-      originalHeight: 0
+      originalHeight: 0,
+      showContent: true
     };
   },
   mounted() {
-    this.$nextTick(() => {
-      this.originalHeight = this.$refs.content.clientHeight;
-      this.contentHeight = this.$refs.content.clientHeight;
-    });
+    this.$nextTick(this.reset);
+    EventBus.$on("reset-fold-bar", this.reset);
   },
   methods: {
     togglePannel() {
-      this.contentHeight = this.contentHeight ? 0 : this.originalHeight;
+      if (this.showContent) {
+        // 关闭
+        this.contentHeight = 0;
+        this.showContent = false;
+      } else {
+        // 打开
+        this.contentHeight = this.originalHeight;
+        this.showContent = true;
+      }
+    },
+    reset() {
+      if (this.originalHeight === this.$refs.box.clientHeight) return;
+      this.originalHeight = this.$refs.box.clientHeight;
+      this.contentHeight = this.$refs.box.clientHeight;
     }
   }
 };

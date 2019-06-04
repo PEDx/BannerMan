@@ -636,6 +636,8 @@ const delay = restArguments(function(func, wait, args) {
     return func.apply(null, args);
   }, wait);
 });
+
+// 函数去抖
 export function debounce(func, wait, immediate) {
   var timeout, result;
 
@@ -665,6 +667,7 @@ export function debounce(func, wait, immediate) {
   return debounced;
 }
 
+// 函数节流
 export function throttle(func, wait, options) {
   var timeout, context, args, result;
   var previous = 0;

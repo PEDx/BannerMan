@@ -26,7 +26,7 @@
 </template>
 <script>
 import deviceModelList from "./device";
-import { EventBus } from "../bus";
+import EventBus from "../bus";
 export default {
   data() {
     return {

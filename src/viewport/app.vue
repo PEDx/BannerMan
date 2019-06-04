@@ -45,8 +45,7 @@ export default {
     selectComponent(idx) {
       window._CURRENT_SELECTED_VUE_WIDGET_INSTANCE_ = this.$children[idx];
       window.parent.postMessage({
-        type: "select-component",
-        profile: this.$children[idx]._profile_
+        type: "select-component"
       });
     },
     setMeta(baseWidth) {
