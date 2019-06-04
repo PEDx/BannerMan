@@ -3,7 +3,7 @@
     <component
       v-for="(val, idx) in componentList"
       :is="val.name"
-      :key="val.name"
+      :key="`${val.name}-${idx}`"
       v-bind="val.props"
       @click.native="selectComponent(idx)"
     ></component>
@@ -12,16 +12,21 @@
 <script>
 import { debounce } from "../utils/index";
 import widgets from "../widgets";
+
+const widgetMap = {};
+Object.keys(widgets).forEach(key => (widgetMap[key] = widgets[key].component));
 export default {
-  components: widgets,
+  components: widgetMap,
   data() {
     return {
-      componentList: [{ name: "widget-search", props: { width: undefined } }]
+      componentList: [],
+      index: 0
     };
   },
   mounted() {
+    window._CURRENT_VIEWPORT_VUE_INSTANCE_ = this;
     window.onresize = debounce(() => {
-      this.setMeta(document.body.clientWidth);
+      this._setMeta(document.body.clientWidth);
     }, 1000);
     document.addEventListener("dragenter", e => e.preventDefault());
     document.addEventListener("dragover", e => e.preventDefault());
@@ -36,18 +41,39 @@ export default {
             y: e.y
           }
         });
+        this._addComponent("widget-search");
       }
       e.preventDefault();
     });
   },
   methods: {
     selectComponent(idx) {
-      window._CURRENT_SELECTED_VUE_WIDGET_INSTANCE_ = this.$children[idx];
+      const vm = this.$children[idx];
+      this.index = idx;
       window.parent.postMessage({
-        type: "select-component"
+        type: "select-component",
+        profile: vm._profile_
       });
     },
-    setMeta(baseWidth) {
+    _addComponent(widgetName, idx) {
+      const widget = widgets[widgetName];
+      const _obj = {};
+      widget.profile.controllers.forEach(val => {
+        _obj[val.propName] = undefined;
+      });
+      this.componentList.push({
+        name: widgetName,
+        props: _obj
+      });
+    },
+    _deleteComponent(idx) {
+      this.componentList.splice(idx, 1);
+    },
+    updateWidgetProp(key, value) {
+      const compList = this.componentList[this.index];
+      compList.props[key] = value;
+    },
+    _setMeta(baseWidth) {
       const scale = 1;
       const meta = document.createElement("meta");
       let metaContent = "";

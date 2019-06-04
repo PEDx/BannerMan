@@ -1,3 +1,8 @@
+import widgetSearchProfile from './widget-search/profile';
+
 export default {
-  'widget-search': () => import('./widget-search/index')
+  'widget-search': {
+    component: () => import('./widget-search/index'),
+    profile: widgetSearchProfile
+  }
 };

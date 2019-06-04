@@ -1,6 +1,13 @@
 <template>
   <div class="ctrl-number-input">
-    <el-input-number v-model="num" @change="handleChange" controls-position="right" :min="0" :max="400" label="描述文字"></el-input-number>
+    <el-input-number
+      v-model="num"
+      @change="handleChange"
+      controls-position="right"
+      :min="0"
+      :max="400"
+      label="描述文字"
+    ></el-input-number>
   </div>
 </template>
 <script>
@@ -10,9 +17,12 @@ export default {
       num: 200
     };
   },
-  mounted() {},
+  beforeUpdate() {
+    console.log('mout')
+  },
   methods: {
     handleChange() {
+      this.$emit("submit-update", this.num);
     }
   }
 };

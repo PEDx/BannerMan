@@ -29,6 +29,7 @@ Vue.use(Row)
 Vue.prototype.$notify = Notification;
 Vue.prototype.$message = Message;
 Vue.prototype.$ELEMENT = { size: 'mini' };
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

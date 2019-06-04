@@ -1,9 +1,13 @@
 <template>
   <div class="right-panel">
     <fold-bar title="属性" ref="foldBar">
-      <controller-item v-for="(val, idx) in controllerList" :key="idx">
+      <controller-item v-for="(val, idx) in controllerList" :key="idx" ref="ctrls">
         <span slot="label">{{ val.label }}</span>
-        <component :is="controllerTypeMap[val.controllerType]" slot="ctrl"></component>
+        <component
+          :is="controllerTypeMap[val.controllerType]"
+          slot="ctrl"
+          @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
+        ></component>
       </controller-item>
     </fold-bar>
   </div>
@@ -23,7 +27,8 @@ export default {
   data() {
     return {
       controllerTypeMap,
-      controllerList: []
+      controllerList: [],
+      currentUid: null
     };
   },
   mounted() {
@@ -31,10 +36,9 @@ export default {
       "message",
       e => {
         if (e.data.type === "select-component") {
-          const iframeWindow = window.frames.viewport;
-          const instance = iframeWindow._CURRENT_SELECTED_VUE_WIDGET_INSTANCE_;
-          const profile = instance._profile_;
+          const profile = e.data.profile;
           this.controllerList = profile.controllers;
+          // console.log(this.$refs.ctrls);
           this.$nextTick(() => {
             EventBus.$emit("reset-fold-bar");
           });
@@ -44,11 +48,20 @@ export default {
     );
   },
   methods: {
-    handleChange() {
-      const iframeWindow = window.frames.viewport;
-      console.log(
-        iframeWindow._CURRENT_SELECTED_VUE_WIDGET_INSTANCE_._profile_
-      );
+    handleSubmitUpdate(key, value) {
+      const ins = this.getViewportVueInstance();
+      ins.updateWidgetProp(key, value);
+    },
+    getViewportWindow: (() => {
+      let _ins = null;
+      return () => {
+        if (_ins) return _ins;
+        _ins = window.frames.viewport;
+        return _ins;
+      };
+    })(),
+    getViewportVueInstance() {
+      return this.getViewportWindow()._CURRENT_VIEWPORT_VUE_INSTANCE_;
     }
   }
 };

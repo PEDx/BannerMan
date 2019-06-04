@@ -11,7 +11,11 @@
   </div>
 </template>
 <script>
-export default {};
+export default {
+  beforeUpdate() {
+    console.log('wowo')
+  }
+};
 </script>
 <style lang="scss" scoped>
 .controller-item {

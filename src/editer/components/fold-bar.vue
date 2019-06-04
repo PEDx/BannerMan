@@ -47,8 +47,8 @@ export default {
     },
     reset() {
       if (this.originalHeight === this.$refs.box.clientHeight) return;
-      this.originalHeight = this.$refs.box.clientHeight;
-      this.contentHeight = this.$refs.box.clientHeight;
+      this.originalHeight = this.$refs.box.clientHeight || 0;
+      this.contentHeight = this.$refs.box.clientHeight || 0;
     }
   }
 };
