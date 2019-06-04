@@ -57,7 +57,7 @@
 import rightPanel from "./rightPanel";
 import leftPanel from "./leftPanel";
 import deviceModelList from "../device";
-import { throttle, debounce, parse } from "../../utils/index";
+import { throttle, debounce } from "../../utils/index";
 import EventBus from "../../bus";
 const EDITOR_LEFT_PANEL_MIN_WIDTH = 260;
 const EDITOR_RIGHT_PANEL_MIN_WIDTH = 300;
@@ -119,7 +119,6 @@ export default {
           this.percentage.y =
             (e.data.axis.y / this.viewSize.height).toFixed(6) * 100;
           this.dragAnim = true;
-          console.log(parse(e.data.instance));
         }
       },
       false

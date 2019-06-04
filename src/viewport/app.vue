@@ -10,7 +10,7 @@
   </div>
 </template>
 <script>
-import { debounce, stringify } from "../utils/index";
+import { debounce } from "../utils/index";
 import widgets from "../widgets";
 export default {
   components: widgets,
@@ -34,8 +34,7 @@ export default {
           axis: {
             x: e.x,
             y: e.y
-          },
-          instance: stringify(this)
+          }
         });
       }
       e.preventDefault();
