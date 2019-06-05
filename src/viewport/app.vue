@@ -1,9 +1,9 @@
 <template>
   <div class="viewport-content">
     <component
-      v-for="(val, idx) in componentList"
+      v-for="(val, idx) in componentArrInPage"
       :is="val.name"
-      :key="`${val.name}-${idx}`"
+      :key="`${idx}-${val.name}`"
       v-bind="val.props"
       @click.native="selectComponent(idx)"
     ></component>
@@ -11,23 +11,29 @@
 </template>
 <script>
 import { debounce } from "../utils/index";
+import ComponentSelector from "../utils/component-selector";
 import widgets from "../widgets";
 
-const widgetMap = {};
-Object.keys(widgets).forEach(key => (widgetMap[key] = widgets[key].component));
+const widgetComponentMap = {};
+Object.keys(widgets).forEach(
+  key => (widgetComponentMap[key] = widgets[key].component)
+);
 export default {
-  components: widgetMap,
+  components: widgetComponentMap,
   data() {
     return {
-      componentList: [],
+      componentArrInPage: [],
       index: 0
     };
   },
   mounted() {
+    const selector = new ComponentSelector();
     window._CURRENT_VIEWPORT_VUE_INSTANCE_ = this;
     window.onresize = debounce(() => {
       this._setMeta(document.body.clientWidth);
     }, 1000);
+    document.addEventListener("mouseenter", selector.startSelecting);
+    document.addEventListener("mouseleave", selector.stopSelecting);
     document.addEventListener("dragenter", e => e.preventDefault());
     document.addEventListener("dragover", e => e.preventDefault());
     document.addEventListener("dragleave", e => e.preventDefault());
@@ -48,11 +54,13 @@ export default {
   },
   methods: {
     selectComponent(idx) {
-      const vm = this.$children[idx];
+      const compObj = this.componentArrInPage[idx];
+      const widget = widgets[compObj.name];
       this.index = idx;
       window.parent.postMessage({
         type: "select-component",
-        profile: vm._profile_
+        profile: widget.profile,
+        name: compObj.name
       });
     },
     _addComponent(widgetName, idx) {
@@ -61,16 +69,16 @@ export default {
       widget.profile.controllers.forEach(val => {
         _obj[val.propName] = void 0;
       });
-      this.componentList.push({
+      this.componentArrInPage.push({
         name: widgetName,
         props: _obj
       });
     },
     _deleteComponent(idx) {
-      this.componentList.splice(idx, 1);
+      this.componentArrInPage.splice(idx, 1);
     },
     updateWidgetProp(key, value) {
-      const compObj = this.componentList[this.index];
+      const compObj = this.componentArrInPage[this.index];
       compObj.props[key] = value;
     },
     getWidgetDataValue(key) {
