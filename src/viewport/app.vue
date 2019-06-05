@@ -59,7 +59,7 @@ export default {
       const widget = widgets[widgetName];
       const _obj = {};
       widget.profile.controllers.forEach(val => {
-        _obj[val.propName] = undefined;
+        _obj[val.propName] = void 0;
       });
       this.componentList.push({
         name: widgetName,
@@ -70,8 +70,12 @@ export default {
       this.componentList.splice(idx, 1);
     },
     updateWidgetProp(key, value) {
-      const compList = this.componentList[this.index];
-      compList.props[key] = value;
+      const compObj = this.componentList[this.index];
+      compObj.props[key] = value;
+    },
+    getWidgetDataValue(key) {
+      const vm = this.$children[this.index];
+      return vm[key];
     },
     _setMeta(baseWidth) {
       const scale = 1;

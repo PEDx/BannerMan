@@ -12,10 +12,16 @@
 </template>
 <script>
 export default {
+  props: {
+    value: Number
+  },
   data() {
     return {
       num: 200
     };
+  },
+  created() {
+    this.num = this.value;
   },
   methods: {
     handleChange() {

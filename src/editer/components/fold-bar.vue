@@ -31,7 +31,7 @@ export default {
   },
   mounted() {
     this.$nextTick(this.reset);
-    EventBus.$on("reset-fold-bar", this.reset);
+    EventBus.$on("reset-fold-bar", this.reset); // 全部 foldbar 实例都能收到
   },
   methods: {
     togglePannel() {
@@ -46,7 +46,7 @@ export default {
       }
     },
     reset() {
-      if (this.originalHeight === this.$refs.box.clientHeight) return;
+      if (this.contentHeight === this.$refs.box.clientHeight) return;
       this.originalHeight = this.$refs.box.clientHeight || 0;
       this.contentHeight = this.$refs.box.clientHeight || 0;
     }
