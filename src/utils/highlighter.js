@@ -1,7 +1,8 @@
 import path from 'path';
+import widgets from '../widgets';
 const isBrowser = true;
-const classifyComponents = true;
-
+const classifyComponents = false;
+console.log(widgets);
 function toUpper(_, c) {
   return c ? c.toUpperCase() : '';
 }
@@ -33,6 +34,10 @@ function cached(fn) {
 var classifyRE = /(?:^|[-_/])(\w)/g;
 const classify = cached(str => {
   return str && str.replace(classifyRE, toUpper);
+});
+
+const chnfy = cached(widgetName => {
+  return widgets[widgetName].profile.name || '匿名';
 });
 
 function mapNodeRange(node, end, op) {
@@ -69,7 +74,7 @@ function initOverlay() {
   overlay = document.createElement('div');
   overlay.style.backgroundColor = 'rgba(104, 182, 255, 0.35)';
   overlay.style.position = 'fixed';
-  overlay.style.zIndex = '99999999999999';
+  overlay.style.zIndex = '9999';
   overlay.style.pointerEvents = 'none';
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
@@ -86,26 +91,18 @@ function initOverlay() {
 }
 
 let selectedOverlay;
-let selectedOverlayContent;
 function initSelectedOverlay() {
   if (selectedOverlay || !isBrowser) return;
   selectedOverlay = document.createElement('div');
-  selectedOverlay.style.backgroundColor = 'rgba(104, 182, 255, 0.35)';
   selectedOverlay.style.position = 'fixed';
-  selectedOverlay.style.zIndex = '99999999999999';
+  selectedOverlay.style.zIndex = '9998';
+  selectedOverlay.style.boxSizing = 'border-box';
+  selectedOverlay.style.border = '1px dashed #ff5500';
   selectedOverlay.style.pointerEvents = 'none';
   selectedOverlay.style.display = 'flex';
   selectedOverlay.style.alignItems = 'center';
   selectedOverlay.style.justifyContent = 'center';
   selectedOverlay.style.borderRadius = '3px';
-  selectedOverlayContent = document.createElement('div');
-  selectedOverlayContent.style.backgroundColor = 'rgba(104, 182, 255, 0.9)';
-  selectedOverlayContent.style.fontFamily = 'monospace';
-  selectedOverlayContent.style.fontSize = '11px';
-  selectedOverlayContent.style.padding = '2px 3px';
-  selectedOverlayContent.style.borderRadius = '3px';
-  selectedOverlayContent.style.color = 'white';
-  selectedOverlay.appendChild(selectedOverlayContent);
 }
 
 /**
@@ -130,6 +127,7 @@ export function highlight(instance) {
       ? getComponentName(instance.fnOptions)
       : getInstanceName(instance);
     if (classifyComponents) name = classify(name);
+    name = chnfy(name);
     if (name) {
       const pre = document.createElement('span');
       pre.style.opacity = '0.6';
@@ -140,7 +138,7 @@ export function highlight(instance) {
       post.innerText = '>';
       content.push(pre, text, post);
     }
-    showOverlay(overlay, overlayContent, rect, content);
+    showOverlay(overlay, rect, overlayContent, content);
   }
 }
 
@@ -154,23 +152,7 @@ export function highlightSelected(instance) {
 
   initSelectedOverlay();
   if (rect) {
-    const content = [];
-    let name = instance.fnContext
-      ? getComponentName(instance.fnOptions)
-      : getInstanceName(instance);
-    console.log(name);
-    if (classifyComponents) name = classify(name);
-    if (name) {
-      const pre = document.createElement('span');
-      pre.style.opacity = '0.6';
-      pre.innerText = '<';
-      const text = document.createTextNode(name);
-      const post = document.createElement('span');
-      post.style.opacity = '0.6';
-      post.innerText = '>';
-      content.push(pre, text, post);
-    }
-    showOverlay(selectedOverlay, selectedOverlayContent, rect, content);
+    showOverlay(selectedOverlay, rect);
   }
 }
 /**
@@ -271,8 +253,8 @@ function getTextRect(node) {
 
 function showOverlay(
   overlay,
-  overlayContent,
   { width = 0, height = 0, top = 0, left = 0 },
+  overlayContent = '',
   content = []
 ) {
   if (!isBrowser) return;
@@ -282,8 +264,9 @@ function showOverlay(
   overlay.style.top = ~~top + 'px';
   overlay.style.left = ~~left + 'px';
 
-  overlayContent.innerHTML = '';
-  content.forEach(child => overlayContent.appendChild(child));
-
+  if (overlayContent) {
+    overlayContent.innerHTML = '';
+    content.forEach(child => overlayContent.appendChild(child));
+  }
   document.body.appendChild(overlay);
 }

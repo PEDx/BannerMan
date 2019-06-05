@@ -1,5 +1,4 @@
 import { highlight, unHighlight, highlightSelected } from './highlighter';
-
 const isBrowser = true;
 
 function findRelatedComponent(el) {
@@ -81,7 +80,6 @@ export default class ComponentSelector {
 
     // this.stopSelecting();
     // 选中编辑元素
-    console.log(this.selectedInstance);
     unHighlight();
     highlightSelected(this.selectedInstance);
   }
