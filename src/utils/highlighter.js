@@ -2,7 +2,6 @@ import path from 'path';
 import widgets from '../widgets';
 const isBrowser = true;
 const classifyComponents = false;
-console.log(widgets);
 function toUpper(_, c) {
   return c ? c.toUpperCase() : '';
 }
@@ -70,12 +69,16 @@ let overlay;
 let overlayContent;
 
 function initOverlay() {
-  if (overlay || !isBrowser) return;
+  if (overlay || !isBrowser) {
+    overlay.style.display = 'flex';
+    return;
+  }
   overlay = document.createElement('div');
   overlay.style.backgroundColor = 'rgba(104, 182, 255, 0.35)';
   overlay.style.position = 'fixed';
   overlay.style.zIndex = '9999';
   overlay.style.pointerEvents = 'none';
+  overlay.style.transition = 'all .2s';
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
@@ -94,7 +97,7 @@ let selectedOverlay;
 function initSelectedOverlay() {
   if (selectedOverlay || !isBrowser) return;
   selectedOverlay = document.createElement('div');
-  selectedOverlay.style.position = 'fixed';
+  selectedOverlay.style.position = 'absolute';
   selectedOverlay.style.zIndex = '9998';
   selectedOverlay.style.boxSizing = 'border-box';
   selectedOverlay.style.border = '1px dashed #ff5500';
@@ -161,7 +164,8 @@ export function highlightSelected(instance) {
 
 export function unHighlight() {
   if (overlay && overlay.parentNode) {
-    document.body.removeChild(overlay);
+    // document.body.removeChild(overlay);
+    overlay.style.display = 'none';
   }
 }
 
@@ -185,7 +189,15 @@ export function getInstanceOrVnodeRect(instance) {
   if (instance._isFragment) {
     return getFragmentRect(instance);
   } else if (el.nodeType === 1) {
-    return el.getBoundingClientRect();
+    const react = el.getBoundingClientRect();
+    return {
+      width: react.width,
+      height: react.height,
+      top: react.top,
+      left: react.left,
+      offsetTop: el.offsetTop,
+      offsetLeft: el.offsetLeft
+    };
   }
 }
 
@@ -253,7 +265,7 @@ function getTextRect(node) {
 
 function showOverlay(
   overlay,
-  { width = 0, height = 0, top = 0, left = 0 },
+  { width = 0, height = 0, top = 0, left = 0, offsetTop = 0, offsetLeft = 0 },
   overlayContent = '',
   content = []
 ) {
@@ -261,12 +273,19 @@ function showOverlay(
 
   overlay.style.width = ~~width + 'px';
   overlay.style.height = ~~height + 'px';
-  overlay.style.top = ~~top + 'px';
-  overlay.style.left = ~~left + 'px';
+  if (!overlayContent) {
+    overlay.style.top = ~~offsetTop + 'px';
+    overlay.style.left = ~~offsetLeft + 'px';
+  } else {
+    overlay.style.top = ~~top + 'px';
+    overlay.style.left = ~~left + 'px';
+  }
 
   if (overlayContent) {
     overlayContent.innerHTML = '';
     content.forEach(child => overlayContent.appendChild(child));
   }
-  document.body.appendChild(overlay);
+  if (!overlay.parentNode) {
+    document.body.appendChild(overlay);
+  }
 }

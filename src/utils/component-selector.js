@@ -49,14 +49,13 @@ export default class ComponentSelector {
    * @param {MouseEvent} e
    */
   elementMouseOver(e) {
+    console.log('sdf')
     this.cancelEvent(e);
 
     const el = e.target;
     if (el) {
       this.selectedInstance = findRelatedComponent(el);
     }
-
-    unHighlight();
     if (this.selectedInstance) {
       highlight(this.selectedInstance);
     }

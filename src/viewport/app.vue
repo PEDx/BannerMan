@@ -33,6 +33,7 @@ export default {
       this._setMeta(document.body.clientWidth);
     }, 1000);
     document.addEventListener("mouseenter", selector.startSelecting);
+    document.addEventListener("mouseenter", e => console.log('se'));
     document.addEventListener("mouseleave", selector.stopSelecting);
     document.addEventListener("dragenter", e => e.preventDefault());
     document.addEventListener("dragover", e => e.preventDefault());
@@ -47,7 +48,7 @@ export default {
             y: e.y
           }
         });
-        this._addComponent("widget-search");
+        Array(20).fill(0).forEach(() => this._addComponent("widget-search"))
       }
       e.preventDefault();
     });
@@ -107,9 +108,7 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
-.viewport-content {
-  -webkit-overflow-scrolling: touch;
-}
+<style lang="scss">
+
 </style>
 
