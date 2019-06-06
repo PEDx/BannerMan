@@ -33,7 +33,6 @@ export default {
       this._setMeta(document.body.clientWidth);
     }, 1000);
     document.addEventListener("mouseenter", selector.startSelecting);
-    document.addEventListener("mouseenter", e => console.log('se'));
     document.addEventListener("mouseleave", selector.stopSelecting);
     document.addEventListener("dragenter", e => e.preventDefault());
     document.addEventListener("dragover", e => e.preventDefault());
