@@ -67,21 +67,10 @@ export default class ComponentSelector {
    */
   elementClicked(e) {
     this.cancelEvent(e);
-
-    // if (this.selectedInstance) {
-    //   this.bridge.send(
-    //     'inspect-instance',
-    //     this.selectedInstance.__VUE_DEVTOOLS_UID__
-    //   );
-    // } else {
-    //   this.bridge.send('stop-component-selector');
-    // }
-
-    // this.stopSelecting();
     // 选中编辑元素
+    EventBus.$emit('element-selected', this.selectedInstance);
     unHighlight();
     highlightSelected(this.selectedInstance);
-    EventBus.$emit('element-selected', this.selectedInstance);
   }
 
   /**

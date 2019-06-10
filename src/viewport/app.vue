@@ -14,22 +14,21 @@ import { debounce } from "../utils/index";
 import ComponentSelector from "./component-selector";
 import widgets from "../widgets";
 import EventBus from "../bus";
-
+const selector = new ComponentSelector();
 export default {
   components: widgets,
   data() {
     return {
-      componentStack: [],
+      componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
       index: 0
     };
   },
   mounted() {
-    const selector = new ComponentSelector();
     window._CURRENT_VIEWPORT_VUE_INSTANCE_ = this;
     window.onresize = debounce(() => {
       this._setMeta(document.body.clientWidth);
     }, 1000);
-    document.addEventListener("mouseenter", selector.startSelecting);
+    selector.startSelecting();
     document.addEventListener("mouseleave", selector.stopSelecting);
     document.addEventListener("dragenter", e => e.preventDefault());
     document.addEventListener("dragover", e => e.preventDefault());
@@ -48,30 +47,19 @@ export default {
           .fill(0)
           .forEach(() => this._asyncAddComponent("widget-search"));
       }
-      EventBus.$on("element-selected", instance => {
-        this.index = this._findComponentIdx(instance);
-        const component = this.componentStack[this.index];
-        window.parent.postMessage({
-          type: "select-component",
-          profile: instance._profile_,
-          name: component.name
-        });
-      });
     });
 
-    EventBus.$on();
-  },
-  methods: {
-    selectComponent(idx) {
-      const component = this.componentStack[idx];
-      const widget = widgets[component.name];
-      this.index = idx;
+    EventBus.$on("element-selected", instance => {
+      this.index = this._findComponentIdx(instance);
+      const component = this.componentStack[this.index];
       window.parent.postMessage({
         type: "select-component",
-        profile: widget.profile,
+        profile: instance._profile_,
         name: component.name
       });
-    },
+    });
+  },
+  methods: {
     _findComponentIdx(ins) {
       let ret = 0;
       this.$children.forEach((val, idx) => {
@@ -128,6 +116,4 @@ export default {
   }
 };
 </script>
-<style lang="scss">
-</style>
 
