@@ -1,5 +1,5 @@
 <template>
-  <div class="viewport-content">
+  <div class="viewport-content" ref="viewportContent">
     <component
       v-for="(val, idx) in componentStack"
       :is="val.name"
@@ -58,8 +58,29 @@ export default {
         name: component.name
       });
     });
+
+    this._observerGeometric();
   },
   methods: {
+    _observerGeometric() {
+      const MutationObserver =
+        window.MutationObserver ||
+        window.WebKitMutationObserver ||
+        window.MozMutationObserver;
+      // IE 11 及以上兼容
+      const mutationObserver = new MutationObserver(function(
+        mutations,
+        observer
+      ) {
+        // 重置高亮
+        selector.highlightMouseoverElement();
+        selector.highlightSelectedElement();
+      });
+      mutationObserver.observe(this.$refs.viewportContent, {
+        subtree: true,
+        attributes: true
+      });
+    },
     _findComponentIdx(ins) {
       let ret = 0;
       this.$children.forEach((val, idx) => {

@@ -1,6 +1,6 @@
 <template>
   <div class="widget-search">
-    <input v-model="value" type="text" :style="{width: `${width}px`}">
+    <input v-model="value" type="text" :style="{width: `${width}px`, height: `${height}px`}">
   </div>
 </template>
 <script>
@@ -8,6 +8,10 @@ export default {
   props: {
     width: {
       default: 100,
+      type: Number
+    },
+    height: {
+      default: 40,
       type: Number
     }
   },

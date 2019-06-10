@@ -54,10 +54,10 @@ export default class ComponentSelector {
 
     const el = e.target;
     if (el) {
-      this.selectedInstance = findRelatedComponent(el);
+      this.mouseOverInstance = findRelatedComponent(el);
     }
-    if (this.selectedInstance) {
-      highlight(this.selectedInstance);
+    if (this.mouseOverInstance) {
+      this.highlightMouseoverElement();
     }
   }
 
@@ -68,9 +68,10 @@ export default class ComponentSelector {
   elementClicked(e) {
     this.cancelEvent(e);
     // 选中编辑元素
-    EventBus.$emit('element-selected', this.selectedInstance);
+    EventBus.$emit('element-selected', this.mouseOverInstance);
     unHighlight();
-    highlightSelected(this.selectedInstance);
+    this.selectedInstance = this.mouseOverInstance;
+    this.highlightSelectedElement();
   }
 
   /**
@@ -81,7 +82,12 @@ export default class ComponentSelector {
     e.stopImmediatePropagation();
     e.preventDefault();
   }
-
+  highlightMouseoverElement() {
+    highlight(this.mouseOverInstance);
+  }
+  highlightSelectedElement() {
+    highlightSelected(this.selectedInstance);
+  }
   /**
    * Bind class methods to the class scope to avoid rebind for event listeners
    */
