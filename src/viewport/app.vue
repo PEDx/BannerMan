@@ -1,7 +1,7 @@
 <template>
   <div class="viewport-content">
     <component
-      v-for="(val, idx) in componentArrInPage"
+      v-for="(val, idx) in componentStack"
       :is="val.name"
       :key="`${idx}-${val.name}`"
       v-bind="val.props"
@@ -14,15 +14,11 @@ import { debounce } from "../utils/index";
 import ComponentSelector from "../utils/component-selector";
 import widgets from "../widgets";
 
-const widgetComponentMap = {};
-Object.keys(widgets).forEach(
-  key => (widgetComponentMap[key] = widgets[key].component)
-);
 export default {
-  components: widgetComponentMap,
+  components: widgets,
   data() {
     return {
-      componentArrInPage: [],
+      componentStack: [],
       index: 0
     };
   },
@@ -47,38 +43,45 @@ export default {
             y: e.y
           }
         });
-        Array(20).fill(0).forEach(() => this._addComponent("widget-search"))
+        Array(20)
+          .fill(0)
+          .forEach(() => this._asyncAddComponent("widget-search"));
       }
       e.preventDefault();
     });
   },
   methods: {
     selectComponent(idx) {
-      const compObj = this.componentArrInPage[idx];
-      const widget = widgets[compObj.name];
+      const component = this.componentStack[idx];
+      const widget = widgets[component.name];
       this.index = idx;
       window.parent.postMessage({
         type: "select-component",
         profile: widget.profile,
-        name: compObj.name
+        name: component.name
       });
     },
-    _addComponent(widgetName, idx) {
+    // 第一次添加组件会是异步加载
+    _asyncAddComponent(widgetName, idx) {
       const widget = widgets[widgetName];
-      const _obj = {};
-      widget.profile.controllers.forEach(val => {
-        _obj[val.propName] = void 0;
-      });
-      this.componentArrInPage.push({
-        name: widgetName,
-        props: _obj
+      widget().then(ins => {
+        const profile = ins.default.prototype._profile_
+        const _obj = {};
+        profile.controllers.forEach(val => {
+          _obj[val.propName] = void 0;
+        });
+
+        this.componentStack.push({
+          name: widgetName,
+          props: _obj
+        }); // 在此初始化组件
       });
     },
     _deleteComponent(idx) {
-      this.componentArrInPage.splice(idx, 1);
+      this.componentStack.splice(idx, 1);
     },
     updateWidgetProp(key, value) {
-      const compObj = this.componentArrInPage[this.index];
+      const compObj = this.componentStack[this.index];
       compObj.props[key] = value;
     },
     getWidgetDataValue(key) {
@@ -108,6 +111,5 @@ export default {
 };
 </script>
 <style lang="scss">
-
 </style>
 

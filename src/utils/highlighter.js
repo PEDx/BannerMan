@@ -1,5 +1,4 @@
 import path from 'path';
-import widgets from '../widgets';
 const isBrowser = true;
 const classifyComponents = false;
 function toUpper(_, c) {
@@ -35,9 +34,9 @@ const classify = cached(str => {
   return str && str.replace(classifyRE, toUpper);
 });
 
-const chnfy = cached(widgetName => {
-  return widgets[widgetName].profile.name || '匿名';
-});
+// const chnfy = cached(widgetName => {
+//   return widgets[widgetName].profile.name || '匿名';
+// });
 
 function mapNodeRange(node, end, op) {
   var next;
@@ -130,7 +129,7 @@ export function highlight(instance) {
       ? getComponentName(instance.fnOptions)
       : getInstanceName(instance);
     if (classifyComponents) name = classify(name);
-    name = chnfy(name);
+    // name = chnfy(name);
     if (name) {
       const pre = document.createElement('span');
       pre.style.opacity = '0.6';
