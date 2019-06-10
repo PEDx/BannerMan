@@ -47,7 +47,7 @@ function mapNodeRange(node, end, op) {
   }
   op(end);
 }
-function getComponentName(options) {
+export function getComponentName(options) {
   const name = options.name || options._componentTag;
   if (name) {
     return name;
@@ -58,7 +58,7 @@ function getComponentName(options) {
   }
 }
 
-function getInstanceName(instance) {
+export function getInstanceName(instance) {
   const name = getComponentName(instance.$options || instance.fnOptions || {});
   if (name) return name;
   return instance.$root === instance ? 'Root' : 'Anonymous Component';
@@ -125,11 +125,11 @@ export function highlight(instance) {
   initOverlay();
   if (rect) {
     const content = [];
-    let name = instance.fnContext
+    let compName = instance.fnContext
       ? getComponentName(instance.fnOptions)
       : getInstanceName(instance);
-    if (classifyComponents) name = classify(name);
-    // name = chnfy(name);
+    if (classifyComponents) compName = classify(name);
+    const name = instance._profile_.name || compName;
     if (name) {
       const pre = document.createElement('span');
       pre.style.opacity = '0.6';
