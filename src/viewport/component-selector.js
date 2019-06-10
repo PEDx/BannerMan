@@ -1,3 +1,4 @@
+import EventBus from '../bus';
 import { highlight, unHighlight, highlightSelected } from './highlighter';
 const isBrowser = true;
 
@@ -80,6 +81,7 @@ export default class ComponentSelector {
     // 选中编辑元素
     unHighlight();
     highlightSelected(this.selectedInstance);
+    EventBus.$emit('element-selected', this.selectedInstance);
   }
 
   /**

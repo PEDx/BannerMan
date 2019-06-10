@@ -11,8 +11,9 @@
 </template>
 <script>
 import { debounce } from "../utils/index";
-import ComponentSelector from "../utils/component-selector";
+import ComponentSelector from "./component-selector";
 import widgets from "../widgets";
+import EventBus from "../bus";
 
 export default {
   components: widgets,
@@ -47,8 +48,18 @@ export default {
           .fill(0)
           .forEach(() => this._asyncAddComponent("widget-search"));
       }
-      e.preventDefault();
+      EventBus.$on("element-selected", instance => {
+        this.index = this._findComponentIdx(instance);
+        const component = this.componentStack[this.index];
+        window.parent.postMessage({
+          type: "select-component",
+          profile: instance._profile_,
+          name: component.name
+        });
+      });
     });
+
+    EventBus.$on();
   },
   methods: {
     selectComponent(idx) {
@@ -61,11 +72,18 @@ export default {
         name: component.name
       });
     },
+    _findComponentIdx(ins) {
+      let ret = 0;
+      this.$children.forEach((val, idx) => {
+        if (val === ins) ret = idx;
+      });
+      return ret;
+    },
     // 第一次添加组件会是异步加载
     _asyncAddComponent(widgetName, idx) {
       const widget = widgets[widgetName];
       widget().then(ins => {
-        const profile = ins.default.prototype._profile_
+        const profile = ins.default.prototype._profile_;
         const _obj = {};
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
