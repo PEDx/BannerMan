@@ -10,6 +10,7 @@ import {
   Option,
   InputNumber,
   Button,
+  Upload,
   Slider,
   Input,
   Message,
@@ -23,6 +24,7 @@ Vue.use(Row)
   .use(InputNumber)
   .use(Slider)
   .use(Input)
+  .use(Upload)
   .use(Button)
   .use(Select)
   .use(Option);

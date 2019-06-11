@@ -5,6 +5,9 @@
         <i :class="{'icon-rotate': !contentHeight}" class="el-icon-caret-bottom icon"></i>
       </div>
       <div class="title">{{ title }}</div>
+      <div class="custom-right">
+        <slot name="custom-right"></slot>
+      </div>
     </div>
     <div :style="{maxHeight: `${contentHeight}px`}" class="content">
       <div class="pad" ref="box">
@@ -70,7 +73,11 @@ export default {
       float: left;
       user-select: none;
     }
-
+    .custom-right {
+      float: right;
+      height: 20px;
+      line-height: 20px;
+    }
     .btn {
       position: relative;
       float: left;
@@ -93,7 +100,6 @@ export default {
     overflow: hidden;
     transition: max-height 0.2s;
     .pad {
-      padding: 8px;
     }
   }
 }

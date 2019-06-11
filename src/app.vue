@@ -25,4 +25,10 @@ body {
     display: none;
   }
 }
+.f-toe {
+  overflow: hidden;
+  word-wrap: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 </style>

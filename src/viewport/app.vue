@@ -26,8 +26,11 @@ export default {
   mounted() {
     window._CURRENT_VIEWPORT_VUE_INSTANCE_ = this;
     window.onresize = debounce(() => {
+      console.log("viewport resize");
+      selector.highlightMouseoverElement();
+      selector.highlightSelectedElement();
       this._setMeta(document.body.clientWidth);
-    }, 1000);
+    }, 150);
     selector.startSelecting();
     document.addEventListener("mouseleave", selector.stopSelecting);
     document.addEventListener("dragenter", e => e.preventDefault());
@@ -72,6 +75,7 @@ export default {
         mutations,
         observer
       ) {
+        console.log("viewport attr changed");
         // 重置高亮
         selector.highlightMouseoverElement();
         selector.highlightSelectedElement();
@@ -128,7 +132,7 @@ export default {
           metaContent = `width=${baseWidth}, target-densitydpi=device-dpi`;
         }
       } else {
-        metaContent = `width=${baseWidth}, user-scalable=no, target-densitydpi=device-dpi`;
+        metaContent = `width=${baseWidth}, user-scalable=no`;
       }
       meta.setAttribute("name", "viewport");
       meta.setAttribute("content", metaContent);

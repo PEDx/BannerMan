@@ -1,6 +1,6 @@
 <template>
   <div class="controller-item">
-    <div class="label">
+    <div class="label f-toe">
       <slot name="label"></slot>
     </div>
     <div class="ctrl">
@@ -21,6 +21,7 @@ export default {
 .controller-item {
   overflow: hidden;
   padding: 6px 0;
+  padding-right: 8px;
   display: flex;
   align-items: center;
   .label {
@@ -30,9 +31,7 @@ export default {
     text-align: right;
     box-sizing: border-box;
     padding-right: 12px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    padding-left: 8px;
   }
   .ctrl {
     float: right;
