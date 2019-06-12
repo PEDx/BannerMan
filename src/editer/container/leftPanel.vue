@@ -162,6 +162,7 @@ $file-icon-color: #4ca2ab;
     cursor: pointer;
     transition: all 0.2s;
     margin-right: 1px;
+    margin-bottom: 1px;
     i {
       font-size: 28px;
       display: inline-block;

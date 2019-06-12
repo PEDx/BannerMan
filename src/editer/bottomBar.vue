@@ -30,7 +30,7 @@
       </el-col>
       <el-col :span="8" style="textAlign: right;">
         <div class="editer-version-info">
-          <span class="right">thruster-build-v0.0.1-beta</span>
+          <span class="right">Banner Man build-v0.0.1</span>
         </div>
       </el-col>
     </el-row>
