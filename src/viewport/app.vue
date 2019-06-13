@@ -51,7 +51,9 @@ export default {
           .forEach(() => this._asyncAddComponent("widget-search"));
       }
     });
-
+    Array(20)
+      .fill(0)
+      .forEach(() => this._asyncAddComponent("widget-search"));
     EventBus.$on("element-selected", instance => {
       this.index = this._findComponentIdx(instance);
       const component = this.componentStack[this.index];

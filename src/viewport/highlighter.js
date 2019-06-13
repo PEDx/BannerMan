@@ -1,15 +1,7 @@
-import path from 'path';
+import { classify, getComponentName, getInstanceName } from '../utils/index';
 const isBrowser = true;
 const classifyComponents = false;
-function toUpper(_, c) {
-  return c ? c.toUpperCase() : '';
-}
-function basename(filename, ext) {
-  return path.basename(
-    filename.replace(/^[a-zA-Z]:/, '').replace(/\\/g, '/'),
-    ext
-  );
-}
+
 function inDoc(node) {
   if (!node) return false;
   var doc = node.ownerDocument.documentElement;
@@ -20,19 +12,6 @@ function inDoc(node) {
     !!(parent && parent.nodeType === 1 && doc.contains(parent))
   );
 }
-
-function cached(fn) {
-  const cache = Object.create(null);
-  return function cachedFn(str) {
-    const hit = cache[str];
-    return hit || (cache[str] = fn(str));
-  };
-}
-
-var classifyRE = /(?:^|[-_/])(\w)/g;
-const classify = cached(str => {
-  return str && str.replace(classifyRE, toUpper);
-});
 
 // const chnfy = cached(widgetName => {
 //   return widgets[widgetName].profile.name || '匿名';
@@ -46,22 +25,6 @@ function mapNodeRange(node, end, op) {
     node = next;
   }
   op(end);
-}
-export function getComponentName(options) {
-  const name = options.name || options._componentTag;
-  if (name) {
-    return name;
-  }
-  const file = options.__file; // injected by vue-loader
-  if (file) {
-    return classify(basename(file, '.vue'));
-  }
-}
-
-export function getInstanceName(instance) {
-  const name = getComponentName(instance.$options || instance.fnOptions || {});
-  if (name) return name;
-  return instance.$root === instance ? 'Root' : 'Anonymous Component';
 }
 
 let overlay;

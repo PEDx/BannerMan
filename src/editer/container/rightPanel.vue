@@ -1,6 +1,6 @@
 <template>
   <div class="right-panel">
-    <fold-bar title="属性" ref="foldBar">
+    <fold-bar title="属性">
       <controller-item
         v-for="(val, idx) in controllerList"
         :key="`${new Date().getTime()}-${idx}`"
@@ -15,24 +15,31 @@
         ></component>
       </controller-item>
     </fold-bar>
+    <fold-bar title="组件树">
+      <component-tree :instances="instancesTree"></component-tree>
+    </fold-bar>
   </div>
 </template>
 <script>
 import foldBar from "../components/fold-bar";
 import controllerItem from "../components/controller-item";
+import componentTree from "../components/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
 import EventBus from "../../bus";
+import { flushFmt } from "../../utils/index";
 
 export default {
   components: {
     foldBar,
     controllerItem,
+    componentTree,
     ...controllers
   },
   data() {
     return {
       controllerTypeMap,
       controllerList: [],
+      instancesTree: [],
       currentUid: null
     };
   },
@@ -47,6 +54,7 @@ export default {
           this.controllerList.forEach(val => {
             val._value = ins.getWidgetDataValue(val.propName);
           });
+          this.instancesTree = flushFmt([this.getViewportVueInstance()]);
           this.$nextTick(() => {
             EventBus.$emit("reset-fold-bar");
           });

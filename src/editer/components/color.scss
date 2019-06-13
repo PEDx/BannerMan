@@ -1,0 +1,51 @@
+$vue-ui-color-light : #fff;
+$vue-ui-color-light-neutral : #e4f5ef;
+$vue-ui-color-dark : #2c3e50;
+$vue-ui-color-dark-neutral : #4f6f7f;
+$vue-ui-color-darker : #1d2935;
+$vue-ui-color-primary : #42b983;
+$vue-ui-color-accent : #6806c1;
+$vue-ui-color-danger : #e83030;
+$vue-ui-color-warning : #ea6e00;
+$vue-ui-color-info : #03c2e6;
+$vue-ui-color-success : #42b983;
+$md-grey-200: #eeeeee;
+$md-black: #000000;
+$md-white: #ffffff;
+
+$blue: #44a1ff;
+$grey: #dddddd;
+$darkGrey: #ccc;
+$darkerGrey: #aaa;
+$blueishGrey: #486887;
+$green: #42b983;
+$darkerGreen: #3ba776;
+$slate: #242424;
+$white: #ffffff;
+$orange: #ff6b00;
+$red: #c41a16;
+$black: #222;
+$vividBlue: #0033cc;
+$purple: #997fff;
+$pink: #881391;
+$lightPink: #e36eec;
+
+// The min-width to give icons text...
+$wide: 1100px;
+
+// The min-height to give the tools a little more breathing room...
+$tall: 350px;
+
+// Theme
+$active-color: $darkerGreen;
+$border-color: $md-grey-200;
+$background-color: $white;
+$component-color: $active-color;
+$hover-color: #e5f2ff;
+
+$vue-ui-color-darker: #345;
+$dark-active-color: $active-color;
+$dark-border-color: lighten($vue-ui-color-darker, 10%);
+$dark-background-color: $vue-ui-color-darker;
+$dark-component-color: $active-color;
+$dark-hover-color: $vue-ui-color-dark;
