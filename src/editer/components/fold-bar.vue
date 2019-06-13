@@ -1,57 +1,65 @@
 <template>
   <div class="fold-bar">
-    <div class="title-bar" @click="togglePannel">
-      <div class="btn">
-        <i :class="{'icon-rotate': !contentHeight}" class="el-icon-caret-bottom icon"></i>
+    <scroll-pane>
+      <div class="title-bar" @click="togglePannel" slot="header">
+        <div class="btn">
+          <i :class="{'icon-rotate': !showContent}" class="el-icon-caret-bottom icon"></i>
+        </div>
+        <div class="title">{{ title }}</div>
+        <div class="custom-right">
+          <slot name="custom-right"></slot>
+        </div>
       </div>
-      <div class="title">{{ title }}</div>
-      <div class="custom-right">
-        <slot name="custom-right"></slot>
-      </div>
-    </div>
-    <div :style="{maxHeight: `${contentHeight}px`}" class="content">
-      <div class="pad" ref="box">
+      <div class="content" slot="scroll" :style="{height: `${contentHeight}`}">
         <slot></slot>
       </div>
-    </div>
+    </scroll-pane>
   </div>
 </template>
 <script>
-import EventBus from "../../bus";
+import ScrollPane from "./scroll-pane";
 export default {
+  components: {
+    ScrollPane
+  },
   props: {
     title: {
       default: "标题",
+      type: String
+    },
+    pos: {
+      default: "top",
       type: String
     }
   },
   data() {
     return {
-      contentHeight: "auto",
-      originalHeight: 0,
-      showContent: true
+      showContent: true,
+      split: "100%",
+      contentHeight: "100%"
     };
   },
-  mounted() {
-    this.$nextTick(this.reset);
-    EventBus.$on("reset-fold-bar", this.reset); // 全部 foldbar 实例都能收到
-  },
+  inject: ["splitPane"],
+  mounted() {},
   methods: {
     togglePannel() {
-      if (this.showContent) {
-        // 关闭
-        this.contentHeight = 0;
-        this.showContent = false;
+      const { top, bottom } = this.splitPane.itemStatus;
+      if (!top && this.showContent && this.pos === "bottom") return;
+      if (!bottom && this.showContent && this.pos === "top") return;
+      this.showContent = !this.showContent;
+      if (!this.showContent) {
+        this.split =
+          this.pos === "top"
+            ? this.splitPane.split
+            : 100 - this.splitPane.split;
+        this.splitPane.rollUp(this.pos, 20, false);
       } else {
-        // 打开
-        this.contentHeight = this.originalHeight;
-        this.showContent = true;
+        this.splitPane.rollUp(
+          this.pos,
+          (this.split * this.splitPane.$el.clientHeight) / 100,
+          true
+        );
       }
-    },
-    reset() {
-      if (this.contentHeight === this.$refs.box.clientHeight) return;
-      this.originalHeight = this.$refs.box.clientHeight || 0;
-      this.contentHeight = this.$refs.box.clientHeight || 0;
     }
   }
 };
@@ -59,6 +67,7 @@ export default {
 
 <style lang="scss" scoped>
 .fold-bar {
+  height: 100%;
   .title-bar {
     height: 20px;
     width: 100%;
@@ -96,9 +105,9 @@ export default {
     }
   }
   .content {
-    // overflow: auto;
+    height: 100%;
+    // transition: height 0.2s;
     overflow: hidden;
-    transition: max-height 0.2s;
     .pad {
     }
   }

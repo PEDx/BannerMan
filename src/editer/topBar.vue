@@ -9,8 +9,13 @@
     <div class="function">
       <el-row style="height: 100%;">
         <el-col :span="8"></el-col>
-        <el-col :span="8">
-          <el-select v-model="value" placeholder="请选择" style="width: 210px;" @change="handleChange">
+        <el-col :span="8" style="text-align: center;">
+          <el-select
+            v-model="value"
+            placeholder="请选择"
+            style="width: 210px;"
+            @change="handleChange"
+          >
             <template slot="prefix">
               <i class="el-icon-view"></i>
             </template>

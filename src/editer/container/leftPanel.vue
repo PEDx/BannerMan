@@ -1,64 +1,67 @@
 <template>
   <div class="left-panel">
-    <fold-bar title="控件">
-      <div
-        v-for="(val, idx) in widgets"
-        ref="groupBox"
-        :key="idx"
-        class="group"
-        style="overflow: hidden;padding: 8px;"
-      >
-        <div class="group-title">{{ val.groupName }}</div>
+    <split-pane>
+      <fold-bar title="控件" slot="left" pos="top">
         <div
-          v-for="(item, index) in val.items"
-          :key="index"
-          :draggable="true"
-          class="widget"
-          style="overflow: hidden"
-          :tabindex="-1"
-          @dragstart="handleDragstart"
-        >
-          <i :class="item.icon"></i>
-          <p>{{ item.name }}</p>
-        </div>
-      </div>
-    </fold-bar>
-    <fold-bar title="资源">
-      <template slot="custom-right">
-        <el-upload
-          @click.native.stop
-          class="upload-demo"
-          action="https://jsonplaceholder.typicode.com/posts/"
-          multiple
-          :limit="3"
-          :show-file-list="false"
-          :file-list="fileList"
-          @on-progress="handleUploadProgress"
-          @on-success="handleUploadSuccess"
-          @on-error="handleUploadError"
-        >
-          <el-button type="text" icon="el-icon-plus" style="padding-right: 0;"></el-button>
-        </el-upload>
-      </template>
-      <div class="file-list" style="padding: 8px 0;">
-        <div
-          class="file-list-item"
-          v-for="(val, idx) in fileList"
+          v-for="(val, idx) in widgets"
+          ref="groupBox"
           :key="idx"
-          :draggable="true"
-          :tabindex="-1"
+          class="group"
+          style="overflow: hidden;padding: 8px;"
         >
-          <p class="f-toe">
-            <i class="el-icon-picture item-icon"></i>
-            {{ val.name }}
-          </p>
+          <div class="group-title">{{ val.groupName }}</div>
+          <div
+            v-for="(item, index) in val.items"
+            :key="index"
+            :draggable="true"
+            class="widget"
+            style="overflow: hidden"
+            :tabindex="-1"
+            @dragstart="handleDragstart"
+          >
+            <i :class="item.icon"></i>
+            <p>{{ item.name }}</p>
+          </div>
         </div>
-      </div>
-    </fold-bar>
+      </fold-bar>
+      <fold-bar title="资源" slot="right" pos="bottom">
+        <template slot="custom-right">
+          <el-upload
+            @click.native.stop
+            class="upload-demo"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            multiple
+            :limit="3"
+            :show-file-list="false"
+            :file-list="fileList"
+            @on-progress="handleUploadProgress"
+            @on-success="handleUploadSuccess"
+            @on-error="handleUploadError"
+          >
+            <el-button type="text" icon="el-icon-plus" style="padding-right: 0;"></el-button>
+          </el-upload>
+        </template>
+        <div class="file-list" style="padding: 8px 0;">
+          <div
+            class="file-list-item"
+            v-for="(val, idx) in fileList"
+            :key="idx"
+            :draggable="true"
+            :tabindex="-1"
+          >
+            <p class="f-toe">
+              <i class="el-icon-picture item-icon"></i>
+              {{ val.name }}
+            </p>
+          </div>
+        </div>
+      </fold-bar>
+    </split-pane>
   </div>
 </template>
 <script>
 import foldBar from "../components/fold-bar";
+import splitPane from "../components/split-pane";
 const widgets = [
   {
     group: "BASICS",
@@ -111,7 +114,8 @@ const widgets = [
 ];
 export default {
   components: {
-    "fold-bar": foldBar
+    "fold-bar": foldBar,
+    "split-pane": splitPane
   },
   data() {
     return {

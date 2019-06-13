@@ -73,8 +73,8 @@
 </template>
 
 <script>
-import { classify, scrollIntoView } from "../../utils/index";
-import EventBus from "../../bus";
+import { classify, scrollIntoView } from "../../../utils/index";
+import EventBus from "../../../bus";
 
 export default {
   name: "ComponentInstance",
@@ -331,7 +331,7 @@ export default {
     visibility: hidden;
   }
 
-  .self.selected & >>> svg {
+  .self.selected & svg {
     fill: $white;
   }
 }

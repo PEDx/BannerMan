@@ -1,29 +1,32 @@
 <template>
   <div class="right-panel">
-    <fold-bar title="属性">
-      <controller-item
-        v-for="(val, idx) in controllerList"
-        :key="`${new Date().getTime()}-${idx}`"
-        ref="ctrls"
-      >
-        <span slot="label">{{ val.label }}</span>
-        <component
-          :is="controllerTypeMap[val.controllerType]"
-          slot="ctrl"
-          :value="val._value"
-          @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
-        ></component>
-      </controller-item>
-    </fold-bar>
-    <fold-bar title="组件树">
-      <component-tree :instances="instancesTree"></component-tree>
-    </fold-bar>
+    <split-pane>
+      <fold-bar title="属性" slot="left" pos="top">
+        <controller-item
+          v-for="(val, idx) in controllerList"
+          :key="`${new Date().getTime()}-${idx}`"
+          ref="ctrls"
+        >
+          <span slot="label">{{ val.label }}</span>
+          <component
+            :is="controllerTypeMap[val.controllerType]"
+            slot="ctrl"
+            :value="val._value"
+            @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
+          ></component>
+        </controller-item>
+      </fold-bar>
+      <fold-bar title="组件树" slot="right" pos="bottom">
+        <component-tree :instances="instancesTree"></component-tree>
+      </fold-bar>
+    </split-pane>
   </div>
 </template>
 <script>
 import foldBar from "../components/fold-bar";
 import controllerItem from "../components/controller-item";
-import componentTree from "../components/component-tree";
+import splitPane from "../components/split-pane";
+import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
 import EventBus from "../../bus";
 import { flushFmt } from "../../utils/index";
@@ -33,6 +36,7 @@ export default {
     foldBar,
     controllerItem,
     componentTree,
+    splitPane,
     ...controllers
   },
   data() {

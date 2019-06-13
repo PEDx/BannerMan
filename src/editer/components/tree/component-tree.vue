@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import ScrollPane from "./scroll-pane";
+import ScrollPane from "../scroll-pane";
 import ComponentInstance from "./component-instance";
 
 export default {

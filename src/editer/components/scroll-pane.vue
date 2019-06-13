@@ -17,7 +17,7 @@ export default {};
 </script>
 
 <style lang="scss" scoped>
-@import "./color.scss";
+@import "./tree/color.scss";
 .scroll-pane {
   display: flex;
   flex-direction: column;
@@ -27,28 +27,31 @@ export default {};
 .scroll {
   flex: 1;
   overflow: auto;
+  &::-webkit-scrollbar {
+    background: #343438;
+    border-radius: 2px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: lighten(#343438, 7%);
+    border-radius: 2px;
+  }
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 0;
 
-  &,
-  >>> .vue-recycle-scroller {
-    .vue-ui-dark-mode &::-webkit-scrollbar {
-      background: $dark-background-color;
-      border-left: 1px solid $dark-border-color;
-    }
-
-    .vue-ui-dark-mode &::-webkit-scrollbar-thumb {
-      background: lighten($dark-background-color, 7%);
-      border: 1px solid lighten($dark-border-color, 7%);
+    &-thumb {
+      background: #7f7c87;
     }
   }
 }
 
 .scroll--themed {
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 12px;
     height: 0;
 
     &-thumb {
-      background: $active-color;
+      background: #7f7c87;
     }
   }
 }

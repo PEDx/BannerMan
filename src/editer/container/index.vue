@@ -195,6 +195,7 @@ export default {
     position: absolute;
     top: 45%;
     transform: rotate(90deg);
+    z-index: 999;
     button {
       cursor: col-resize;
     }
