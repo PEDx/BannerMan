@@ -18,9 +18,15 @@
 
 <script>
 export default {
+  props: {
+    SplitPercent: {
+      default: 70,
+      type: Number
+    }
+  },
   data() {
     return {
-      split: 70,
+      split: this.SplitPercent,
       dragging: false,
       view: "horizontal",
       itemStatus: { top: true, bottom: true }
@@ -92,6 +98,7 @@ export default {
 
     dragEnd() {
       this.dragging = false;
+      this.$emit("split-change", this.split);
     }
   }
 };

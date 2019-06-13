@@ -1,6 +1,6 @@
 <template>
   <div class="right-panel">
-    <split-pane>
+    <split-pane @split-change="handleSplitChange" :split-percent="splitPercent">
       <fold-bar title="属性" slot="left" pos="top">
         <controller-item
           v-for="(val, idx) in controllerList"
@@ -40,7 +40,9 @@ export default {
     ...controllers
   },
   data() {
+    const editerSetting = this.$store.state.editerSetting;
     return {
+      splitPercent: +editerSetting.rightPanelSplit || 70,
       controllerTypeMap,
       controllerList: [],
       instancesTree: [],
@@ -68,6 +70,9 @@ export default {
     );
   },
   methods: {
+    handleSplitChange(percent) {
+      this.$store.dispatch("update_rt_spt", percent);
+    },
     handleSubmitUpdate(key, value) {
       const ins = this.getViewportVueInstance();
       ins.updateWidgetProp(key, value);

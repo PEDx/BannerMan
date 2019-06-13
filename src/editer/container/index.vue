@@ -138,7 +138,7 @@ export default {
         if (this.dragLeftStatus) {
           if (e.clientX <= EDITOR_LEFT_PANEL_MIN_WIDTH) return;
           this.leftWidth = e.clientX;
-          this.$store.dispatch("update_lt_wid", e.clientX);
+          this.$store.dispatch("update_lf_wid", e.clientX);
           EventBus.$emit("reset-fold-bar");
         }
         if (this.dragRightStatus) {

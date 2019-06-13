@@ -1,6 +1,6 @@
 <template>
   <div class="left-panel">
-    <split-pane>
+    <split-pane @split-change="handleSplitChange" :split-percent="splitPercent">
       <fold-bar title="控件" slot="left" pos="top">
         <div
           v-for="(val, idx) in widgets"
@@ -118,8 +118,10 @@ export default {
     "split-pane": splitPane
   },
   data() {
+    const editerSetting = this.$store.state.editerSetting;
     return {
       widgets,
+      splitPercent: +editerSetting.leftPanelSplit || 70,
       fileList: [
         {
           name: "food.jpeg",
@@ -143,6 +145,9 @@ export default {
     handleUploadProgress() {},
     handleUploadError(e) {
       console.log(e);
+    },
+    handleSplitChange(percent) {
+      this.$store.dispatch("update_lf_spt", percent);
     }
   }
 };

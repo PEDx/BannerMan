@@ -10,7 +10,7 @@
           <slot name="custom-right"></slot>
         </div>
       </div>
-      <div class="content" slot="scroll" :style="{height: `${contentHeight}`}">
+      <div class="content" slot="scroll">
         <slot></slot>
       </div>
     </scroll-pane>
@@ -35,8 +35,7 @@ export default {
   data() {
     return {
       showContent: true,
-      split: "100%",
-      contentHeight: "100%"
+      split: "100%"
     };
   },
   inject: ["splitPane"],
@@ -105,7 +104,7 @@ export default {
     }
   }
   .content {
-    height: 100%;
+    // height: 100%;
     // transition: height 0.2s;
     overflow: hidden;
     .pad {
