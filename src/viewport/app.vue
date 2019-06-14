@@ -37,6 +37,7 @@ export default {
     document.addEventListener("drop", e => {
       const msg = e.dataTransfer.getData("WIDGET_TYPE");
       if (msg) {
+        this._asyncAddComponent("widget-search");
         window.parent.postMessage({
           type: "drag-end",
           axis: {
@@ -44,9 +45,6 @@ export default {
             y: e.y
           }
         });
-        Array(20)
-          .fill(0)
-          .forEach(() => this._asyncAddComponent("widget-search"));
       }
     });
     EventBus.$on("element-selected", instance => {
@@ -103,6 +101,11 @@ export default {
           name: widgetName,
           props: _obj
         }); // 在此初始化组件
+        this.$nextTick(() => {
+          window.parent.postMessage({
+            type: "flush-component-tree"
+          });
+        });
       });
     },
     _deleteComponent(idx) {

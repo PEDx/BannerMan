@@ -28,7 +28,11 @@ import controllerItem from "../components/controller-item";
 import splitPane from "../components/split-pane";
 import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
-import { generateInstanceBriefObj, getViewportVueInstance } from "../../utils/index";
+import {
+  generateInstanceBriefObj,
+  getViewportVueInstance
+} from "../../utils/index";
+import EventBus from "../../bus";
 
 export default {
   components: {
@@ -59,11 +63,25 @@ export default {
           this.controllerList.forEach(val => {
             val._value = ins.getWidgetDataValue(val.propName);
           });
-          this.instancesTree = generateInstanceBriefObj([getViewportVueInstance()]);
         }
       },
       false
     );
+    window.addEventListener(
+      "message",
+      e => {
+        if (e.data.type === "flush-component-tree") {
+          this.instancesTree = generateInstanceBriefObj([
+            getViewportVueInstance()
+          ]);
+        }
+      },
+      false
+    );
+    EventBus.$on("clear-viewport", () => {
+      this.controllerList = [];
+      this.instancesTree = [];
+    });
   },
   methods: {
     handleSplitChange(percent) {

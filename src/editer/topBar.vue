@@ -61,6 +61,7 @@ export default {
     },
     clearViewportPage() {
       getViewportVueInstance().clearPage();
+      EventBus.$emit("clear-viewport")
     }
   }
 };
