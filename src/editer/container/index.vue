@@ -67,7 +67,7 @@ export default {
     "left-panel": leftPanel
   },
   data() {
-    const editerSetting = this.$store.state.editerSetting;
+    const editerSetting = this.$store.state.editer.setting;
     return {
       leftWidth: +editerSetting.leftPanelWidth || EDITOR_LEFT_PANEL_MIN_WIDTH,
       rightWidth:
@@ -85,14 +85,14 @@ export default {
   },
   computed: {
     viewSize() {
-      const editerSetting = this.$store.state.editerSetting;
+      const editerSetting = this.$store.state.editer.setting;
       return deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
     },
     draging() {
       return this.dragLeftStatus || this.dragRightStatus;
     },
     viewScale() {
-      const editerSetting = this.$store.state.editerSetting;
+      const editerSetting = this.$store.state.editer.setting;
       return (editerSetting.viewportScale / 100).toFixed(2);
     }
   },
@@ -145,7 +145,7 @@ export default {
       this.dragRightStatus = false;
     });
     this.$nextTick(() => {
-      const editerSetting = this.$store.state.editerSetting;
+      const editerSetting = this.$store.state.editer.setting;
       const resolution =
         deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
       this.maxPanelWidth = (this.$el.clientWidth - resolution.width) / 2 - 10;

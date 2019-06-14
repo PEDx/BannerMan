@@ -24,14 +24,19 @@ export default {
     SplitPercent: {
       default: 70,
       type: Number
+    },
+    SplitStatus: {
+      default: () => {},
+      type: Object
     }
   },
   data() {
     return {
       split: this.SplitPercent,
+      dragSplit: this.SplitPercent,
       dragging: false,
       view: "horizontal",
-      itemStatus: { top: true, bottom: true },
+      itemStatus: this.SplitStatus,
       minSplit: 0
     };
   },
@@ -43,14 +48,14 @@ export default {
   computed: {
     leftStyles() {
       const obj = {
-        [this.view === "vertical" ? "width" : "height"]: `${this.split}%`
+        height: `${this.split}%`
       };
       return obj;
     },
 
     rightStyles() {
       const obj = {
-        [this.view === "vertical" ? "width" : "height"]: `${100 - this.split}%`
+        height: `${100 - this.split}%`
       };
       return obj;
     },
@@ -59,47 +64,60 @@ export default {
       return [{ dragging: this.dragging }, this.view];
     }
   },
+  mounted() {
+    setTimeout(() => {
+      this.minSplit = (MIN_BASE_PIX / this.$el.clientHeight) * 100;
+      this.maxSplit = 100 - this.minSplit;
+      Object.keys(this.itemStatus).forEach(key => {
+        const val = this.itemStatus[key];
+        this.rollUp(key, val);
+      });
+    }, 0);
+  },
   methods: {
-    rollUp(pos, pix, show) {
-      if (pos === "top") {
-        this.split = (pix / this.$el.clientHeight) * 100;
-        this.itemStatus.top = show;
+    rollUp(pos, show) {
+      if (!show) {
+        this.split = +clamp(
+          pos === "top" ? 0 : 100,
+          this.minSplit,
+          this.maxSplit
+        ).toFixed(2);
+      } else {
+        this.split = this.dragSplit;
       }
-      if (pos === "bottom") {
-        this.split = 100 - (pix / this.$el.clientHeight) * 100;
-        this.itemStatus.bottom = show;
-      }
+      this.itemStatus[pos] = show;
+      this.$emit("split-change", {
+        split: this.dragSplit,
+        status: this.itemStatus
+      });
     },
     dragStart(e) {
       const { top, bottom } = this.itemStatus;
       if (!top || !bottom) return; // 如果有 pane 关闭不能拖拉
       this.dragging = true;
-      this.startPosition = this.view === "vertical" ? e.pageX : e.pageY;
+      this.startPosition = e.pageY;
       this.startSplit = this.split;
-      this.minSplit = (MIN_BASE_PIX / this.$el.clientHeight) * 100;
-      this.maxSplit = 100 - this.minSplit;
     },
 
     dragMove(e) {
       if (this.dragging) {
-        let position;
-        let totalSize;
-        if (this.view === "vertical") {
-          position = e.pageX;
-          totalSize = this.$el.offsetWidth;
-        } else {
-          position = e.pageY;
-          totalSize = this.$el.offsetHeight;
-        }
+        const position = e.pageY;
+        const totalSize = this.$el.offsetHeight;
         const dPosition = position - this.startPosition;
         const _split = this.startSplit + ~~((dPosition / totalSize) * 100);
         this.split = +clamp(_split, this.minSplit, this.maxSplit).toFixed(2);
+        this.dragSplit = this.split;
       }
     },
 
     dragEnd() {
+      if (this.dragging) {
+        this.$emit("split-change", {
+          split: this.dragSplit,
+          status: this.itemStatus
+        });
+      }
       this.dragging = false;
-      this.$emit("split-change", this.split);
     }
   }
 };

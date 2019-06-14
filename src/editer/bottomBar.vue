@@ -43,7 +43,7 @@ import { throttle } from "../utils/index";
 import EventBus from "../bus";
 export default {
   data() {
-    const editerSetting = this.$store.state.editerSetting;
+    const editerSetting = this.$store.state.editer.setting;
     return {
       rangeValue: +editerSetting.viewportScale || 100,
       notfClose: true
@@ -51,7 +51,7 @@ export default {
   },
   computed: {
     device() {
-      const editerSetting = this.$store.state.editerSetting;
+      const editerSetting = this.$store.state.editer.setting;
       return deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
     }
   },

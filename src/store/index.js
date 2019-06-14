@@ -1,13 +1,13 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import editerSetting from './modules/editerSetting';
+import editer from './modules/editer';
 import getters from './getters';
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
   modules: {
-    editerSetting
+    editer
   },
   getters
 });

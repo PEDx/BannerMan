@@ -1,6 +1,10 @@
 <template>
   <div class="left-panel">
-    <split-pane @split-change="handleSplitChange" :split-percent="splitPercent">
+    <split-pane
+      @split-change="handleSplitChange"
+      :split-percent="splitPercent"
+      :split-status="splitStatus"
+    >
       <fold-bar title="控件" slot="left" pos="top">
         <template slot="custom-right">
           <el-button type="text" icon="el-icon-search" style="padding-right: 0;" @click.native.stop></el-button>
@@ -121,10 +125,14 @@ export default {
     "split-pane": splitPane
   },
   data() {
-    const editerSetting = this.$store.state.editerSetting;
+    const editerSetting = this.$store.state.editer.setting;
     return {
       widgets,
       splitPercent: +editerSetting.leftPanelSplit || 70,
+      splitStatus: editerSetting.leftPanelStatus || {
+        top: true,
+        bottom: true
+      },
       fileList: [
         {
           name: "food.jpeg",
@@ -149,8 +157,9 @@ export default {
     handleUploadError(e) {
       console.log(e);
     },
-    handleSplitChange(percent) {
-      this.$store.dispatch("update_lf_spt", percent);
+    handleSplitChange(data) {
+      this.$store.dispatch("update_lf_spt", data.split);
+      this.$store.dispatch("update_lf_spt_status", data.status);
     }
   }
 };

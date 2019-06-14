@@ -34,7 +34,7 @@ export default {
   },
   data() {
     return {
-      showContent: true,
+      showContent: this.splitPane.itemStatus[this.pos],
       split: "100%"
     };
   },
@@ -47,19 +47,7 @@ export default {
       if (!top && this.showContent && this.pos === "bottom") return;
       if (!bottom && this.showContent && this.pos === "top") return;
       this.showContent = !this.showContent;
-      if (!this.showContent) {
-        this.split =
-          this.pos === "top"
-            ? this.splitPane.split
-            : 100 - this.splitPane.split;
-        this.splitPane.rollUp(this.pos, 20, false);
-      } else {
-        this.splitPane.rollUp(
-          this.pos,
-          (this.split * this.splitPane.$el.clientHeight) / 100,
-          true
-        );
-      }
+      this.splitPane.rollUp(this.pos, this.showContent);
     }
   }
 };
