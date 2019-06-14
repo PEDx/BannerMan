@@ -52,13 +52,6 @@
       <span v-if="instance.inactive" class="info inactive">inactive</span>
 
       <span class="spacer"/>
-
-      <!-- <VueIcon
-        v-tooltip="'Scroll into view'"
-        class="icon-button"
-        icon="visibility"
-        @click="scrollToInstance"
-      />-->
     </div>
 
     <div v-if="expanded">
@@ -74,7 +67,7 @@
 
 <script>
 import { classify, scrollIntoView } from "../../../utils/index";
-import EventBus from "../../../bus";
+// import EventBus from "../../../bus";
 
 export default {
   name: "ComponentInstance",
@@ -129,9 +122,6 @@ export default {
   methods: {
     toggle(event) {
       this.toggleWithValue(!this.expanded, event.altKey);
-      this.$nextTick(() => {
-        EventBus.$emit("reset-fold-bar");
-      });
     },
 
     // expand() {

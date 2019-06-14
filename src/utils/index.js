@@ -368,3 +368,9 @@ export function flushFmt(rootInstances) {
   captureIds.clear();
   return findQualifiedChildrenFromList(rootInstances);
 }
+
+export function clamp(x, min, max) {
+  if (x > max) return max;
+  if (x < min) return min;
+  return x;
+}

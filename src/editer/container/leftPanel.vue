@@ -2,6 +2,9 @@
   <div class="left-panel">
     <split-pane @split-change="handleSplitChange" :split-percent="splitPercent">
       <fold-bar title="控件" slot="left" pos="top">
+        <template slot="custom-right">
+          <el-button type="text" icon="el-icon-search" style="padding-right: 0;" @click.native.stop></el-button>
+        </template>
         <div
           v-for="(val, idx) in widgets"
           ref="groupBox"

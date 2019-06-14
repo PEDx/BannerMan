@@ -133,23 +133,20 @@ export default {
     document.addEventListener(
       "mousemove",
       throttle(e => {
-        // const panel_wid = this.leftWidth + this.rightWidth;
-        // if (panel_wid > this.window_wid) return;
         if (this.dragLeftStatus) {
           if (e.clientX <= EDITOR_LEFT_PANEL_MIN_WIDTH) return;
           this.leftWidth = e.clientX;
-          this.$store.dispatch("update_lf_wid", e.clientX);
-          EventBus.$emit("reset-fold-bar");
         }
         if (this.dragRightStatus) {
           const _wid = document.body.clientWidth - e.clientX;
           if (_wid <= EDITOR_RIGHT_PANEL_MIN_WIDTH) return;
           this.rightWidth = _wid;
-          this.$store.dispatch("update_rt_wid", _wid);
         }
       }, 40)
     );
-    document.addEventListener("mouseup", () => {
+    document.addEventListener("mouseup", e => {
+      if (this.dragLeftStatus) this.$store.dispatch("update_lf_wid", this.leftWidth);
+      if (this.dragRightStatus) this.$store.dispatch("update_rt_wid", this.rightWidth);
       this.dragLeftStatus = false;
       this.dragRightStatus = false;
     });

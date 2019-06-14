@@ -28,7 +28,6 @@ import controllerItem from "../components/controller-item";
 import splitPane from "../components/split-pane";
 import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
-import EventBus from "../../bus";
 import { flushFmt } from "../../utils/index";
 
 export default {
@@ -61,9 +60,6 @@ export default {
             val._value = ins.getWidgetDataValue(val.propName);
           });
           this.instancesTree = flushFmt([this.getViewportVueInstance()]);
-          this.$nextTick(() => {
-            EventBus.$emit("reset-fold-bar");
-          });
         }
       },
       false

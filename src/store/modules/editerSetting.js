@@ -1,4 +1,3 @@
-import { debounce } from '../../utils/index';
 import storage from '../../utils/storage';
 const app = {
   state: {
@@ -30,22 +29,22 @@ const app = {
     }
   },
   actions: {
-    update_rt_wid: debounce(({ commit }, width) => {
+    update_rt_wid: ({ commit }, width) => {
       commit('UPDATE_RT_WID', width);
       storage.set('rt_wid', width);
-    }, 500),
-    update_lf_wid: debounce(({ commit }, width) => {
+    },
+    update_lf_wid: ({ commit }, width) => {
       commit('UPDATE_LF_WID', width);
       storage.set('lf_wid', width);
-    }, 500),
-    update_rt_spt: debounce(({ commit }, percent) => {
+    },
+    update_rt_spt: ({ commit }, percent) => {
       commit('UPDATE_RT_SPT', percent);
       storage.set('rt_spt', percent);
-    }, 500),
-    update_lf_spt: debounce(({ commit }, percent) => {
+    },
+    update_lf_spt: ({ commit }, percent) => {
       commit('UPDATE_LF_SPT', percent);
       storage.set('lf_spt', percent);
-    }, 500),
+    },
     update_device_type: ({ commit }, type) => {
       commit('UPDATE_DEVICE_TYPE', type);
       storage.set('device_type', type);

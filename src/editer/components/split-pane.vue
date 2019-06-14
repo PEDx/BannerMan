@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import { clamp } from "../../utils/index";
 export default {
   props: {
     SplitPercent: {
@@ -29,7 +30,8 @@ export default {
       split: this.SplitPercent,
       dragging: false,
       view: "horizontal",
-      itemStatus: { top: true, bottom: true }
+      itemStatus: { top: true, bottom: true },
+      minSplit: 0
     };
   },
   provide() {
@@ -58,13 +60,26 @@ export default {
     },
 
     boundSplit() {
-      return this.split;
+      const split = this.split;
+      // if (this.dragging) {
+      //   if (split < 20) {
+      //     return 20;
+      //   } else if (split > 80) {
+      //     return 80;
+      //   } else {
+      //     return split;
+      //   }
+      // }
+      return split;
     }
   },
-
+  mounted() {
+    this.$nextTick(() => {
+      // this.minSplit = (20 / this.$el.parentNode.clientHeight) * 100;
+    });
+  },
   methods: {
     rollUp(pos, pix, show) {
-      this.$el.style.transition = "height 0.15s";
       if (pos === "top") {
         this.split = (pix / this.$el.clientHeight) * 100;
         this.itemStatus.top = show;
@@ -75,9 +90,13 @@ export default {
       }
     },
     dragStart(e) {
+      const { top, bottom } = this.itemStatus;
+      if (!top || !bottom) return;
       this.dragging = true;
       this.startPosition = this.view === "vertical" ? e.pageX : e.pageY;
       this.startSplit = this.boundSplit;
+      this.minSplit = (20 / this.$el.clientHeight) * 100;
+      this.maxSplit = 100 - this.minSplit;
     },
 
     dragMove(e) {
@@ -92,7 +111,8 @@ export default {
           totalSize = this.$el.offsetHeight;
         }
         const dPosition = position - this.startPosition;
-        this.split = this.startSplit + ~~((dPosition / totalSize) * 100);
+        const _split = this.startSplit + ~~((dPosition / totalSize) * 100);
+        this.split = clamp(_split, this.minSplit, this.maxSplit);
       }
     },
 
