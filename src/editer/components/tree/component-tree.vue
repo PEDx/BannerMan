@@ -54,6 +54,7 @@ export default {
       "message",
       e => {
         if (e.data.type !== "select-component") return;
+        this.mouseoverId = null;
         this.selectedId = e.data.id;
       },
       false

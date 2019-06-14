@@ -131,6 +131,7 @@ export default {
 
     select() {
       EventBus.$emit("tree-select-instance", this.instance.id);
+      this.tree.mouseoverId = null;
     },
 
     enter() {
@@ -171,8 +172,8 @@ export default {
     opacity: 0.5;
   }
 
-  &:focus {
-    outline: 0;
+  &:hover {
+    background-color: #25252577;
   }
   &:active {
     outline: 0;
