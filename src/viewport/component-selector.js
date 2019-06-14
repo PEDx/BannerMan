@@ -62,6 +62,7 @@ export default class ComponentSelector {
       this.mouseOverInstance = findRelatedComponent(el);
     }
     if (this.mouseOverInstance) {
+      EventBus.$emit('element-mouseover', this.mouseOverInstance);
       highlight(this.mouseOverInstance);
     }
   }

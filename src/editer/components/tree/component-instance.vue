@@ -1,17 +1,8 @@
 <template>
-  <div
-    :class="{
-      inactive: instance.inactive && !instance.parent.inactive,
-      selected
-    }"
-    tabindex="-1"
-    class="instance"
-  >
+  <div class="instance">
     <div
       ref="self"
-      :class="{
-        selected
-      }"
+      :class="{mouseover,selected}"
       :style="{
         paddingLeft: depth * 15 + 'px'
       }"
@@ -88,13 +79,17 @@ export default {
       expand: true
     };
   },
+  inject: ["tree"],
   computed: {
     expanded() {
       return !!this.expand;
     },
 
     selected() {
-      return false;
+      return this.instance.id === this.tree.selectedId;
+    },
+    mouseover() {
+      return this.instance.id === this.tree.mouseoverId;
     },
 
     sortedChildren() {
@@ -175,16 +170,18 @@ export default {
   &.inactive {
     opacity: 0.5;
   }
-  &:hover {
-    background-color: #25252577;
-  }
+
   &:focus {
-    // background-color: #25252577;
-    outline: 1px dashed rgb(255, 85, 0);
+    outline: 0;
   }
   &:active {
-    background-color: transparent;
     outline: 0;
+  }
+  .mouseover {
+    background-color: #25252577;
+  }
+  .selected {
+    outline: 1px dashed rgb(255, 85, 0);
   }
 }
 
@@ -299,23 +296,6 @@ export default {
   margin: 0 1px;
 }
 
-.attr {
-  opacity: 0.5;
-  font-size: 12px;
-
-  .high-density & {
-    font-size: 10px;
-  }
-}
-
-.attr-title {
-  color: purple;
-
-  .vue-ui-dark-mode & {
-    color: lighten(purple, 60%);
-  }
-}
-
 .spacer {
   flex: auto 1 1;
 }
@@ -323,39 +303,5 @@ export default {
 .icon-button {
   width: 16px;
   height: 16px;
-
-  .self:not(:hover) & {
-    visibility: hidden;
-  }
-
-  .self.selected & svg {
-    fill: $white;
-  }
-}
-
-.self:not(.selected) {
-  .info {
-    &.console {
-      color: lighten(black, 80%);
-
-      .vue-ui-dark-mode & {
-        color: darken(white, 70%);
-      }
-    }
-  }
-}
-
-.self.selected {
-  .attr {
-    opacity: 1;
-  }
-
-  .attr-title {
-    color: lighten($purple, 70%);
-  }
-
-  .info.functional {
-    color: $md-white;
-  }
 }
 </style>

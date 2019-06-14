@@ -31,13 +31,33 @@ export default {
   data() {
     return {
       selecting: false,
+      mouseoverId: null,
+      selectedId: null,
       highDensity: false
     };
   },
-
+  provide() {
+    return {
+      tree: this
+    };
+  },
   mounted() {
-    // bridge.on("instance-selected", this.stopSelector);
-    // bridge.on("stop-component-selector", this.stopSelector);
+    window.addEventListener(
+      "message",
+      e => {
+        if (e.data.type !== "element-mouseover") return;
+        this.mouseoverId = e.data.id;
+      },
+      false
+    );
+    window.addEventListener(
+      "message",
+      e => {
+        if (e.data.type !== "select-component") return;
+        this.selectedId = e.data.id;
+      },
+      false
+    );
   },
 
   beforeDestroy() {

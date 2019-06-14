@@ -61,6 +61,12 @@ export default {
     EventBus.$on("element-selected", instance =>
       this._selectComponent(instance)
     );
+    EventBus.$on("element-mouseover", instance =>
+      window.parent.postMessage({
+        type: "element-mouseover",
+        id: instance._EDITER_TREE_UID__
+      })
+    );
 
     this._observerGeometric();
     this._renderPageFromLocal();
@@ -189,7 +195,9 @@ export default {
     _renderPageFromLocal() {
       const componentStack =
         storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
-      const _promiseArr = componentStack.map(this._asyncFormatComponentFromLocalData);
+      const _promiseArr = componentStack.map(
+        this._asyncFormatComponentFromLocalData
+      );
       Promise.all(_promiseArr).then(() => {
         this._genCompTree();
       });
