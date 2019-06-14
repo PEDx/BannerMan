@@ -1,6 +1,10 @@
 <template>
   <div class="right-panel">
-    <split-pane @split-change="handleSplitChange" :split-percent="splitPercent" :split-status="splitStatus">
+    <split-pane
+      @split-change="handleSplitChange"
+      :split-percent="splitPercent"
+      :split-status="splitStatus"
+    >
       <fold-bar title="属性" slot="left" pos="top">
         <controller-item
           v-for="(val, idx) in controllerList"
@@ -28,10 +32,7 @@ import controllerItem from "../components/controller-item";
 import splitPane from "../components/split-pane";
 import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
-import {
-  generateInstanceBriefObj,
-  getViewportVueInstance
-} from "../../utils/index";
+import { getViewportVueInstance } from "../../utils/index";
 import EventBus from "../../bus";
 
 export default {
@@ -75,9 +76,7 @@ export default {
       "message",
       e => {
         if (e.data.type === "flush-component-tree") {
-          this.instancesTree = generateInstanceBriefObj([
-            getViewportVueInstance()
-          ]);
+          this.instancesTree = e.data.instancesTree;
         }
       },
       false
@@ -85,6 +84,12 @@ export default {
     EventBus.$on("clear-viewport", () => {
       this.controllerList = [];
       this.instancesTree = [];
+    });
+    EventBus.$on("tree-enter-instance", id => {
+      getViewportVueInstance().highilighitInstance(id);
+    });
+    EventBus.$on("tree-select-instance", id => {
+      getViewportVueInstance().highilighitSelectedInstance(id);
     });
   },
   methods: {

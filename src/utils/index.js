@@ -233,7 +233,7 @@ function getRenderKey(value) {
 
 const functionalVnodeMap = new Map();
 function markFunctional(id, vnode) {
-  const refId = vnode.fnContext.__VUE_DEVTOOLS_UID__;
+  const refId = vnode.fnContext._EDITER_TREE_UID__;
   if (!functionalVnodeMap.has(refId)) {
     functionalVnodeMap.set(refId, {});
     vnode.fnContext.$on('hook:beforeDestroy', function() {
@@ -245,10 +245,10 @@ function markFunctional(id, vnode) {
 }
 export const instanceMap = new Map();
 function mark(instance) {
-  if (!instanceMap.has(instance.__VUE_DEVTOOLS_UID__)) {
-    instanceMap.set(instance.__VUE_DEVTOOLS_UID__, instance);
+  if (!instanceMap.has(instance._EDITER_TREE_UID__)) {
+    instanceMap.set(instance._EDITER_TREE_UID__, instance);
     instance.$on('hook:beforeDestroy', function() {
-      instanceMap.delete(instance.__VUE_DEVTOOLS_UID__);
+      instanceMap.delete(instance._EDITER_TREE_UID__);
     });
   }
 }
@@ -272,7 +272,7 @@ function capture(instance, index, list) {
 
   // Functional component.
   if (instance.fnContext && !instance.componentInstance) {
-    const contextUid = instance.fnContext.__VUE_DEVTOOLS_UID__;
+    const contextUid = instance.fnContext._EDITER_TREE_UID__;
     let id = functionalIds.get(contextUid);
     if (id == null) {
       id = 0;
@@ -306,13 +306,13 @@ function capture(instance, index, list) {
   // instance._uid is not reliable in devtools as there
   // may be 2 roots with same _uid which causes unexpected
   // behaviour
-  instance.__VUE_DEVTOOLS_UID__ = getUniqueId(instance);
+  instance._EDITER_TREE_UID__ = getUniqueId(instance);
 
   // Dedupe
-  if (captureIds.has(instance.__VUE_DEVTOOLS_UID__)) {
+  if (captureIds.has(instance._EDITER_TREE_UID__)) {
     return;
   } else {
-    captureIds.set(instance.__VUE_DEVTOOLS_UID__, undefined);
+    captureIds.set(instance._EDITER_TREE_UID__, undefined);
   }
 
   mark(instance);
@@ -320,7 +320,7 @@ function capture(instance, index, list) {
 
   const ret = {
     uid: instance._uid,
-    id: instance.__VUE_DEVTOOLS_UID__,
+    id: instance._EDITER_TREE_UID__,
     name,
     renderKey: getRenderKey(instance.$vnode ? instance.$vnode['key'] : null),
     inactive: !!instance._inactive,

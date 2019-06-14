@@ -31,10 +31,10 @@
 
         <span class="item-name">{{ displayName }}</span>
 
-        <span v-if="componentHasKey" class="attr">
+        <!-- <span v-if="componentHasKey" class="attr">
           <span class="attr-title">key</span>=
           <span class="attr-value">{{ instance.renderKey }}</span>
-        </span>
+        </span>-->
 
         <span class="angle-bracket">&gt;</span>
       </span>
@@ -67,7 +67,7 @@
 
 <script>
 import { classify, scrollIntoView } from "../../../utils/index";
-// import EventBus from "../../../bus";
+import EventBus from "../../../bus";
 
 export default {
   name: "ComponentInstance",
@@ -84,7 +84,7 @@ export default {
   },
   data() {
     return {
-      expand: false
+      expand: true
     };
   },
   computed: {
@@ -117,16 +117,13 @@ export default {
     if (this.depth === 0) {
       this.expand = false;
     }
+    this.toggleWithValue(this.expand);
   },
 
   methods: {
     toggle(event) {
       this.toggleWithValue(!this.expanded, event.altKey);
     },
-
-    // expand() {
-    //   this.toggleWithValue(true);
-    // },
 
     collapse() {
       this.toggleWithValue(false);
@@ -137,12 +134,11 @@ export default {
     },
 
     select() {
-      // this.inspectInstance(this.instance);
-      // bridge.send("select-instance", this.instance.id);
+      EventBus.$emit("tree-select-instance", this.instance.id);
     },
 
     enter() {
-      // bridge.send("enter-instance", this.instance.id);
+      EventBus.$emit("tree-enter-instance", this.instance.id);
     },
 
     leave() {

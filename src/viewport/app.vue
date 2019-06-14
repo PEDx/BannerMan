@@ -9,7 +9,7 @@
   </div>
 </template>
 <script>
-import { debounce } from "../utils/index";
+import { debounce, generateInstanceBriefObj } from "../utils/index";
 import storage from "../utils/storage";
 import ComponentSelector from "./component-selector";
 import widgets from "../widgets";
@@ -22,6 +22,7 @@ export default {
   data() {
     return {
       componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
+      instancesMap: {}, // 组件数据模型, 在此分发传入各个组件的 props
       index: 0
     };
   },
@@ -50,7 +51,12 @@ export default {
         });
       }
     });
-    EventBus.$on("element-selected", instance => {
+    EventBus.$on("element-selected", instance => this.selectComponent(instance));
+
+    this._observerGeometric();
+  },
+  methods: {
+    selectComponent(instance) {
       this.index = this._findComponentIdx(instance);
       const component = this.componentStack[this.index];
       window.parent.postMessage({
@@ -58,11 +64,7 @@ export default {
         profile: instance._profile_,
         name: component.name
       });
-    });
-
-    this._observerGeometric();
-  },
-  methods: {
+    },
     // 监听元素几何属性变化
     _observerGeometric() {
       const MutationObserver =
@@ -104,11 +106,26 @@ export default {
           name: widgetName,
           props: _obj
         }); // 在此初始化组件
-        this.$nextTick(() => {
+        setTimeout(() => {
+          const instances = this.$children;
+          const instancesTree = generateInstanceBriefObj(instances);
+          const map = {};
+          function walk(instance) {
+            map[instance._EDITER_TREE_UID__] = instance;
+            if (instance.children) {
+              instance.children.forEach(child => {
+                child.parent = instance;
+                walk(child);
+              });
+            }
+          }
+          instances.forEach(walk);
+          this.instancesMap = map;
           window.parent.postMessage({
-            type: "flush-component-tree"
+            type: "flush-component-tree",
+            instancesTree
           });
-        });
+        }, 0);
       });
     },
     _deleteComponent(idx) {
@@ -134,6 +151,16 @@ export default {
     // 自动保存
     autoSave() {
       setInterval(this.savePage, AUTO_SAVE_TIME);
+    },
+    highilighitInstance(id) {
+      const instance = this.instancesMap[id];
+      selector.highilighitMouseoverInstance(instance);
+    },
+    highilighitSelectedInstance(id) {
+      const instance = this.instancesMap[id];
+      selector.clearHighlight();
+      selector.highilighitSelectedInstance(instance);
+      this.selectComponent(instance);
     },
     _setMeta(baseWidth) {
       const scale = 1;

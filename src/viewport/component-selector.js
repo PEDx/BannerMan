@@ -98,6 +98,14 @@ export default class ComponentSelector {
     unHighlight();
     unHighlightSelected();
   }
+  highilighitMouseoverInstance(instance) {
+    this.mouseOverInstance = instance;
+    highlight(instance);
+  }
+  highilighitSelectedInstance(instance) {
+    this.selectedInstance = instance;
+    highlightSelected(instance);
+  }
   /**
    * Bind class methods to the class scope to avoid rebind for event listeners
    */
