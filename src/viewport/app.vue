@@ -78,6 +78,7 @@ export default {
       window.parent.postMessage({
         type: "select-component",
         profile: instance._profile_,
+        id: instance._EDITER_TREE_UID__,
         name: component.name
       });
     },
