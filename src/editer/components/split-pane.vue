@@ -18,6 +18,7 @@
 
 <script>
 import { clamp } from "../../utils/index";
+const MIN_BASE_PIX = 20; // 为最小拖拉和关闭后的高度像素值
 export default {
   props: {
     SplitPercent: {
@@ -42,41 +43,21 @@ export default {
   computed: {
     leftStyles() {
       const obj = {
-        [this.view === "vertical" ? "width" : "height"]: `${this.boundSplit}%`
+        [this.view === "vertical" ? "width" : "height"]: `${this.split}%`
       };
       return obj;
     },
 
     rightStyles() {
       const obj = {
-        [this.view === "vertical" ? "width" : "height"]: `${100 -
-          this.boundSplit}%`
+        [this.view === "vertical" ? "width" : "height"]: `${100 - this.split}%`
       };
       return obj;
     },
 
     classes() {
       return [{ dragging: this.dragging }, this.view];
-    },
-
-    boundSplit() {
-      const split = this.split;
-      // if (this.dragging) {
-      //   if (split < 20) {
-      //     return 20;
-      //   } else if (split > 80) {
-      //     return 80;
-      //   } else {
-      //     return split;
-      //   }
-      // }
-      return split;
     }
-  },
-  mounted() {
-    this.$nextTick(() => {
-      // this.minSplit = (20 / this.$el.parentNode.clientHeight) * 100;
-    });
   },
   methods: {
     rollUp(pos, pix, show) {
@@ -91,11 +72,11 @@ export default {
     },
     dragStart(e) {
       const { top, bottom } = this.itemStatus;
-      if (!top || !bottom) return;
+      if (!top || !bottom) return; // 如果有 pane 关闭不能拖拉
       this.dragging = true;
       this.startPosition = this.view === "vertical" ? e.pageX : e.pageY;
-      this.startSplit = this.boundSplit;
-      this.minSplit = (20 / this.$el.clientHeight) * 100;
+      this.startSplit = this.split;
+      this.minSplit = (MIN_BASE_PIX / this.$el.clientHeight) * 100;
       this.maxSplit = 100 - this.minSplit;
     },
 

@@ -57,7 +57,7 @@
 import rightPanel from "./rightPanel";
 import leftPanel from "./leftPanel";
 import deviceModelList from "../device";
-import { throttle, debounce } from "../../utils/index";
+import { throttle, clamp } from "../../utils/index";
 import EventBus from "../../bus";
 const EDITOR_LEFT_PANEL_MIN_WIDTH = 260;
 const EDITOR_RIGHT_PANEL_MIN_WIDTH = 300;
@@ -77,7 +77,6 @@ export default {
       viewportLoading: true,
       shotAnim: false,
       dragAnim: false,
-      window_wid: document.body.clientWidth,
       percentage: {
         x: 0,
         y: 10
@@ -96,12 +95,6 @@ export default {
       const editerSetting = this.$store.state.editerSetting;
       return (editerSetting.viewportScale / 100).toFixed(2);
     }
-    // canNotMovePanel: function() {
-    // const window_wid = document.body.clientWidth;
-    // const panel_wid = this.leftWidth + this.rightWidth;
-    // const device_wid = this.viewSize.width;
-    // return panel_wid > window_wid - 20;
-    // }
   },
   mounted() {
     EventBus.$on("screenshot-start", () => {
@@ -123,32 +116,39 @@ export default {
       },
       false
     );
-    window.onresize = debounce(
-      () => {
-        this.window_wid = document.body.clientWidth;
-      },
-      1000,
-      true
-    );
     document.addEventListener(
       "mousemove",
       throttle(e => {
         if (this.dragLeftStatus) {
-          if (e.clientX <= EDITOR_LEFT_PANEL_MIN_WIDTH) return;
-          this.leftWidth = e.clientX;
+          this.leftWidth = clamp(
+            e.clientX,
+            EDITOR_LEFT_PANEL_MIN_WIDTH,
+            this.maxPanelWidth
+          );
         }
         if (this.dragRightStatus) {
           const _wid = document.body.clientWidth - e.clientX;
-          if (_wid <= EDITOR_RIGHT_PANEL_MIN_WIDTH) return;
-          this.rightWidth = _wid;
+          this.rightWidth = clamp(
+            _wid,
+            EDITOR_LEFT_PANEL_MIN_WIDTH,
+            this.maxPanelWidth
+          );
         }
       }, 40)
     );
     document.addEventListener("mouseup", e => {
-      if (this.dragLeftStatus) this.$store.dispatch("update_lf_wid", this.leftWidth);
-      if (this.dragRightStatus) this.$store.dispatch("update_rt_wid", this.rightWidth);
+      this.dragLeftStatus &&
+        this.$store.dispatch("update_lf_wid", this.leftWidth);
+      this.dragRightStatus &&
+        this.$store.dispatch("update_rt_wid", this.rightWidth);
       this.dragLeftStatus = false;
       this.dragRightStatus = false;
+    });
+    this.$nextTick(() => {
+      const editerSetting = this.$store.state.editerSetting;
+      const resolution =
+        deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
+      this.maxPanelWidth = (this.$el.clientWidth - resolution.width) / 2 - 10;
     });
   },
   methods: {

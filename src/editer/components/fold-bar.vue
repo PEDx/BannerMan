@@ -43,6 +43,7 @@ export default {
   methods: {
     togglePannel() {
       const { top, bottom } = this.splitPane.itemStatus;
+      // 不能全部关闭 pane
       if (!top && this.showContent && this.pos === "bottom") return;
       if (!bottom && this.showContent && this.pos === "top") return;
       this.showContent = !this.showContent;
