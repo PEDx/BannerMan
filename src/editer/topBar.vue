@@ -10,12 +10,7 @@
       <el-row style="height: 100%;">
         <el-col :span="8"></el-col>
         <el-col :span="8" style="text-align: center;">
-          <el-select
-            v-model="value"
-            placeholder="请选择"
-            style="width: 210px;"
-            @change="handleChange"
-          >
+          <el-select v-model="value" placeholder="请选择" style="width: 210px;" @change="handleChange">
             <template slot="prefix">
               <i class="el-icon-view"></i>
             </template>
@@ -34,6 +29,7 @@
             icon="el-icon-delete-solid"
             style="margin-left: 10px;"
             class="danger"
+            @click="clearViewportPage"
           >清空</el-button>
           <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">预览</el-button>
           <el-button type="primary" icon="el-icon-document-checked">保存</el-button>
@@ -46,6 +42,7 @@
 import deviceModelList from "./device";
 import EventBus from "../bus";
 import logo from "./logo";
+import { getViewportVueInstance } from "../utils/index";
 export default {
   components: { logo },
   data() {
@@ -61,6 +58,9 @@ export default {
     handleChange() {
       this.value && this.$store.dispatch("update_device_type", this.value);
       EventBus.$emit("reload-viewport");
+    },
+    clearViewportPage() {
+      getViewportVueInstance().clearPage();
     }
   }
 };

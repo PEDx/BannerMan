@@ -363,7 +363,7 @@ function capture(instance, index, list) {
   return ret;
 }
 
-export function flushFmt(rootInstances) {
+export function generateInstanceBriefObj(rootInstances) {
   functionalIds.clear();
   captureIds.clear();
   return findQualifiedChildrenFromList(rootInstances);
@@ -374,3 +374,12 @@ export function clamp(x, min, max) {
   if (x < min) return min;
   return x;
 }
+
+export const getViewportVueInstance = (() => {
+  let _ins = null;
+  return () => {
+    if (_ins) return _ins;
+    _ins = window.frames.viewport._CURRENT_VIEWPORT_VUE_INSTANCE_;
+    return _ins;
+  };
+})();

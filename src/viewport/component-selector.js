@@ -1,5 +1,10 @@
 import EventBus from '../bus';
-import { highlight, unHighlight, highlightSelected } from './highlighter';
+import {
+  highlight,
+  unHighlight,
+  unHighlightSelected,
+  highlightSelected
+} from './highlighter';
 const isBrowser = true;
 
 function findRelatedComponent(el) {
@@ -57,7 +62,7 @@ export default class ComponentSelector {
       this.mouseOverInstance = findRelatedComponent(el);
     }
     if (this.mouseOverInstance) {
-      this.highlightMouseoverElement();
+      highlight(this.mouseOverInstance);
     }
   }
 
@@ -67,11 +72,13 @@ export default class ComponentSelector {
    */
   elementClicked(e) {
     this.cancelEvent(e);
+    if (!this.mouseOverInstance) return;
     // 选中编辑元素
     EventBus.$emit('element-selected', this.mouseOverInstance);
+
     unHighlight();
     this.selectedInstance = this.mouseOverInstance;
-    this.highlightSelectedElement();
+    highlightSelected(this.selectedInstance);
   }
 
   /**
@@ -82,11 +89,14 @@ export default class ComponentSelector {
     e.stopImmediatePropagation();
     e.preventDefault();
   }
-  highlightMouseoverElement() {
+
+  resetHighlight() {
     highlight(this.mouseOverInstance);
-  }
-  highlightSelectedElement() {
     highlightSelected(this.selectedInstance);
+  }
+  clearHighlight() {
+    unHighlight();
+    unHighlightSelected();
   }
   /**
    * Bind class methods to the class scope to avoid rebind for event listeners

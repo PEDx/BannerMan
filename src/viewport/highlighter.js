@@ -57,7 +57,10 @@ function initOverlay() {
 
 let selectedOverlay;
 function initSelectedOverlay() {
-  if (selectedOverlay || !isBrowser) return;
+  if (selectedOverlay || !isBrowser) {
+    selectedOverlay.style.display = 'flex';
+    return;
+  }
   selectedOverlay = document.createElement('div');
   selectedOverlay.style.position = 'absolute';
   selectedOverlay.style.zIndex = '9998';
@@ -126,8 +129,12 @@ export function highlightSelected(instance) {
 
 export function unHighlight() {
   if (overlay && overlay.parentNode) {
-    // document.body.removeChild(overlay);
     overlay.style.display = 'none';
+  }
+}
+export function unHighlightSelected() {
+  if (selectedOverlay && selectedOverlay.parentNode) {
+    selectedOverlay.style.display = 'none';
   }
 }
 

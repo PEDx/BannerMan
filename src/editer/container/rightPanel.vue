@@ -28,7 +28,7 @@ import controllerItem from "../components/controller-item";
 import splitPane from "../components/split-pane";
 import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
-import { flushFmt } from "../../utils/index";
+import { generateInstanceBriefObj, getViewportVueInstance } from "../../utils/index";
 
 export default {
   components: {
@@ -53,13 +53,13 @@ export default {
       "message",
       e => {
         if (e.data.type === "select-component") {
-          const ins = this.getViewportVueInstance();
+          const ins = getViewportVueInstance();
           const profile = e.data.profile;
           this.controllerList = profile.controllers;
           this.controllerList.forEach(val => {
             val._value = ins.getWidgetDataValue(val.propName);
           });
-          this.instancesTree = flushFmt([this.getViewportVueInstance()]);
+          this.instancesTree = generateInstanceBriefObj([getViewportVueInstance()]);
         }
       },
       false
@@ -70,17 +70,9 @@ export default {
       this.$store.dispatch("update_rt_spt", percent);
     },
     handleSubmitUpdate(key, value) {
-      const ins = this.getViewportVueInstance();
+      const ins = getViewportVueInstance();
       ins.updateWidgetProp(key, value);
-    },
-    getViewportVueInstance: (() => {
-      let _ins = null;
-      return () => {
-        if (_ins) return _ins;
-        _ins = window.frames.viewport._CURRENT_VIEWPORT_VUE_INSTANCE_;
-        return _ins;
-      };
-    })()
+    }
   }
 };
 </script>

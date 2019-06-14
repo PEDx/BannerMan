@@ -5,7 +5,6 @@
       :is="val.name"
       :key="`${idx}-${val.name}`"
       v-bind="val.props"
-      @click.native="selectComponent(idx)"
     ></component>
   </div>
 </template>
@@ -27,8 +26,7 @@ export default {
     window._CURRENT_VIEWPORT_VUE_INSTANCE_ = this;
     window.onresize = debounce(() => {
       console.log("viewport resize");
-      selector.highlightMouseoverElement();
-      selector.highlightSelectedElement();
+      selector.resetHighlight();
       this._setMeta(document.body.clientWidth);
     }, 150);
     selector.startSelecting();
@@ -51,9 +49,6 @@ export default {
           .forEach(() => this._asyncAddComponent("widget-search"));
       }
     });
-    Array(20)
-      .fill(0)
-      .forEach(() => this._asyncAddComponent("widget-search"));
     EventBus.$on("element-selected", instance => {
       this.index = this._findComponentIdx(instance);
       const component = this.componentStack[this.index];
@@ -67,6 +62,7 @@ export default {
     this._observerGeometric();
   },
   methods: {
+    // 监听元素几何属性变化
     _observerGeometric() {
       const MutationObserver =
         window.MutationObserver ||
@@ -79,8 +75,7 @@ export default {
       ) {
         console.log("viewport attr changed");
         // 重置高亮
-        selector.highlightMouseoverElement();
-        selector.highlightSelectedElement();
+        selector.resetHighlight();
       });
       mutationObserver.observe(this.$refs.viewportContent, {
         subtree: true,
@@ -120,6 +115,11 @@ export default {
     getWidgetDataValue(key) {
       const vm = this.$children[this.index];
       return vm[key];
+    },
+    // 清空编辑页面
+    clearPage() {
+      this.componentStack = [];
+      selector.clearHighlight();
     },
     _setMeta(baseWidth) {
       const scale = 1;
