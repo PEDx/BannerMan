@@ -40,7 +40,7 @@ function initOverlay() {
   overlay.style.position = 'fixed';
   overlay.style.zIndex = '9999';
   overlay.style.pointerEvents = 'none';
-  overlay.style.transition = 'all .2s';
+  overlay.style.transition = 'all .14s';
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';

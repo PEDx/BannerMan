@@ -13,6 +13,7 @@ import {
   Upload,
   Slider,
   Input,
+  Popover,
   Message,
   Notification
 } from 'element-ui';
@@ -25,6 +26,7 @@ Vue.use(Row)
   .use(Slider)
   .use(Input)
   .use(Upload)
+  .use(Popover)
   .use(Button)
   .use(Select)
   .use(Option);

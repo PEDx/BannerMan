@@ -7,7 +7,21 @@
     >
       <fold-bar title="控件" slot="left" pos="top">
         <template slot="custom-right">
-          <el-button type="text" icon="el-icon-search" style="padding-right: 0;" @click.native.stop></el-button>
+          <el-popover
+            placement="bottom"
+            width="200"
+            trigger="click"
+            :offset="-50"
+          >
+            <el-input v-model="searchValue" placeholder="请输入内容"></el-input>
+            <el-button
+              type="text"
+              icon="el-icon-search"
+              slot="reference"
+              style="padding: 4px 5px;"
+              @click.native.stop
+            ></el-button>
+          </el-popover>
         </template>
         <div
           v-for="(val, idx) in widgets"
@@ -45,7 +59,7 @@
             @on-success="handleUploadSuccess"
             @on-error="handleUploadError"
           >
-            <el-button type="text" icon="el-icon-plus" style="padding-right: 0;"></el-button>
+            <el-button type="text" icon="el-icon-plus" style="padding: 4px 5px;"></el-button>
           </el-upload>
         </template>
         <div class="file-list" style="padding: 8px 0;">
@@ -128,6 +142,7 @@ export default {
     const editerSetting = this.$store.state.editer.setting;
     return {
       widgets,
+      searchValue: "",
       splitPercent: +editerSetting.leftPanelSplit || 70,
       splitStatus: editerSetting.leftPanelStatus || {
         top: true,

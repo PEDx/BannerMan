@@ -119,7 +119,7 @@ export default {
         setTimeout(this._genCompTree, 0);
       });
     },
-    _asyncComponentFromLocalData(data) {
+    _asyncFormatComponentFromLocalData(data) {
       const widget = widgets[data.name];
       return new Promise((resolve, reject) => {
         widget()
@@ -189,9 +189,7 @@ export default {
     _renderPageFromLocal() {
       const componentStack =
         storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
-      const _promiseArr = componentStack.map(val =>
-        this._asyncComponentFromLocalData(val)
-      );
+      const _promiseArr = componentStack.map(this._asyncFormatComponentFromLocalData);
       Promise.all(_promiseArr).then(() => {
         this._genCompTree();
       });

@@ -322,6 +322,7 @@ function capture(instance, index, list) {
     uid: instance._uid,
     id: instance._EDITER_TREE_UID__,
     name,
+    chn_name: instance._profile_.name,
     renderKey: getRenderKey(instance.$vnode ? instance.$vnode['key'] : null),
     inactive: !!instance._inactive,
     isFragment: !!instance._isFragment,

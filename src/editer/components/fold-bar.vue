@@ -63,7 +63,7 @@ export default {
     // border-bottom: 1px solid #313134;
     outline: 1px solid #313134;
     box-sizing: border-box;
-    padding: 0 5px;
+    // padding: 0 5px;
     overflow: hidden;
     cursor: pointer;
     .title {
@@ -75,10 +75,12 @@ export default {
       height: 20px;
       line-height: 20px;
     }
+
     .btn {
       position: relative;
       float: left;
       padding-right: 4px;
+      padding-left: 5px;
       .icon {
         transition: all 0.2s;
         transform: rotate(0deg);

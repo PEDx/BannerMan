@@ -4,6 +4,7 @@
       inactive: instance.inactive && !instance.parent.inactive,
       selected
     }"
+    tabindex="-1"
     class="instance"
   >
     <div
@@ -27,7 +28,7 @@
           <span :class="{ rotated: expanded }" class="arrow right"/>
         </span>
 
-        <span class="angle-bracket">&lt;</span>
+        <!-- <span class="angle-bracket">&lt;</span> -->
 
         <span class="item-name">{{ displayName }}</span>
 
@@ -36,7 +37,7 @@
           <span class="attr-value">{{ instance.renderKey }}</span>
         </span>-->
 
-        <span class="angle-bracket">&gt;</span>
+        <!-- <span class="angle-bracket">&gt;</span> -->
       </span>
       <span
         v-if="instance.consoleId"
@@ -66,7 +67,7 @@
 </template>
 
 <script>
-import { classify, scrollIntoView } from "../../../utils/index";
+import { scrollIntoView } from "../../../utils/index";
 import EventBus from "../../../bus";
 
 export default {
@@ -103,7 +104,7 @@ export default {
     },
 
     displayName() {
-      return classify(this.instance.name);
+      return this.instance.chn_name;
     },
 
     componentHasKey() {
@@ -162,7 +163,7 @@ export default {
 @import "./color.scss";
 .instance {
   font-family: dejavu sans mono, monospace;
-
+  transition: all 0.3s;
   .platform-mac & {
     font-family: Menlo, monospace;
   }
@@ -174,6 +175,17 @@ export default {
   &.inactive {
     opacity: 0.5;
   }
+  &:hover {
+    background-color: #25252577;
+  }
+  &:focus {
+    // background-color: #25252577;
+    outline: 1px dashed rgb(255, 85, 0);
+  }
+  &:active {
+    background-color: transparent;
+    outline: 0;
+  }
 }
 
 .self {
@@ -182,7 +194,7 @@ export default {
   overflow: hidden;
   z-index: 2;
   border-radius: 3px;
-  font-size: 14px;
+  // font-size: 14px;
   line-height: 22px;
   height: 22px;
   white-space: nowrap;
@@ -284,7 +296,6 @@ export default {
 }
 
 .item-name {
-  color: $component-color;
   margin: 0 1px;
 }
 
