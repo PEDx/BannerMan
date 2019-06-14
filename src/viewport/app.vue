@@ -8,25 +8,32 @@
     ></component>
   </div>
 </template>
+
 <script>
-import { debounce, generateInstanceBriefObj } from "../utils/index";
+import {
+  debounce,
+  generateInstanceBriefObj,
+  parseQueryString
+} from "../utils/index";
 import storage from "../utils/storage";
 import ComponentSelector from "./component-selector";
 import widgets from "../widgets";
 import EventBus from "../bus";
 const selector = new ComponentSelector();
-const LOCAL_SAVE_KEY = "current_viewport_data";
+const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
 export default {
   components: widgets,
   data() {
     return {
       componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
-      instancesMap: {}, // 组件数据模型, 在此分发传入各个组件的 props
+      instancesMap: {},
+      pageId: null,
       index: 0
     };
   },
   mounted() {
+    this.pageId = parseQueryString(location.href).id;
     window._CURRENT_VIEWPORT_VUE_INSTANCE_ = this;
     window.onresize = debounce(() => {
       console.log("viewport resize");
@@ -51,12 +58,15 @@ export default {
         });
       }
     });
-    EventBus.$on("element-selected", instance => this.selectComponent(instance));
+    EventBus.$on("element-selected", instance =>
+      this._selectComponent(instance)
+    );
 
     this._observerGeometric();
+    this._renderPageFromLocal();
   },
   methods: {
-    selectComponent(instance) {
+    _selectComponent(instance) {
       this.index = this._findComponentIdx(instance);
       const component = this.componentStack[this.index];
       window.parent.postMessage({
@@ -93,7 +103,7 @@ export default {
       return ret;
     },
     // 第一次添加组件会是异步加载
-    _asyncAddComponent(widgetName, idx) {
+    _asyncAddComponent(widgetName) {
       const widget = widgets[widgetName];
       widget().then(ins => {
         const profile = ins.default.prototype._profile_;
@@ -106,26 +116,47 @@ export default {
           name: widgetName,
           props: _obj
         }); // 在此初始化组件
-        setTimeout(() => {
-          const instances = this.$children;
-          const instancesTree = generateInstanceBriefObj(instances);
-          const map = {};
-          function walk(instance) {
-            map[instance._EDITER_TREE_UID__] = instance;
-            if (instance.children) {
-              instance.children.forEach(child => {
-                child.parent = instance;
-                walk(child);
-              });
-            }
-          }
-          instances.forEach(walk);
-          this.instancesMap = map;
-          window.parent.postMessage({
-            type: "flush-component-tree",
-            instancesTree
+        setTimeout(this._genCompTree, 0);
+      });
+    },
+    _asyncComponentFromLocalData(data) {
+      const widget = widgets[data.name];
+      return new Promise((resolve, reject) => {
+        widget()
+          .then(ins => {
+            const profile = ins.default.prototype._profile_;
+            const _obj = {};
+            profile.controllers.forEach(val => {
+              _obj[val.propName] = data.props[val.propName];
+            });
+
+            this.componentStack.push({
+              name: data.name,
+              props: _obj
+            }); // 在此初始化组件
+            setTimeout(resolve, 0);
+          })
+          .catch(e => reject(e));
+      });
+    },
+    _genCompTree() {
+      const instances = this.$children;
+      const instancesTree = generateInstanceBriefObj(instances);
+      const map = {};
+      function walk(instance) {
+        map[instance._EDITER_TREE_UID__] = instance;
+        if (instance.children) {
+          instance.children.forEach(child => {
+            child.parent = instance;
+            walk(child);
           });
-        }, 0);
+        }
+      }
+      instances.forEach(walk);
+      this.instancesMap = map;
+      window.parent.postMessage({
+        type: "flush-component-tree",
+        instancesTree
       });
     },
     _deleteComponent(idx) {
@@ -146,11 +177,24 @@ export default {
     },
     // 保存编辑页面数据对象模型
     savePage() {
-      storage.set(LOCAL_SAVE_KEY, this.componentStack);
+      storage.set(
+        `${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`,
+        this.componentStack
+      );
     },
     // 自动保存
     autoSave() {
       setInterval(this.savePage, AUTO_SAVE_TIME);
+    },
+    _renderPageFromLocal() {
+      const componentStack =
+        storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
+      const _promiseArr = componentStack.map(val =>
+        this._asyncComponentFromLocalData(val)
+      );
+      Promise.all(_promiseArr).then(() => {
+        this._genCompTree();
+      });
     },
     highilighitInstance(id) {
       const instance = this.instancesMap[id];
@@ -160,7 +204,7 @@ export default {
       const instance = this.instancesMap[id];
       selector.clearHighlight();
       selector.highilighitSelectedInstance(instance);
-      this.selectComponent(instance);
+      this._selectComponent(instance);
     },
     _setMeta(baseWidth) {
       const scale = 1;

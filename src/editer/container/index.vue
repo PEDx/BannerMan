@@ -36,7 +36,7 @@
             ref="iframe"
             name="viewport"
             :style="`width: 100%;height: 100%;pointer-events: ${draging ? 'none': 'auto'};outline: 1px solid #6b6b6b;box-sizing: border-box;`"
-            src="/viewport"
+            src="/viewport?id=a09w3jfa9w0fjaw9ej"
             frameborder="0"
             @load="handleLoad"
           ></iframe>
