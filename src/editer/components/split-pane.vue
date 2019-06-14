@@ -93,7 +93,7 @@ export default {
         }
         const dPosition = position - this.startPosition;
         const _split = this.startSplit + ~~((dPosition / totalSize) * 100);
-        this.split = clamp(_split, this.minSplit, this.maxSplit);
+        this.split = +clamp(_split, this.minSplit, this.maxSplit).toFixed(2);
       }
     },
 

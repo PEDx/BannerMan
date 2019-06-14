@@ -1,17 +1,16 @@
-// If the users blocks 3rd party cookies and storage,
-// localStorage will throw.
+import { stringify, parse } from './index';
 
 export default {
   get(key) {
     try {
-      return JSON.parse(localStorage.getItem(key));
+      return parse(localStorage.getItem(key));
     } catch (e) {
       console.error(e);
     }
   },
   set(key, val) {
     try {
-      localStorage.setItem(key, JSON.stringify(val));
+      localStorage.setItem(key, stringify(val));
     } catch (e) {
       console.error(e);
     }

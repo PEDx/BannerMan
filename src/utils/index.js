@@ -383,3 +383,39 @@ export const getViewportVueInstance = (() => {
     return _ins;
   };
 })();
+
+function sanitize(data) {
+  if (!isPrimitive(data) && !Array.isArray(data) && !isPlainObject(data)) {
+    return Object.prototype.toString.call(data);
+  } else {
+    return data;
+  }
+}
+
+function isPlainObject(obj) {
+  return Object.prototype.toString.call(obj) === '[object Object]';
+}
+
+function isPrimitive(data) {
+  if (data == null) {
+    return true;
+  }
+  const type = typeof data;
+  return type === 'string' || type === 'number' || type === 'boolean';
+}
+
+const UNDEFINED = '_BM_UNDEFINED_'; // jason 可序列化值为 undefined
+export function stringify(data) {
+  return JSON.stringify(data, (key, val) => {
+    // debugger;
+    const type = typeof val;
+    if (type === 'undefined') return UNDEFINED;
+    return sanitize(val);
+  });
+}
+export function parse(data) {
+  return JSON.parse(data, (key, val) => {
+    if (val === UNDEFINED) return void 0;
+    return val;
+  });
+}

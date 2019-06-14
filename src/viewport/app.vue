@@ -10,10 +10,13 @@
 </template>
 <script>
 import { debounce } from "../utils/index";
+import storage from "../utils/storage";
 import ComponentSelector from "./component-selector";
 import widgets from "../widgets";
 import EventBus from "../bus";
 const selector = new ComponentSelector();
+const LOCAL_SAVE_KEY = "current_viewport_data";
+const AUTO_SAVE_TIME = 5 * 60 * 1000;
 export default {
   components: widgets,
   data() {
@@ -123,6 +126,14 @@ export default {
     clearPage() {
       this.componentStack = [];
       selector.clearHighlight();
+    },
+    // 保存编辑页面数据对象模型
+    savePage() {
+      storage.set(LOCAL_SAVE_KEY, this.componentStack);
+    },
+    // 自动保存
+    autoSave() {
+      setInterval(this.savePage, AUTO_SAVE_TIME);
     },
     _setMeta(baseWidth) {
       const scale = 1;

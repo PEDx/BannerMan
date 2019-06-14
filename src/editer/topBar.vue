@@ -32,7 +32,7 @@
             @click="clearViewportPage"
           >清空</el-button>
           <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">预览</el-button>
-          <el-button type="primary" icon="el-icon-document-checked">保存</el-button>
+          <el-button type="primary" icon="el-icon-document-checked" @click="saveViewportPage">保存</el-button>
         </el-col>
       </el-row>
     </div>
@@ -62,6 +62,9 @@ export default {
     clearViewportPage() {
       getViewportVueInstance().clearPage();
       EventBus.$emit("clear-viewport")
+    },
+    saveViewportPage() {
+      getViewportVueInstance().savePage();
     }
   }
 };
