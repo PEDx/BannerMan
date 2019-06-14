@@ -70,7 +70,9 @@ export default {
       this.maxSplit = 100 - this.minSplit;
       Object.keys(this.itemStatus).forEach(key => {
         const val = this.itemStatus[key];
-        this.rollUp(key, val);
+        if (!val) {
+          this.rollUp(key, val);
+        }
       });
     }, 0);
   },
