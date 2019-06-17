@@ -10,13 +10,6 @@
     </div>
   </div>
 </template>
-<script>
-export default {
-  beforeUpdate() {
-    console.log('wowo')
-  }
-};
-</script>
 <style lang="scss" scoped>
 .controller-item {
   overflow: hidden;

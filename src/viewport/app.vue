@@ -1,12 +1,13 @@
 <template>
-  <div class="viewport-content" ref="viewportContent">
+  <sortble-list class="viewport-content" ref="viewportContent" v-model="componentStack">
     <component
       v-for="(val, idx) in componentStack"
       :is="val.name"
       :key="`${idx}-${val.name}`"
+      :index="idx"
       v-bind="val.props"
     ></component>
-  </div>
+  </sortble-list>
 </template>
 
 <script>
@@ -17,17 +18,24 @@ import {
 } from "../utils/index";
 import storage from "../utils/storage";
 import ComponentSelector from "./component-selector";
+import { ElementMixin } from "vue-slicksort";
+import { SortbleItem, SortbleList } from "./sortble/index";
 import widgets from "../widgets";
 import EventBus from "../bus";
 const selector = new ComponentSelector();
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
 export default {
-  components: widgets,
+  components: {
+    ...widgets,
+    "sortble-item": SortbleItem,
+    "sortble-list": SortbleList
+  },
   data() {
     return {
       componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
       instancesMap: {},
+      loadingCompletedMap: {},
       pageId: null,
       index: 0
     };
@@ -68,7 +76,7 @@ export default {
       })
     );
 
-    this._observerGeometric();
+    // this._observerGeometric();
     this._renderPageFromLocal();
   },
   methods: {
@@ -104,15 +112,27 @@ export default {
     },
     _findComponentIdx(ins) {
       let ret = 0;
-      this.$children.forEach((val, idx) => {
+      this.$refs.viewportContent.$children.forEach((val, idx) => {
         if (val === ins) ret = idx;
       });
       return ret;
     },
+    _asyncLoadComponent(name) {
+      if (this.loadingCompletedMap[name]) {
+        return Promise.resolve(this.loadingCompletedMap[name]);
+      }
+      const widget = widgets[name];
+      return new Promise((resolve, reject) => {
+        widget().then(ins => {
+          ins.default.mixin(ElementMixin);
+          this.loadingCompletedMap[name] = ins;
+          resolve(ins);
+        });
+      });
+    },
     // 第一次添加组件会是异步加载
     _asyncAddComponent(widgetName) {
-      const widget = widgets[widgetName];
-      widget().then(ins => {
+      this._asyncLoadComponent(widgetName).then(ins => {
         const profile = ins.default.prototype._profile_;
         const _obj = {};
         profile.controllers.forEach(val => {
@@ -127,9 +147,8 @@ export default {
       });
     },
     _asyncFormatComponentFromLocalData(data) {
-      const widget = widgets[data.name];
       return new Promise((resolve, reject) => {
-        widget()
+        this._asyncLoadComponent(data.name)
           .then(ins => {
             const profile = ins.default.prototype._profile_;
             const _obj = {};
@@ -147,7 +166,7 @@ export default {
       });
     },
     _genCompTree() {
-      const instances = this.$children;
+      const instances = this.$refs.viewportContent.$children;
       const instancesTree = generateInstanceBriefObj(instances);
       const map = {};
       function walk(instance) {
@@ -174,7 +193,7 @@ export default {
       compObj.props[key] = value;
     },
     getWidgetDataValue(key) {
-      const vm = this.$children[this.index];
+      const vm = this.$refs.viewportContent.$children[this.index];
       return vm[key];
     },
     // 清空编辑页面
@@ -194,6 +213,7 @@ export default {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
     _renderPageFromLocal() {
+      if (!this.pageId) return;
       const componentStack =
         storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
       const _promiseArr = componentStack.map(

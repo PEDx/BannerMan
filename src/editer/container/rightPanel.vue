@@ -21,7 +21,7 @@
         </controller-item>
       </fold-bar>
       <fold-bar title="组件树" slot="right" pos="bottom">
-        <component-tree :instances="instancesTree"></component-tree>
+        <component-tree :instances="instancesTree" v-model="instancesTree"></component-tree>
       </fold-bar>
     </split-pane>
   </div>

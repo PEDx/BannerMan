@@ -87,7 +87,6 @@ export function highlight(instance) {
     // TODO: Highlight rect area.
     return;
   }
-
   initOverlay();
   if (rect) {
     const content = [];
@@ -145,11 +144,18 @@ export function unHighlightSelected() {
  * @return {Object}
  */
 
+function isBannerManWidget(instance) {
+  if (!instance) return false;
+  if (!instance._profile_) return false;
+  return true;
+}
+
 export function getInstanceOrVnodeRect(instance) {
   const el = instance.$el || instance.elm;
   if (!isBrowser) {
-    // TODO: Find position from instance or a vnode (for functional components).
-
+    return;
+  }
+  if (!isBannerManWidget(instance)) {
     return;
   }
   if (!inDoc(el)) {

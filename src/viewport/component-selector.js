@@ -30,8 +30,8 @@ export default class ComponentSelector {
     window.addEventListener('mouseout', this.cancelEvent, true);
     window.addEventListener('mouseenter', this.cancelEvent, true);
     window.addEventListener('mouseleave', this.cancelEvent, true);
-    window.addEventListener('mousedown', this.cancelEvent, true);
-    window.addEventListener('mouseup', this.cancelEvent, true);
+    // window.addEventListener('mousedown', this.cancelEvent, true);
+    // window.addEventListener('mouseup', this.cancelEvent, true);
   }
 
   /**
