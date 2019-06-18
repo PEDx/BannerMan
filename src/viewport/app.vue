@@ -27,7 +27,6 @@ const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
 export default {
   components: {
-    ...widgets,
     "sortble-item": SortbleItem,
     "sortble-list": SortbleList
   },
@@ -35,7 +34,7 @@ export default {
     return {
       componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
       instancesMap: {},
-      loadingCompletedMap: {},
+      loadingCompleteStatusMap: {},
       pageId: null,
       index: 0
     };
@@ -118,14 +117,14 @@ export default {
       return ret;
     },
     _asyncLoadComponent(name) {
-      if (this.loadingCompletedMap[name]) {
-        return Promise.resolve(this.loadingCompletedMap[name]);
-      }
       const widget = widgets[name];
       return new Promise((resolve, reject) => {
         widget().then(ins => {
-          ins.default.mixin(ElementMixin);
-          this.loadingCompletedMap[name] = ins;
+          if (!this.loadingCompleteStatusMap[name]) { // 防止并发加载多次添加 mixin 到同一组件上
+            ins.default.mixin(ElementMixin);
+            this.loadingCompleteStatusMap[name] = true;
+          }
+          this.loadingCompleteStatusMap[name] = ins;
           resolve(ins);
         });
       });
@@ -220,7 +219,7 @@ export default {
         this._asyncFormatComponentFromLocalData
       );
       Promise.all(_promiseArr).then(() => {
-        this._genCompTree();
+        this._genCompTree(); // 生成组件树
       });
     },
     highilighitInstance(id) {
