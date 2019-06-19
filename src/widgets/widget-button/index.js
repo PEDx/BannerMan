@@ -4,4 +4,4 @@ import profile from './profile';
 
 component._profile_ = profile;
 
-export default Vue.component('widget-search', component);
+export default Vue.component('widget-button', component);

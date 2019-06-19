@@ -27,7 +27,8 @@
 import {
   debounce,
   generateInstanceBriefObj,
-  parseQueryString
+  parseQueryString,
+  getInstanceProfile
 } from "../utils/index";
 import storage from "../utils/storage";
 import ComponentSelector from "./component-selector";
@@ -38,6 +39,7 @@ import EventBus from "../bus";
 const selector = new ComponentSelector();
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
+
 export default {
   components: {
     "sortble-list": SortbleList
@@ -70,6 +72,7 @@ export default {
       const msg = e.dataTransfer.getData("WIDGET_TYPE");
       if (msg) {
         this._asyncAddComponent("widget-search");
+        // this._asyncAddComponent("widget-button");
         window.parent.postMessage({
           type: "drag-end",
           axis: {
@@ -107,15 +110,17 @@ export default {
       this.sortFlag = false;
       console.log("_handleSortEnd");
     },
-    _handleSortInput() {
+    _handleSortInput(arr) {
       console.log("_handleSortInput");
+      // setTimeout(this._genCompTree);
+      this.$nextTick(() => this._genCompTree);
     },
     _selectComponent(instance) {
       this.index = this._findComponentIdx(instance);
       const component = this.componentStack[this.index];
       window.parent.postMessage({
         type: "select-component",
-        profile: instance._profile_,
+        profile: getInstanceProfile(instance),
         id: instance._EDITER_TREE_UID__,
         name: component.name
       });
@@ -162,7 +167,7 @@ export default {
     // 第一次添加组件会是异步加载
     _asyncAddComponent(widgetName) {
       this._asyncLoadComponent(widgetName).then(ins => {
-        const profile = ins.default.prototype._profile_;
+        const profile = ins.default.extendOptions._profile_;
         const _obj = {};
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
@@ -189,14 +194,14 @@ export default {
       return new Promise((resolve, reject) => {
         this._asyncLoadComponent(data.name)
           .then(ins => {
-            const profile = ins.default.prototype._profile_;
+            const profile = ins.default.extendOptions._profile_;
             const _obj = {};
             profile.controllers.forEach(val => {
               _obj[val.propName] = data.props[val.propName];
             });
 
             this._addComponent(data.name, _obj);
-            setTimeout(resolve, 0);
+            resolve(data.name);
           })
           .catch(e => reject(e));
       });
@@ -255,6 +260,7 @@ export default {
       const _promiseArr = componentStack.map(
         this._asyncFormatComponentFromLocalData
       );
+      console.log(_promiseArr);
       Promise.all(_promiseArr).then(() => {
         this._genCompTree(); // 生成组件树
       });

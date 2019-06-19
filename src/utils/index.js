@@ -143,7 +143,7 @@ export const classify = cached(str => {
 });
 
 export function getComponentName(options) {
-  const name = options.name || options._componentTag;
+  const name = options._profile_.name || options.name || options._componentTag;
   if (name) {
     return name;
   }
@@ -317,12 +317,10 @@ function capture(instance, index, list) {
 
   mark(instance);
   const name = getInstanceName(instance);
-
   const ret = {
     uid: instance._uid,
     id: instance._EDITER_TREE_UID__,
     name,
-    chn_name: instance._profile_.name,
     renderKey: getRenderKey(instance.$vnode ? instance.$vnode['key'] : null),
     inactive: !!instance._inactive,
     isFragment: !!instance._isFragment,
@@ -439,4 +437,8 @@ export function parseQueryString(url) {
     res[name] = value;
   }
   return res;
+}
+
+export function getInstanceProfile(instance) {
+  return instance.$options._profile_ || null;
 }

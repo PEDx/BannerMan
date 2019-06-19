@@ -99,7 +99,7 @@ export default {
     },
 
     displayName() {
-      return this.instance.chn_name;
+      return this.instance.name;
     },
 
     componentHasKey() {

@@ -1,4 +1,9 @@
-import { classify, getComponentName, getInstanceName } from '../utils/index';
+import {
+  classify,
+  getComponentName,
+  getInstanceName,
+  getInstanceProfile
+} from '../utils/index';
 const isBrowser = true;
 const classifyComponents = false;
 
@@ -94,7 +99,7 @@ export function highlight(instance) {
       ? getComponentName(instance.fnOptions)
       : getInstanceName(instance);
     if (classifyComponents) compName = classify(name);
-    const name = instance._profile_.name || compName;
+    const name = getInstanceProfile(instance).name || compName;
     if (name) {
       const pre = document.createElement('span');
       pre.style.opacity = '0.6';
@@ -146,7 +151,7 @@ export function unHighlightSelected() {
 
 function isBannerManWidget(instance) {
   if (!instance) return false;
-  if (!instance._profile_) return false;
+  if (!getInstanceProfile(instance)) return false;
   return true;
 }
 
