@@ -1,9 +1,22 @@
 <template>
   <div class="widget-search">
-    <input v-model="value" type="text" :style="{width: `${width}px`, height: `${height}px`}">
+    <input
+      v-model="value"
+      type="text"
+      :style="{width: `${width}px`, height: `${height}px`}"
+      @click="handleClick"
+    >
   </div>
 </template>
 <script>
+// this.$emit("change-prop", {
+//   width: 134
+// });
+// 注意：
+// 1. 编辑器监听此事件只是暴露 props 控制权给组件（正在编辑的）自己，使之更灵活，组件可以自我设置传入 props
+// 2. 此处设置的 props 将和右边 参数控制器 的数值同步
+// 3. 非编辑器环境没有此事件监听，请勿在业务逻辑中依赖
+
 export default {
   props: {
     width: {
@@ -21,7 +34,9 @@ export default {
     };
   },
   mounted() {
-    // console.log(this);
+  },
+  methods: {
+    handleClick() {}
   }
 };
 </script>

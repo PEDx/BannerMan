@@ -1,10 +1,23 @@
 <template>
-  <sortble-list class="viewport-content" ref="viewportContent" v-model="componentStack">
+  <sortble-list
+    class="viewport-content"
+    ref="viewportContent"
+    v-model="componentStack"
+    :use-window-as-scrol-container="false"
+    :press-threshold="10"
+    axis="y"
+    lock-axis="y"
+    @sort-start="_handleSortStart"
+    @sort-move="_handleSortMove"
+    @sort-end="_handleSortEnd"
+    @input="_handleSortInput"
+  >
     <component
       v-for="(val, idx) in componentStack"
       :is="val.name"
       :key="`${idx}-${val.name}`"
       :index="idx"
+      @change-prop="val.childEmitEven"
       v-bind="val.props"
     ></component>
   </sortble-list>
@@ -19,7 +32,7 @@ import {
 import storage from "../utils/storage";
 import ComponentSelector from "./component-selector";
 import { ElementMixin } from "vue-slicksort";
-import { SortbleItem, SortbleList } from "./sortble/index";
+import { SortbleList } from "./sortble/index";
 import widgets from "../widgets";
 import EventBus from "../bus";
 const selector = new ComponentSelector();
@@ -27,14 +40,15 @@ const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
 export default {
   components: {
-    "sortble-item": SortbleItem,
     "sortble-list": SortbleList
   },
   data() {
+    this.children = [];
     return {
       componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
       instancesMap: {},
       loadingCompleteStatusMap: {},
+      sortFlag: false,
       pageId: null,
       index: 0
     };
@@ -75,10 +89,27 @@ export default {
       })
     );
 
-    // this._observerGeometric();
+    this._observerGeometric();
     this._renderPageFromLocal();
   },
   methods: {
+    _handleSortStart() {
+      selector.stopSelecting();
+      this.sortFlag = true;
+      console.log("_handleSortStart");
+    },
+    _handleSortMove() {
+      selector.clearHighlight();
+      console.log("_handleSortMove");
+    },
+    _handleSortEnd() {
+      selector.startSelecting();
+      this.sortFlag = false;
+      console.log("_handleSortEnd");
+    },
+    _handleSortInput() {
+      console.log("_handleSortInput");
+    },
     _selectComponent(instance) {
       this.index = this._findComponentIdx(instance);
       const component = this.componentStack[this.index];
@@ -96,15 +127,14 @@ export default {
         window.WebKitMutationObserver ||
         window.MozMutationObserver;
       // IE 11 及以上兼容
-      const mutationObserver = new MutationObserver(function(
-        mutations,
-        observer
-      ) {
-        console.log("viewport attr changed");
+      const mutationObserver = new MutationObserver((mutations, observer) => {
         // 重置高亮
-        selector.resetHighlight();
+        if (!this.sortFlag) {
+          console.log("viewport attr changed");
+          selector.resetHighlight();
+        }
       });
-      mutationObserver.observe(this.$refs.viewportContent, {
+      mutationObserver.observe(this.$refs.viewportContent.$el, {
         subtree: true,
         attributes: true
       });
@@ -120,11 +150,11 @@ export default {
       const widget = widgets[name];
       return new Promise((resolve, reject) => {
         widget().then(ins => {
-          if (!this.loadingCompleteStatusMap[name]) { // 防止并发加载多次添加 mixin 到同一组件上
+          if (!this.loadingCompleteStatusMap[name]) {
+            // 防止并发加载多次添加 mixin 到同一组件上
             ins.default.mixin(ElementMixin);
             this.loadingCompleteStatusMap[name] = true;
           }
-          this.loadingCompleteStatusMap[name] = ins;
           resolve(ins);
         });
       });
@@ -137,13 +167,23 @@ export default {
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
         });
-
-        this.componentStack.push({
-          name: widgetName,
-          props: _obj
-        }); // 在此初始化组件
+        this._addComponent(widgetName, _obj);
         setTimeout(this._genCompTree, 0);
       });
+    },
+    _addComponent(name, propsObj) {
+      this.componentStack.push({
+        name: name,
+        props: propsObj,
+        childEmitEven: (prpos => {
+          return obj => {
+            Object.keys(obj).forEach(key => (prpos[key] = obj[key]));
+            window.parent.postMessage({
+              type: "flush-controller-value"
+            });
+          };
+        })(propsObj)
+      }); // 在此初始化组件
     },
     _asyncFormatComponentFromLocalData(data) {
       return new Promise((resolve, reject) => {
@@ -155,10 +195,7 @@ export default {
               _obj[val.propName] = data.props[val.propName];
             });
 
-            this.componentStack.push({
-              name: data.name,
-              props: _obj
-            }); // 在此初始化组件
+            this._addComponent(data.name, _obj);
             setTimeout(resolve, 0);
           })
           .catch(e => reject(e));

@@ -9,13 +9,13 @@
         <controller-item
           v-for="(val, idx) in controllerList"
           :key="`${new Date().getTime()}-${idx}`"
-          ref="ctrls"
         >
           <span slot="label">{{ val.label }}</span>
           <component
             :is="controllerTypeMap[val.controllerType]"
             slot="ctrl"
-            :value="val._value"
+            :value="val.$value"
+            ref="ctrls"
             @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
           ></component>
         </controller-item>
@@ -61,12 +61,16 @@ export default {
     window.addEventListener(
       "message",
       e => {
+        // 选定一个元素
         if (e.data.type === "select-component") {
           const ins = getViewportVueInstance();
+          e.data.profile.controllers.forEach(val => {
+            val.$value = undefined;
+          });
           const profile = e.data.profile;
           this.controllerList = profile.controllers;
           this.controllerList.forEach(val => {
-            val._value = ins.getWidgetDataValue(val.propName);
+            val.$value = ins.getWidgetDataValue(val.propName);
           });
         }
       },
@@ -75,8 +79,22 @@ export default {
     window.addEventListener(
       "message",
       e => {
+        // 刷新组件树
         if (e.data.type === "flush-component-tree") {
           this.instancesTree = e.data.instancesTree;
+        }
+      },
+      false
+    );
+    window.addEventListener(
+      "message",
+      e => {
+        // 刷新控制器列表数值
+        if (e.data.type === "flush-controller-value") {
+          const ins = getViewportVueInstance();
+          this.controllerList.forEach(val => {
+            val.$value = ins.getWidgetDataValue(val.propName);
+          });
         }
       },
       false

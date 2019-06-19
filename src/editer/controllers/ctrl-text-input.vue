@@ -5,6 +5,9 @@
 </template>
 <script>
 export default {
+  props: {
+    value: String
+  },
   data() {
     return {
       input: ""
