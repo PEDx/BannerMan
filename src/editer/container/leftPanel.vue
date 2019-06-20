@@ -7,12 +7,7 @@
     >
       <fold-bar title="控件" slot="left" pos="top">
         <template slot="custom-right">
-          <el-popover
-            placement="bottom"
-            width="200"
-            trigger="click"
-            :offset="-50"
-          >
+          <el-popover placement="bottom" width="200" trigger="click" :offset="-50">
             <el-input v-model="searchValue" placeholder="请输入内容"></el-input>
             <el-button
               type="text"
@@ -73,6 +68,23 @@
             <p class="f-toe">
               <i class="el-icon-picture item-icon"></i>
               {{ val.name }}
+              <el-popover
+                placement="right"
+                title="预览"
+                width="auto"
+                trigger="hover"
+                content=""
+                :popper-options="{}"
+                @after-enter="popoverShow(val)"
+              >
+                <img :src="checkImgSrc" alt class="check-view-img">
+                <el-button
+                  slot="reference"
+                  type="text"
+                  class="item-icon f-fr check-img"
+                  icon="el-icon-view"
+                ></el-button>
+              </el-popover>
             </p>
           </div>
         </div>
@@ -143,6 +155,7 @@ export default {
     return {
       widgets,
       searchValue: "",
+      checkImgSrc: "",
       splitPercent: +editerSetting.leftPanelSplit || 70,
       splitStatus: editerSetting.leftPanelStatus || {
         top: true,
@@ -175,6 +188,9 @@ export default {
     handleSplitChange(data) {
       this.$store.dispatch("update_lf_spt", data.split);
       this.$store.dispatch("update_lf_spt_status", data.status);
+    },
+    popoverShow(img) {
+      this.checkImgSrc = img.url;
     }
   }
 };
@@ -237,6 +253,9 @@ $file-icon-color: #4ca2ab;
       &:hover {
         background-color: #fd9527;
         color: #333;
+        .check-img {
+          display: inline-block;
+        }
       }
       &:focus {
         background-color: #fd9527;
@@ -256,7 +275,18 @@ $file-icon-color: #4ca2ab;
       position: relative;
       top: 2px;
     }
+    .check-img {
+      display: none;
+      font-size: 14px;
+      color: #333;
+      // top: 5px;
+      padding: 4px 0;
+    }
   }
+}
+.check-view-img {
+  display: inline-block;
+  height: 200px;
 }
 </style>
 

@@ -33,4 +33,10 @@ body {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.f-fl {
+  float: left;
+}
+.f-fr {
+  float: right;
+}
 </style>
