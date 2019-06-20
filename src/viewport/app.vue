@@ -119,6 +119,9 @@ export default {
       selector.stopSelecting();
       sort_status.sorting = true;
     },
+    _getInstanceList() {
+      return this.$refs.viewportContent.$children || [];
+    },
     // 排序完成后所有的排序元素实例都会销毁重建
     _handleSortEnd({ newIndex, oldIndex }) {
       selector.startSelecting();
@@ -140,7 +143,7 @@ export default {
     _selectComponentAndHighlightByIdx(idx) {
       this.index = idx;
       const component = this.componentStack[idx];
-      const instance = this.$refs.viewportContent.$children[idx];
+      const instance = this._getInstanceList()[idx];
       selector.highlighitSelectedInstance(instance);
       window.parent.postMessage({
         type: "select-component",
@@ -163,14 +166,14 @@ export default {
           selector.resetHighlight();
         }
       });
-      mutationObserver.observe(this.$refs.viewportContent.$el, {
+      mutationObserver.observe(this.$el, {
         subtree: true,
         attributes: true
       });
     },
     _findComponentIdx(ins) {
       let ret = 0;
-      this.$refs.viewportContent.$children.forEach((val, idx) => {
+      this._getInstanceList().forEach((val, idx) => {
         if (val === ins) ret = idx;
       });
       return ret;
@@ -254,7 +257,7 @@ export default {
       });
     },
     _genCompTree() {
-      const instances = this.$refs.viewportContent.$children;
+      const instances = this._getInstanceList();
       const instancesTree = generateInstanceBriefObj(instances);
       const map = {};
       function walk(instance) {
@@ -276,12 +279,31 @@ export default {
     _deleteComponent(idx) {
       this.componentStack.splice(idx, 1);
     },
+    _setMeta(baseWidth) {
+      const scale = 1;
+      const meta = document.createElement("meta");
+      let metaContent = "";
+      if (/Android (\d+\.\d+)/.test(navigator.userAgent)) {
+        var version = parseFloat(RegExp.$1);
+        if (version > 2.3) {
+          var phoneScale = (parseInt(window.screen.width) * scale) / baseWidth;
+          metaContent = `width=${baseWidth}, minimum-scale =${phoneScale}, maximum-scale=${phoneScale}, target-densitydpi=device-dpi`;
+        } else {
+          metaContent = `width=${baseWidth}, target-densitydpi=device-dpi`;
+        }
+      } else {
+        metaContent = `width=${baseWidth}, user-scalable=no`;
+      }
+      meta.setAttribute("name", "viewport");
+      meta.setAttribute("content", metaContent);
+      document.getElementsByTagName("head")[0].appendChild(meta);
+    },
     updateWidgetProp(key, value) {
       const compObj = this.componentStack[this.index];
       compObj.props[key] = value;
     },
     getWidgetDataValue(key) {
-      const vm = this.$refs.viewportContent.$children[this.index];
+      const vm = this._getInstanceList()[this.index];
       return vm[key];
     },
     // 清空编辑页面
@@ -316,25 +338,6 @@ export default {
       document.documentElement.scrollTo({
         top: (scroll_height - window_height) * percent
       });
-    },
-    _setMeta(baseWidth) {
-      const scale = 1;
-      const meta = document.createElement("meta");
-      let metaContent = "";
-      if (/Android (\d+\.\d+)/.test(navigator.userAgent)) {
-        var version = parseFloat(RegExp.$1);
-        if (version > 2.3) {
-          var phoneScale = (parseInt(window.screen.width) * scale) / baseWidth;
-          metaContent = `width=${baseWidth}, minimum-scale =${phoneScale}, maximum-scale=${phoneScale}, target-densitydpi=device-dpi`;
-        } else {
-          metaContent = `width=${baseWidth}, target-densitydpi=device-dpi`;
-        }
-      } else {
-        metaContent = `width=${baseWidth}, user-scalable=no`;
-      }
-      meta.setAttribute("name", "viewport");
-      meta.setAttribute("content", metaContent);
-      document.getElementsByTagName("head")[0].appendChild(meta);
     }
   }
 };
