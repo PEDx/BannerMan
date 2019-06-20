@@ -1,5 +1,5 @@
 <template>
-  <sortble-list
+  <sortble-container
     class="viewport-content"
     ref="viewportContent"
     v-model="componentStack"
@@ -15,12 +15,12 @@
     <component
       v-for="(val, idx) in componentStack"
       :is="val.name"
-      :key="`${idx}-${val.name}`"
+      :key="`${getRandomStr(6)}-${val.name}`"
       :index="idx"
       @change-prop="val.childEmitEven"
       v-bind="val.props"
     ></component>
-  </sortble-list>
+  </sortble-container>
 </template>
 
 <script>
@@ -29,12 +29,13 @@ import {
   generateInstanceBriefObj,
   parseQueryString,
   getInstanceProfile,
-  serialization
+  serialization,
+  getRandomStr
 } from "../utils/index";
 import storage from "../utils/storage";
 import ComponentSelector from "./component-selector";
 import { ElementMixin } from "vue-slicksort";
-import { SortbleList } from "./sortble/index";
+import SortbleContainer from "./sortble-container";
 import widgets from "../widgets";
 import EventBus from "../bus";
 const selector = new ComponentSelector();
@@ -43,7 +44,7 @@ const AUTO_SAVE_TIME = 5 * 60 * 1000;
 
 export default {
   components: {
-    "sortble-list": SortbleList
+    "sortble-container": SortbleContainer
   },
   data() {
     this.children = [];
@@ -97,6 +98,7 @@ export default {
     this._renderPageFromLocal();
   },
   methods: {
+    getRandomStr,
     _handleSortStart() {
       selector.stopSelecting();
       this.sortFlag = true;
@@ -113,8 +115,17 @@ export default {
     },
     _handleSortInput(arr) {
       console.log("_handleSortInput");
-      // setTimeout(this._genCompTree);
-      this.$nextTick(() => this._genCompTree);
+      setTimeout(() => {
+        this._genCompTree();
+      });
+    },
+    _getRealDomInstanceTree(el) {
+      const ret = [];
+      for (let i = 0, len = el.children.length; i < len; i++) {
+        const _el = el.children[i];
+        ret.push(_el.__vue__);
+      }
+      return ret;
     },
     _selectComponent(instance) {
       this.index = this._findComponentIdx(instance);
@@ -190,8 +201,7 @@ export default {
         "widget-search",
         "widget-search"
       ].map(this._asyncLoadComponent);
-      serialization(promiseArr).then(res => {
-      });
+      serialization(promiseArr).then(res => {});
     },
     // 第一次添加组件会是异步加载
     _asyncAddComponent(widgetName) {
@@ -202,7 +212,7 @@ export default {
           _obj[val.propName] = void 0;
         });
         this._addComponent(widgetName, _obj);
-        setTimeout(this._genCompTree, 0);
+        setTimeout(this._genCompTree);
       });
     },
     _asyncFormatComponentFromLocalData(data) {
@@ -228,6 +238,7 @@ export default {
       );
       serialization(_promiseArr).then(res => {
         res.forEach(val => this._addComponent(...val));
+        setTimeout(this._genCompTree);
       });
     },
     _genCompTree() {

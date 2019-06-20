@@ -18,10 +18,6 @@ function inDoc(node) {
   );
 }
 
-// const chnfy = cached(widgetName => {
-//   return widgets[widgetName].profile.name || '匿名';
-// });
-
 function mapNodeRange(node, end, op) {
   var next;
   while (node !== end) {

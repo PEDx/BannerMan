@@ -5,14 +5,8 @@ import {
   unHighlightSelected,
   highlightSelected
 } from './highlighter';
+import { findRelatedComponent } from '../utils/index';
 const isBrowser = true;
-
-function findRelatedComponent(el) {
-  while (!el.__vue__ && el.parentElement) {
-    el = el.parentElement;
-  }
-  return el.__vue__;
-}
 
 export default class ComponentSelector {
   constructor() {

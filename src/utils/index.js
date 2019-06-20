@@ -442,6 +442,13 @@ export function parseQueryString(url) {
 export function getInstanceProfile(instance) {
   return instance.$options._profile_ || null;
 }
+export function findRelatedComponent(el) {
+  while (!el.__vue__ && el.parentElement) {
+    el = el.parentElement;
+  }
+  return el.__vue__;
+}
+
 export function serialization(promise_arr) {
   return new Promise((resolve, reject) => {
     let idx = 0;
@@ -458,4 +465,14 @@ export function serialization(promise_arr) {
     }
     step();
   });
+}
+
+export function getRandomStr(len) {
+  let text = '';
+  const possible =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < len; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
 }
