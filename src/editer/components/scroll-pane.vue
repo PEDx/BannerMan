@@ -3,7 +3,7 @@
     <div class="header">
       <slot name="header"/>
     </div>
-    <div class="scroll" ref="scroll">
+    <div class="scroll" ref="scroll" @scroll="handleScroll">
       <slot name="scroll"/>
     </div>
     <div v-if="$slots.footer" class="footer">
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { throttle } from "../../utils/index";
 export default {
   props: {
     percent: {
@@ -22,9 +23,18 @@ export default {
   },
   watch: {
     percent: function(val) {
-      console.log(val);
       this.scrollTo(val);
     }
+  },
+  created() {
+    this.handleScroll = throttle(() => {
+      const _el = this.$refs.scroll;
+      const scroll_top = _el.scrollTop;
+      const scroll_height = _el.scrollHeight;
+      const el_height = _el.clientHeight;
+      const percent = scroll_top / (scroll_height - el_height);
+      this.$emit("pane-scroll", percent);
+    }, 20);
   },
   methods: {
     scrollTo(percent) {

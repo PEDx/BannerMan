@@ -1,6 +1,6 @@
 <template>
   <div class="fold-bar">
-    <scroll-pane :percent="percent">
+    <scroll-pane :percent="percent" @pane-scroll="handleScroll">
       <div class="title-bar" @click="togglePannel" slot="header">
         <div class="btn">
           <i :class="{'icon-rotate': !showContent}" class="el-icon-caret-bottom icon"></i>
@@ -52,6 +52,9 @@ export default {
     },
     contentScrollTo(percent) {
       this.percent = percent;
+    },
+    handleScroll(percent) {
+      this.$emit("content-scroll-percent", (+percent).toFixed(2));
     }
   }
 };

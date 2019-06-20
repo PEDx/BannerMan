@@ -24,6 +24,7 @@
 <script>
 import {
   debounce,
+  throttle,
   generateInstanceBriefObj,
   parseQueryString,
   getInstanceProfile,
@@ -74,17 +75,16 @@ export default {
     document.addEventListener("dragleave", e => e.preventDefault());
     document.addEventListener(
       "scroll",
-      debounce(e => {
+      throttle(e => {
         const scroll_top = document.documentElement.scrollTop;
         const scroll_height = document.documentElement.scrollHeight;
         const window_height = document.documentElement.clientHeight;
         const percent = scroll_top / (scroll_height - window_height);
         window.parent.postMessage({
-          type: "scroll-percent",
+          type: "viewport-scroll-percent",
           percent: percent.toFixed(2)
         });
-      }),
-      16
+      }, 20)
     );
     document.addEventListener("drop", e => {
       const msg = e.dataTransfer.getData("WIDGET_TYPE");
@@ -309,6 +309,13 @@ export default {
       selector.clearHighlight();
       selector.highlighitSelectedInstance(instance);
       this._selectComponentAndHighlightByIdx(this._findComponentIdx(instance));
+    },
+    viewportScrollTo(percent) {
+      const scroll_height = document.documentElement.scrollHeight;
+      const window_height = document.documentElement.clientHeight;
+      document.documentElement.scrollTo({
+        top: (scroll_height - window_height) * percent
+      });
     },
     _setMeta(baseWidth) {
       const scale = 1;

@@ -136,6 +136,7 @@ export default {
 
     enter() {
       EventBus.$emit("tree-enter-instance", this.instance.id);
+      this.tree.mouseoverId = this.instance.id;
     },
 
     leave() {

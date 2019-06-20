@@ -20,7 +20,13 @@
           ></component>
         </controller-item>
       </fold-bar>
-      <fold-bar title="组件树" slot="right" pos="bottom" ref="tree">
+      <fold-bar
+        title="组件树"
+        slot="right"
+        pos="bottom"
+        ref="tree"
+        @content-scroll-percent="handleContentScroll"
+      >
         <component-tree :instances="instancesTree" v-model="instancesTree"></component-tree>
       </fold-bar>
     </split-pane>
@@ -90,7 +96,7 @@ export default {
       "message",
       e => {
         // 刷新组件树
-        if (e.data.type === "scroll-percent") {
+        if (e.data.type === "viewport-scroll-percent") {
           this.$refs.tree.contentScrollTo(+e.data.percent);
         }
       },
@@ -128,6 +134,10 @@ export default {
     handleSubmitUpdate(key, value) {
       const ins = getViewportVueInstance();
       ins.updateWidgetProp(key, value);
+    },
+    handleContentScroll(percent) {
+      const ins = getViewportVueInstance();
+      ins.viewportScrollTo(percent);
     }
   }
 };
