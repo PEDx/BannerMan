@@ -3,14 +3,12 @@
     class="viewport-content"
     ref="viewportContent"
     v-model="componentStack"
-    :use-window-as-scrol-container="false"
-    :press-threshold="10"
+    :use-window-as-scrol-container="true"
+    :distance="10"
     axis="y"
     lock-axis="y"
     @sort-start="_handleSortStart"
-    @sort-move="_handleSortMove"
     @sort-end="_handleSortEnd"
-    @input="_handleSortInput"
   >
     <component
       v-for="(val, idx) in componentStack"
@@ -42,6 +40,11 @@ const selector = new ComponentSelector();
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
 
+const sort_status = {
+  sorting: false,
+  moving: false
+};
+
 export default {
   components: {
     "sortble-container": SortbleContainer
@@ -52,7 +55,6 @@ export default {
       componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
       instancesMap: {},
       loadingCompleteStatusMap: {},
-      sortFlag: false,
       pageId: null,
       index: 0
     };
@@ -70,6 +72,20 @@ export default {
     document.addEventListener("dragenter", e => e.preventDefault());
     document.addEventListener("dragover", e => e.preventDefault());
     document.addEventListener("dragleave", e => e.preventDefault());
+    document.addEventListener(
+      "scroll",
+      debounce(e => {
+        const scroll_top = document.documentElement.scrollTop;
+        const scroll_height = document.documentElement.scrollHeight;
+        const window_height = document.documentElement.clientHeight;
+        const percent = scroll_top / (scroll_height - window_height);
+        window.parent.postMessage({
+          type: "scroll-percent",
+          percent: percent.toFixed(2)
+        });
+      }),
+      16
+    );
     document.addEventListener("drop", e => {
       const msg = e.dataTransfer.getData("WIDGET_TYPE");
       if (msg) {
@@ -84,9 +100,9 @@ export default {
         });
       }
     });
-    EventBus.$on("element-selected", instance =>
-      this._selectComponent(instance)
-    );
+    EventBus.$on("element-selected", instance => {
+      this._selectComponentAndHighlightByIdx(this._findComponentIdx(instance));
+    });
     EventBus.$on("element-mouseover", instance =>
       window.parent.postMessage({
         type: "element-mouseover",
@@ -99,24 +115,18 @@ export default {
   },
   methods: {
     getRandomStr,
-    _handleSortStart() {
+    _handleSortStart({ index }) {
       selector.stopSelecting();
-      this.sortFlag = true;
-      console.log("_handleSortStart");
+      sort_status.sorting = true;
     },
-    _handleSortMove() {
-      selector.clearHighlight();
-      console.log("_handleSortMove");
-    },
-    _handleSortEnd() {
+    // 排序完成后所有的排序元素实例都会销毁重建
+    _handleSortEnd({ newIndex, oldIndex }) {
       selector.startSelecting();
-      this.sortFlag = false;
-      console.log("_handleSortEnd");
-    },
-    _handleSortInput(arr) {
-      console.log("_handleSortInput");
+      sort_status.sorting = false;
       setTimeout(() => {
+        if (newIndex === oldIndex) return; // 没有移动过
         this._genCompTree();
+        this._selectComponentAndHighlightByIdx(newIndex);
       });
     },
     _getRealDomInstanceTree(el) {
@@ -127,9 +137,11 @@ export default {
       }
       return ret;
     },
-    _selectComponent(instance) {
-      this.index = this._findComponentIdx(instance);
-      const component = this.componentStack[this.index];
+    _selectComponentAndHighlightByIdx(idx) {
+      this.index = idx;
+      const component = this.componentStack[idx];
+      const instance = this.$refs.viewportContent.$children[idx];
+      selector.highlighitSelectedInstance(instance);
       window.parent.postMessage({
         type: "select-component",
         profile: getInstanceProfile(instance),
@@ -146,7 +158,7 @@ export default {
       // IE 11 及以上兼容
       const mutationObserver = new MutationObserver((mutations, observer) => {
         // 重置高亮
-        if (!this.sortFlag) {
+        if (!sort_status.sorting) {
           console.log("viewport attr changed");
           selector.resetHighlight();
         }
@@ -288,15 +300,15 @@ export default {
     autoSave() {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
-    highilighitInstance(id) {
+    highlighitInstance(id) {
       const instance = this.instancesMap[id];
-      selector.highilighitMouseoverInstance(instance);
+      selector.highlighitMouseoverInstance(instance);
     },
-    highilighitSelectedInstance(id) {
+    highlighitSelectedInstance(id) {
       const instance = this.instancesMap[id];
       selector.clearHighlight();
-      selector.highilighitSelectedInstance(instance);
-      this._selectComponent(instance);
+      selector.highlighitSelectedInstance(instance);
+      this._selectComponentAndHighlightByIdx(this._findComponentIdx(instance));
     },
     _setMeta(baseWidth) {
       const scale = 1;

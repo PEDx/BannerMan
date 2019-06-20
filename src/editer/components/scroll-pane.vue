@@ -3,7 +3,7 @@
     <div class="header">
       <slot name="header"/>
     </div>
-    <div class="scroll">
+    <div class="scroll" ref="scroll">
       <slot name="scroll"/>
     </div>
     <div v-if="$slots.footer" class="footer">
@@ -13,7 +13,30 @@
 </template>
 
 <script>
-export default {};
+export default {
+  props: {
+    percent: {
+      type: Number,
+      default: 0
+    }
+  },
+  watch: {
+    percent: function(val) {
+      console.log(val);
+      this.scrollTo(val);
+    }
+  },
+  methods: {
+    scrollTo(percent) {
+      const _el = this.$refs.scroll;
+      const scroll_height = _el.scrollHeight;
+      const el_height = _el.clientHeight;
+      _el.scrollTo({
+        top: (scroll_height - el_height) * percent
+      });
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>

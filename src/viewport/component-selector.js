@@ -42,6 +42,7 @@ export default class ComponentSelector {
     window.removeEventListener('mouseup', this.cancelEvent, true);
 
     unHighlight();
+    unHighlightSelected();
   }
 
   /**
@@ -65,14 +66,15 @@ export default class ComponentSelector {
    * Selects an instance in the component view
    * @param {MouseEvent} e
    */
+  // 不在 selector 中做元素选择
   elementClicked(e) {
     this.cancelEvent(e);
     if (!this.mouseOverInstance) return;
     // 选中编辑元素
-    EventBus.$emit('element-selected', this.mouseOverInstance);
 
     unHighlight();
     this.selectedInstance = this.mouseOverInstance;
+    EventBus.$emit('element-selected', this.selectedInstance);
     highlightSelected(this.selectedInstance);
   }
 
@@ -93,11 +95,11 @@ export default class ComponentSelector {
     unHighlight();
     unHighlightSelected();
   }
-  highilighitMouseoverInstance(instance) {
+  highlighitMouseoverInstance(instance) {
     this.mouseOverInstance = instance;
     highlight(instance);
   }
-  highilighitSelectedInstance(instance) {
+  highlighitSelectedInstance(instance) {
     this.selectedInstance = instance;
     highlightSelected(instance);
   }

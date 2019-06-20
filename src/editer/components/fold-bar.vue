@@ -1,6 +1,6 @@
 <template>
   <div class="fold-bar">
-    <scroll-pane>
+    <scroll-pane :percent="percent">
       <div class="title-bar" @click="togglePannel" slot="header">
         <div class="btn">
           <i :class="{'icon-rotate': !showContent}" class="el-icon-caret-bottom icon"></i>
@@ -35,7 +35,8 @@ export default {
   data() {
     return {
       showContent: this.splitPane.itemStatus[this.pos],
-      split: "100%"
+      split: "100%",
+      percent: 0
     };
   },
   inject: ["splitPane"],
@@ -48,6 +49,9 @@ export default {
       if (!bottom && this.showContent && this.pos === "top") return;
       this.showContent = !this.showContent;
       this.splitPane.rollUp(this.pos, this.showContent);
+    },
+    contentScrollTo(percent) {
+      this.percent = percent;
     }
   }
 };

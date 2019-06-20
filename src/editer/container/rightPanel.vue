@@ -20,7 +20,7 @@
           ></component>
         </controller-item>
       </fold-bar>
-      <fold-bar title="组件树" slot="right" pos="bottom">
+      <fold-bar title="组件树" slot="right" pos="bottom" ref="tree">
         <component-tree :instances="instancesTree" v-model="instancesTree"></component-tree>
       </fold-bar>
     </split-pane>
@@ -89,6 +89,16 @@ export default {
     window.addEventListener(
       "message",
       e => {
+        // 刷新组件树
+        if (e.data.type === "scroll-percent") {
+          this.$refs.tree.contentScrollTo(+e.data.percent);
+        }
+      },
+      false
+    );
+    window.addEventListener(
+      "message",
+      e => {
         // 刷新控制器列表数值
         if (e.data.type === "flush-controller-value") {
           const ins = getViewportVueInstance();
@@ -104,10 +114,10 @@ export default {
       this.instancesTree = [];
     });
     EventBus.$on("tree-enter-instance", id => {
-      getViewportVueInstance().highilighitInstance(id);
+      getViewportVueInstance().highlighitInstance(id);
     });
     EventBus.$on("tree-select-instance", id => {
-      getViewportVueInstance().highilighitSelectedInstance(id);
+      getViewportVueInstance().highlighitSelectedInstance(id);
     });
   },
   methods: {

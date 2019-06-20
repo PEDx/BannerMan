@@ -33,8 +33,6 @@ export default {
       value: ""
     };
   },
-  mounted() {
-  },
   methods: {
     handleClick() {}
   }

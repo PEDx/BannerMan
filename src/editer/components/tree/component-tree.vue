@@ -1,24 +1,20 @@
 <template>
-  <scroll-pane>
-    <div slot="scroll" :class="{'high-density': false,'tree': true}">
-      <component-instance
-        v-for="instance in instances"
-        ref="instances"
-        :key="instance.id"
-        :instance="instance"
-        :depth="0"
-      />
-    </div>
-  </scroll-pane>
+  <div :class="{'high-density': false,'tree': true}">
+    <component-instance
+      v-for="instance in instances"
+      ref="instances"
+      :key="instance.id"
+      :instance="instance"
+      :depth="0"
+    />
+  </div>
 </template>
 
 <script>
-import ScrollPane from "../scroll-pane";
 import ComponentInstance from "./component-instance";
 
 export default {
   components: {
-    ScrollPane,
     ComponentInstance
   },
   props: {
