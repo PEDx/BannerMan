@@ -442,3 +442,20 @@ export function parseQueryString(url) {
 export function getInstanceProfile(instance) {
   return instance.$options._profile_ || null;
 }
+export function serialization(promise_arr) {
+  return new Promise((resolve, reject) => {
+    let idx = 0;
+    const _arr = [];
+    function step(ins) {
+      const promise = promise_arr[idx];
+      ins && _arr.push(ins);
+      if (!promise) {
+        resolve(_arr);
+        return;
+      }
+      promise.then(step);
+      idx++;
+    }
+    step();
+  });
+}

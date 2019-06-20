@@ -28,7 +28,8 @@ import {
   debounce,
   generateInstanceBriefObj,
   parseQueryString,
-  getInstanceProfile
+  getInstanceProfile,
+  serialization
 } from "../utils/index";
 import storage from "../utils/storage";
 import ComponentSelector from "./component-selector";
@@ -151,31 +152,7 @@ export default {
       });
       return ret;
     },
-    _asyncLoadComponent(name) {
-      const widget = widgets[name];
-      return new Promise((resolve, reject) => {
-        widget().then(ins => {
-          if (!this.loadingCompleteStatusMap[name]) {
-            // 防止并发加载多次添加 mixin 到同一组件上
-            ins.default.mixin(ElementMixin);
-            this.loadingCompleteStatusMap[name] = true;
-          }
-          resolve(ins);
-        });
-      });
-    },
-    // 第一次添加组件会是异步加载
-    _asyncAddComponent(widgetName) {
-      this._asyncLoadComponent(widgetName).then(ins => {
-        const profile = ins.default.extendOptions._profile_;
-        const _obj = {};
-        profile.controllers.forEach(val => {
-          _obj[val.propName] = void 0;
-        });
-        this._addComponent(widgetName, _obj);
-        setTimeout(this._genCompTree, 0);
-      });
-    },
+
     _addComponent(name, propsObj) {
       this.componentStack.push({
         name: name,
@@ -190,6 +167,44 @@ export default {
         })(propsObj)
       }); // 在此初始化组件
     },
+    _asyncLoadComponent(name) {
+      const widget = widgets[name];
+      return new Promise((resolve, reject) => {
+        widget().then(ins => {
+          if (!this.loadingCompleteStatusMap[name]) {
+            // 防止并发加载多次添加 mixin 到同一组件上
+            ins.default.mixin(ElementMixin);
+            this.loadingCompleteStatusMap[name] = true;
+          }
+          resolve(ins);
+        });
+      });
+    },
+    _test_() {
+      const promiseArr = [
+        "widget-search",
+        "widget-search",
+        "widget-search",
+        "widget-button",
+        "widget-search",
+        "widget-search",
+        "widget-search"
+      ].map(this._asyncLoadComponent);
+      serialization(promiseArr).then(res => {
+      });
+    },
+    // 第一次添加组件会是异步加载
+    _asyncAddComponent(widgetName) {
+      this._asyncLoadComponent(widgetName).then(ins => {
+        const profile = ins.default.extendOptions._profile_;
+        const _obj = {};
+        profile.controllers.forEach(val => {
+          _obj[val.propName] = void 0;
+        });
+        this._addComponent(widgetName, _obj);
+        setTimeout(this._genCompTree, 0);
+      });
+    },
     _asyncFormatComponentFromLocalData(data) {
       return new Promise((resolve, reject) => {
         this._asyncLoadComponent(data.name)
@@ -199,11 +214,20 @@ export default {
             profile.controllers.forEach(val => {
               _obj[val.propName] = data.props[val.propName];
             });
-
-            this._addComponent(data.name, _obj);
-            resolve(data.name);
+            resolve([data.name, _obj]);
           })
           .catch(e => reject(e));
+      });
+    },
+    _renderPageFromLocal() {
+      if (!this.pageId) return;
+      const componentStack =
+        storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
+      const _promiseArr = componentStack.map(
+        this._asyncFormatComponentFromLocalData
+      );
+      serialization(_promiseArr).then(res => {
+        res.forEach(val => this._addComponent(...val));
       });
     },
     _genCompTree() {
@@ -252,18 +276,6 @@ export default {
     // 自动保存
     autoSave() {
       setInterval(this.savePage, AUTO_SAVE_TIME);
-    },
-    _renderPageFromLocal() {
-      if (!this.pageId) return;
-      const componentStack =
-        storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
-      const _promiseArr = componentStack.map(
-        this._asyncFormatComponentFromLocalData
-      );
-      console.log(_promiseArr);
-      Promise.all(_promiseArr).then(() => {
-        this._genCompTree(); // 生成组件树
-      });
     },
     highilighitInstance(id) {
       const instance = this.instancesMap[id];
