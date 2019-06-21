@@ -59,19 +59,19 @@ import leftPanel from "./leftPanel";
 import deviceModelList from "../device";
 import { throttle, clamp } from "../../utils/index";
 import EventBus from "../../bus";
-const EDITOR_LEFT_PANEL_MIN_WIDTH = 260;
-const EDITOR_RIGHT_PANEL_MIN_WIDTH = 300;
+const EDITER_LEFT_PANEL_MIN_WIDTH = 260;
+const EDITER_RIGHT_PANEL_MIN_WIDTH = 300;
 export default {
   components: {
     "right-panel": rightPanel,
     "left-panel": leftPanel
   },
   data() {
-    const editerSetting = this.$store.state.editer.setting;
+    const editorSetting = this.$store.state.editor.setting;
     return {
-      leftWidth: +editerSetting.leftPanelWidth || EDITOR_LEFT_PANEL_MIN_WIDTH,
+      leftWidth: +editorSetting.leftPanelWidth || EDITER_LEFT_PANEL_MIN_WIDTH,
       rightWidth:
-        +editerSetting.rightPanelWidth || EDITOR_RIGHT_PANEL_MIN_WIDTH,
+        +editorSetting.rightPanelWidth || EDITER_RIGHT_PANEL_MIN_WIDTH,
       dragLeftStatus: false,
       dragRightStatus: false,
       viewportLoading: true,
@@ -85,15 +85,15 @@ export default {
   },
   computed: {
     viewSize() {
-      const editerSetting = this.$store.state.editer.setting;
-      return deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
+      const editorSetting = this.$store.state.editor.setting;
+      return deviceModelList[editorSetting.deviceType || "iphone6"].resolution;
     },
     draging() {
       return this.dragLeftStatus || this.dragRightStatus;
     },
     viewScale() {
-      const editerSetting = this.$store.state.editer.setting;
-      return (editerSetting.viewportScale / 100).toFixed(2);
+      const editorSetting = this.$store.state.editor.setting;
+      return (editorSetting.viewportScale / 100).toFixed(2);
     }
   },
   mounted() {
@@ -122,7 +122,7 @@ export default {
         if (this.dragLeftStatus) {
           this.leftWidth = clamp(
             e.clientX,
-            EDITOR_LEFT_PANEL_MIN_WIDTH,
+            EDITER_LEFT_PANEL_MIN_WIDTH,
             this.maxPanelWidth
           );
         }
@@ -130,7 +130,7 @@ export default {
           const _wid = document.body.clientWidth - e.clientX;
           this.rightWidth = clamp(
             _wid,
-            EDITOR_LEFT_PANEL_MIN_WIDTH,
+            EDITER_LEFT_PANEL_MIN_WIDTH,
             this.maxPanelWidth
           );
         }
@@ -145,18 +145,18 @@ export default {
       this.dragRightStatus = false;
     });
     this.$nextTick(() => {
-      const editerSetting = this.$store.state.editer.setting;
+      const editorSetting = this.$store.state.editor.setting;
       const resolution =
-        deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
+        deviceModelList[editorSetting.deviceType || "iphone6"].resolution;
       this.maxPanelWidth = (this.$el.clientWidth - resolution.width) / 2 - 10;
     });
   },
   methods: {
     toggleLeftPannel() {
-      this.leftWidth = !this.leftWidth ? EDITOR_LEFT_PANEL_MIN_WIDTH : 0;
+      this.leftWidth = !this.leftWidth ? EDITER_LEFT_PANEL_MIN_WIDTH : 0;
     },
     toggleRightPannel() {
-      this.rightWidth = !this.rightWidth ? EDITOR_RIGHT_PANEL_MIN_WIDTH : 0;
+      this.rightWidth = !this.rightWidth ? EDITER_RIGHT_PANEL_MIN_WIDTH : 0;
     },
     handleLoad() {
       this.viewportLoading = false;

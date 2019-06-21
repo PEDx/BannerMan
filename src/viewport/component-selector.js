@@ -23,7 +23,7 @@ export default class ComponentSelector {
     window.addEventListener('click', this.elementClicked, true);
     window.addEventListener('mouseout', this.cancelEvent, true);
     window.addEventListener('mouseenter', this.cancelEvent, true);
-    window.addEventListener('mouseleave', this.cancelEvent, true);
+    // window.addEventListener('mouseleave', this.cancelEvent, true);
     // window.addEventListener('mousedown', this.cancelEvent, true);
     // window.addEventListener('mouseup', this.cancelEvent, true);
   }
@@ -37,9 +37,9 @@ export default class ComponentSelector {
     window.removeEventListener('click', this.elementClicked, true);
     window.removeEventListener('mouseout', this.cancelEvent, true);
     window.removeEventListener('mouseenter', this.cancelEvent, true);
-    window.removeEventListener('mouseleave', this.cancelEvent, true);
-    window.removeEventListener('mousedown', this.cancelEvent, true);
-    window.removeEventListener('mouseup', this.cancelEvent, true);
+    // window.removeEventListener('mouseleave', this.cancelEvent, true);
+    // window.removeEventListener('mousedown', this.cancelEvent, true);
+    // window.removeEventListener('mouseup', this.cancelEvent, true);
 
     unHighlight();
     unHighlightSelected();
@@ -94,6 +94,9 @@ export default class ComponentSelector {
   clearHighlight() {
     unHighlight();
     unHighlightSelected();
+  }
+  clearHoverHighlight() {
+    unHighlight();
   }
   highlighitMouseoverInstance(instance) {
     this.mouseOverInstance = instance;

@@ -3,10 +3,9 @@
     class="viewport-content"
     ref="viewportContent"
     v-model="componentStack"
-    :use-window-as-scrol-container="true"
+    :lock-to-container-edges="true"
     :distance="10"
     axis="y"
-    lock-axis="y"
     @sort-start="_handleSortStart"
     @sort-end="_handleSortEnd"
   >
@@ -69,7 +68,12 @@ export default {
       this._setMeta(document.body.clientWidth);
     }, 150);
     selector.startSelecting();
-    document.addEventListener("mouseleave", selector.stopSelecting);
+    // document.addEventListener("mouseleave", () => {
+    //   selector.clearHoverHighlight();
+    // });
+    // document.addEventListener("mouseenter", () => {
+    //   selector.startSelecting();
+    // });
     document.addEventListener("dragenter", e => e.preventDefault());
     document.addEventListener("dragover", e => e.preventDefault());
     document.addEventListener("dragleave", e => e.preventDefault());
@@ -111,7 +115,7 @@ export default {
     );
 
     this._observerGeometric();
-    this._renderPageFromLocal();
+    this._renderPageFromLocal(); // 加载保存的组件数据
   },
   methods: {
     getRandomStr,
@@ -128,7 +132,7 @@ export default {
       sort_status.sorting = false;
       setTimeout(() => {
         if (newIndex === oldIndex) return; // 没有移动过
-        this._genCompTree();
+        this._genComponentsTree();
         this._selectComponentAndHighlightByIdx(newIndex);
       });
     },
@@ -227,7 +231,7 @@ export default {
           _obj[val.propName] = void 0;
         });
         this._addComponent(widgetName, _obj);
-        setTimeout(this._genCompTree);
+        setTimeout(this._genComponentsTree);
       });
     },
     _asyncFormatComponentFromLocalData(data) {
@@ -253,10 +257,10 @@ export default {
       );
       serialization(_promiseArr).then(res => {
         res.forEach(val => this._addComponent(...val));
-        setTimeout(this._genCompTree);
+        setTimeout(this._genComponentsTree);
       });
     },
-    _genCompTree() {
+    _genComponentsTree() {
       const instances = this._getInstanceList();
       const instancesTree = generateInstanceBriefObj(instances);
       const map = {};

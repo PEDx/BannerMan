@@ -37,7 +37,7 @@ function initOverlay() {
     return;
   }
   overlay = document.createElement('div');
-  overlay.style.backgroundColor = 'rgba(104, 182, 255, 0.35)';
+  overlay.style.backgroundColor = '#ffab5845';
   overlay.style.position = 'fixed';
   overlay.style.zIndex = '9999';
   overlay.style.pointerEvents = 'none';
@@ -47,12 +47,12 @@ function initOverlay() {
   overlay.style.justifyContent = 'center';
   overlay.style.borderRadius = '3px';
   overlayContent = document.createElement('div');
-  overlayContent.style.backgroundColor = 'rgba(104, 182, 255, 0.9)';
+  overlayContent.style.backgroundColor = '#414146';
   overlayContent.style.fontFamily = 'monospace';
   overlayContent.style.fontSize = '11px';
-  overlayContent.style.padding = '2px 3px';
+  overlayContent.style.padding = '2px 8px';
   overlayContent.style.borderRadius = '3px';
-  overlayContent.style.color = 'white';
+  overlayContent.style.color = '#fd9527';
   overlay.appendChild(overlayContent);
 }
 

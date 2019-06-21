@@ -1,16 +1,16 @@
 import storage from '../../utils/storage';
-const local_editer_setting = storage.get('setting') || {};
+const local_editor_setting = storage.get('setting') || {};
 const app = {
   state: {
     setting: {
-      deviceType: local_editer_setting.deviceType,
-      viewportScale: local_editer_setting.viewportScale,
-      leftPanelWidth: local_editer_setting.leftPanelWidth,
-      rightPanelWidth: local_editer_setting.rightPanelWidth,
-      leftPanelSplit: local_editer_setting.leftPanelSplit,
-      rightPanelStatus: local_editer_setting.rightPanelStatus,
-      leftPanelStatus: local_editer_setting.leftPanelStatus,
-      rightPanelSplit: local_editer_setting.rightPanelSplit
+      deviceType: local_editor_setting.deviceType,
+      viewportScale: local_editor_setting.viewportScale,
+      leftPanelWidth: local_editor_setting.leftPanelWidth,
+      rightPanelWidth: local_editor_setting.rightPanelWidth,
+      leftPanelSplit: local_editor_setting.leftPanelSplit,
+      rightPanelStatus: local_editor_setting.rightPanelStatus,
+      leftPanelStatus: local_editor_setting.leftPanelStatus,
+      rightPanelSplit: local_editor_setting.rightPanelSplit
     }
   },
   mutations: {

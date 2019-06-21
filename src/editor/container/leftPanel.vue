@@ -74,7 +74,7 @@
                 width="auto"
                 trigger="hover"
                 content=""
-                :popper-options="{}"
+                transition=""
                 @after-enter="popoverShow(val)"
               >
                 <img :src="checkImgSrc" alt class="check-view-img">
@@ -151,13 +151,13 @@ export default {
     "split-pane": splitPane
   },
   data() {
-    const editerSetting = this.$store.state.editer.setting;
+    const editorSetting = this.$store.state.editor.setting;
     return {
       widgets,
       searchValue: "",
       checkImgSrc: "",
-      splitPercent: +editerSetting.leftPanelSplit || 70,
-      splitStatus: editerSetting.leftPanelStatus || {
+      splitPercent: +editorSetting.leftPanelSplit || 70,
+      splitStatus: editorSetting.leftPanelStatus || {
         top: true,
         bottom: true
       },

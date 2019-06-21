@@ -8,7 +8,9 @@
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
     "lint": "eslint --ext .js,.vue src",
-    "build": "node build/build.js"
+    "build": "node build/build.js",
+    "theme": "./node_modules/.bin/et",
+    "postinstall": "npm run theme"
   },
   "dependencies": {
     "element-ui": "^2.8.2",
@@ -19,6 +21,8 @@
     "vuex": "3.0.1"
   },
   "devDependencies": {
+    "element-theme": "^2.0.1",
+    "element-theme-chalk": "^2.9.1",
     "autoprefixer": "8.5.0",
     "babel-core": "6.26.0",
     "babel-eslint": "8.2.6",

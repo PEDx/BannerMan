@@ -50,10 +50,10 @@ export default {
     ...controllers
   },
   data() {
-    const editerSetting = this.$store.state.editer.setting;
+    const editorSetting = this.$store.state.editor.setting;
     return {
-      splitPercent: +editerSetting.rightPanelSplit || 70,
-      splitStatus: editerSetting.rightPanelStatus || {
+      splitPercent: +editorSetting.rightPanelSplit || 70,
+      splitStatus: editorSetting.rightPanelStatus || {
         top: true,
         bottom: true
       },

@@ -29,7 +29,7 @@
         </div>
       </el-col>
       <el-col :span="8" style="textAlign: right;">
-        <div class="editer-version-info">
+        <div class="editor-version-info">
           <span class="right">Banner Man build-v0.0.1</span>
         </div>
       </el-col>
@@ -43,16 +43,16 @@ import { throttle } from "../utils/index";
 import EventBus from "../bus";
 export default {
   data() {
-    const editerSetting = this.$store.state.editer.setting;
+    const editorSetting = this.$store.state.editor.setting;
     return {
-      rangeValue: +editerSetting.viewportScale || 100,
+      rangeValue: +editorSetting.viewportScale || 100,
       notfClose: true
     };
   },
   computed: {
     device() {
-      const editerSetting = this.$store.state.editer.setting;
-      return deviceModelList[editerSetting.deviceType || "iphone6"].resolution;
+      const editorSetting = this.$store.state.editor.setting;
+      return deviceModelList[editorSetting.deviceType || "iphone6"].resolution;
     }
   },
   created() {
@@ -133,7 +133,7 @@ export default {
       color: #fd9527;
     }
   }
-  .editer-version-info {
+  .editor-version-info {
     height: 100%;
     color: #fd9527;
     font-weight: 900;

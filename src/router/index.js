@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Editer from '../editer/index';
+import Editor from '../editor/index';
 
 Vue.use(Router);
 
@@ -9,12 +9,12 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/editer'
+      redirect: '/editor'
     },
     {
-      path: '/editer',
-      name: 'editer',
-      component: Editer
+      path: '/editor',
+      name: 'editor',
+      component: Editor
     }
   ]
 });
