@@ -13,7 +13,8 @@ $--md-fade-transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1), opacity 3
 $--border-transition-base: border-color .2s cubic-bezier(.645,.045,.355,1) !default;
 $--color-transition-base: color .2s cubic-bezier(.645,.045,.355,1) !default;
 
-
+/* Fix Error
+-------------------------- */
 $--backtop-background-color: color .2s cubic-bezier(.645, .045, .355, 1) !default;
 $--backtop-font-color: color .2s cubic-bezier(.645, .045, .355, 1) !default;
 $--backtop-hover-background-color: color .2s cubic-bezier(.645, .045, .355, 1) !default;
@@ -32,7 +33,7 @@ $--color-primary: #7f7c87 !default;
 /// color|1|Background Color|4
 $--color-white: #FFFFFF !default;
 /// color|1|Background Color|4
-$--color-black: #000000 !default;
+$--color-black: #252525 !default;
 $--color-primary-light-1: mix($--color-white, $--color-primary, 10%) !default; /* 53a8ff */
 $--color-primary-light-2: mix($--color-white, $--color-primary, 20%) !default; /* 66b1ff */
 $--color-primary-light-3: mix($--color-white, $--color-primary, 30%) !default; /* 79bbff */
@@ -69,11 +70,11 @@ $--color-text-secondary: #909399 !default;
 /// color|1|Font Color|2
 $--color-text-placeholder: #C0C4CC !default;
 /// color|1|Border Color|3
-$--border-color-base: #DCDFE6 !default;
+$--border-color-base: #898989 !default;
 /// color|1|Border Color|3
-$--border-color-light: #E4E7ED !default;
+$--border-color-light: #BBBBBB !default;
 /// color|1|Border Color|3
-$--border-color-lighter: #EBEEF5 !default;
+$--border-color-lighter: #E0E0E0 !default;
 /// color|1|Border Color|3
 $--border-color-extra-light: #F2F6FC !default;
 
