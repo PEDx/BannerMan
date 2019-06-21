@@ -1,4 +1,4 @@
-# thruster
+# Banner Man
 
 > web editor
 
