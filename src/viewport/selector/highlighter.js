@@ -3,7 +3,7 @@ import {
   getComponentName,
   getInstanceName,
   getInstanceProfile
-} from '../utils/index';
+} from '../../utils/index';
 const isBrowser = true;
 const classifyComponents = false;
 

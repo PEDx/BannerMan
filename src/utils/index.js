@@ -1,5 +1,5 @@
 import path from 'path';
-import { getInstanceOrVnodeRect } from '../viewport/highlighter';
+import { getInstanceOrVnodeRect } from '../viewport/selector/highlighter';
 
 function isPlainObject(obj) {
   return Object.prototype.toString.call(obj) === '[object Object]';

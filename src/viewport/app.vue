@@ -3,9 +3,13 @@
     class="viewport-content"
     ref="viewportContent"
     v-model="componentStack"
-    :lock-to-container-edges="true"
+    :lock-to-container-edges="false"
+    :hide-sortable-ghost="true"
+    :use-window-as-scroll-container="false"
+    :should-cancel-start="() => {}"
     :distance="10"
     axis="y"
+    lock-axis="y"
     @sort-start="_handleSortStart"
     @sort-end="_handleSortEnd"
   >
@@ -30,10 +34,9 @@ import {
   serialization,
   getRandomStr
 } from "../utils/index";
-import storage from "..//storage";
-import ComponentSelector from "./component-selector";
-import { ElementMixin } from "vue-slicksort";
-import SortbleContainer from "./sortble-container";
+import storage from "../storage";
+import ComponentSelector from "./selector/component-selector";
+import { ElementMixin, SlickList } from "./sortble";
 import widgets from "../widgets";
 import EventBus from "../bus";
 const selector = new ComponentSelector();
@@ -44,10 +47,13 @@ const sort_status = {
   sorting: false,
   moving: false
 };
+const drag_status = {
+  draging: false
+};
 
 export default {
   components: {
-    "sortble-container": SortbleContainer
+    "sortble-container": SlickList
   },
   data() {
     this.children = [];
@@ -74,8 +80,17 @@ export default {
     // document.addEventListener("mouseenter", () => {
     //   selector.startSelecting();
     // });
-    document.addEventListener("dragenter", e => e.preventDefault());
-    document.addEventListener("dragover", e => e.preventDefault());
+    document.addEventListener("dragenter", e => {
+      e.preventDefault();
+      if (drag_status.draging) return;
+      drag_status.draging = true;
+    });
+    document.addEventListener("dragover", e => {
+      e.preventDefault();
+    });
+    document.addEventListener("dragleave", e => {
+      e.preventDefault();
+    });
     document.addEventListener("dragleave", e => e.preventDefault());
     document.addEventListener(
       "scroll",
@@ -103,6 +118,7 @@ export default {
           }
         });
       }
+      drag_status.draging = false;
     });
     EventBus.$on("element-selected", instance => {
       this._selectComponentAndHighlightByIdx(this._findComponentIdx(instance));
@@ -221,6 +237,18 @@ export default {
         "widget-search"
       ].map(this._asyncLoadComponent);
       serialization(promiseArr).then(res => {});
+    },
+    _test_drag_() {
+      this.$refs.viewportContent._pos = {
+        x: 0,
+        y: 200
+      };
+      this.$refs.viewportContent.sorting = false;
+      this.$refs.viewportContent.manager.active = {
+        collection: "default",
+        index: 1
+      };
+      this.$refs.viewportContent._touched = true;
     },
     // 第一次添加组件会是异步加载
     _asyncAddComponent(widgetName) {
