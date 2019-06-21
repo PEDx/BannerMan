@@ -1,4 +1,4 @@
-import { stringify, parse } from './index';
+import { stringify, parse } from './utils/index';
 
 export default {
   get(key) {

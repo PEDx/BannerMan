@@ -30,7 +30,7 @@ import {
   serialization,
   getRandomStr
 } from "../utils/index";
-import storage from "../utils/storage";
+import storage from "..//storage";
 import ComponentSelector from "./component-selector";
 import { ElementMixin } from "vue-slicksort";
 import SortbleContainer from "./sortble-container";

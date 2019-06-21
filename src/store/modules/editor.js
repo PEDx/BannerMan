@@ -1,4 +1,4 @@
-import storage from '../../utils/storage';
+import storage from '../..//storage';
 const local_editor_setting = storage.get('setting') || {};
 const app = {
   state: {

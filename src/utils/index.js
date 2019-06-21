@@ -1,122 +1,16 @@
 import path from 'path';
 import { getInstanceOrVnodeRect } from '../viewport/highlighter';
-const restArguments = function(func, startIndex) {
-  startIndex = startIndex == null ? func.length - 1 : +startIndex;
-  return function() {
-    const length = Math.max(arguments.length - startIndex, 0);
-    const rest = Array(length);
-    let index = 0;
-    for (; index < length; index++) {
-      rest[index] = arguments[index + startIndex];
-    }
-    switch (startIndex) {
-      case 0:
-        return func.call(this, rest);
-      case 1:
-        return func.call(this, arguments[0], rest);
-      case 2:
-        return func.call(this, arguments[0], arguments[1], rest);
-    }
-    var args = Array(startIndex + 1);
-    for (index = 0; index < startIndex; index++) {
-      args[index] = arguments[index];
-    }
-    args[startIndex] = rest;
-    return func.apply(this, args);
-  };
-};
-const delay = restArguments(function(func, wait, args) {
-  return setTimeout(function() {
-    return func.apply(null, args);
-  }, wait);
-});
 
-// 函数去抖
-export function debounce(func, wait, immediate) {
-  var timeout, result;
-
-  var later = function(context, args) {
-    timeout = null;
-    if (args) result = func.apply(context, args);
-  };
-
-  var debounced = restArguments(function(args) {
-    if (timeout) clearTimeout(timeout);
-    if (immediate) {
-      var callNow = !timeout;
-      timeout = setTimeout(later, wait);
-      if (callNow) result = func.apply(this, args);
-    } else {
-      timeout = delay(later, wait, this, args);
-    }
-
-    return result;
-  });
-
-  debounced.cancel = function() {
-    clearTimeout(timeout);
-    timeout = null;
-  };
-
-  return debounced;
+function isPlainObject(obj) {
+  return Object.prototype.toString.call(obj) === '[object Object]';
 }
 
-// 函数节流
-export function throttle(func, wait, options) {
-  var timeout, context, args, result;
-  var previous = 0;
-  if (!options) options = {};
-
-  var later = function() {
-    previous = options.leading === false ? 0 : new Date().getTime();
-    timeout = null;
-    result = func.apply(context, args);
-    if (!timeout) context = args = null;
-  };
-
-  var throttled = function() {
-    var now = new Date().getTime();
-    if (!previous && options.leading === false) previous = now;
-    var remaining = wait - (now - previous);
-    context = this;
-    args = arguments;
-    if (remaining <= 0 || remaining > wait) {
-      if (timeout) {
-        clearTimeout(timeout);
-        timeout = null;
-      }
-      previous = now;
-      result = func.apply(context, args);
-      if (!timeout) context = args = null;
-    } else if (!timeout && options.trailing !== false) {
-      timeout = setTimeout(later, remaining);
-    }
-    return result;
-  };
-
-  throttled.cancel = function() {
-    clearTimeout(timeout);
-    previous = 0;
-    timeout = context = args = null;
-  };
-
-  return throttled;
-}
-
-export function scrollIntoView(scrollParent, el, center = true) {
-  const parentTop = scrollParent.scrollTop;
-  const parentHeight = scrollParent.offsetHeight;
-  const elBounds = el.getBoundingClientRect();
-  const parentBounds = scrollParent.getBoundingClientRect();
-  const top = elBounds.top - parentBounds.top + scrollParent.scrollTop;
-  const height = el.offsetHeight;
-  if (center) {
-    scrollParent.scrollTop = top + (height - parentHeight) / 2;
-  } else if (top < parentTop) {
-    scrollParent.scrollTop = top;
-  } else if (top + height > parentTop + parentHeight) {
-    scrollParent.scrollTop = top - parentHeight + height;
+function isPrimitive(data) {
+  if (data == null) {
+    return true;
   }
+  const type = typeof data;
+  return type === 'string' || type === 'number' || type === 'boolean';
 }
 
 function toUpper(_, c) {
@@ -135,42 +29,6 @@ function cached(fn) {
     const hit = cache[str];
     return hit || (cache[str] = fn(str));
   };
-}
-
-var classifyRE = /(?:^|[-_/])(\w)/g;
-export const classify = cached(str => {
-  return str && str.replace(classifyRE, toUpper);
-});
-
-export function getComponentName(options) {
-  const name = options._profile_.name || options.name || options._componentTag;
-  if (name) {
-    return name;
-  }
-  const file = options.__file; // injected by vue-loader
-  if (file) {
-    return classify(basename(file, '.vue'));
-  }
-}
-
-export function getInstanceName(instance) {
-  const name = getComponentName(instance.$options || instance.fnOptions || {});
-  if (name) return name;
-  return instance.$root === instance ? 'Root' : 'Anonymous Component';
-}
-
-export function focusInput(el) {
-  el.focus();
-  el.setSelectionRange(0, el.value.length);
-}
-
-const filter = '';
-
-export function findQualifiedChildrenFromList(instances) {
-  instances = instances.filter(child => !child._isBeingDestroyed);
-  return !filter
-    ? instances.map(capture)
-    : Array.prototype.concat.apply([], instances.map(findQualifiedChildren));
 }
 
 function findQualifiedChildren(instance) {
@@ -243,7 +101,7 @@ function markFunctional(id, vnode) {
 
   functionalVnodeMap.get(refId)[id] = vnode;
 }
-export const instanceMap = new Map();
+const instanceMap = new Map();
 function mark(instance) {
   if (!instanceMap.has(instance._EDITER_TREE_UID__)) {
     instanceMap.set(instance._EDITER_TREE_UID__, instance);
@@ -362,6 +220,28 @@ function capture(instance, index, list) {
   return ret;
 }
 
+function sanitize(data) {
+  if (!isPrimitive(data) && !Array.isArray(data) && !isPlainObject(data)) {
+    return Object.prototype.toString.call(data);
+  } else {
+    return data;
+  }
+}
+export function scrollIntoView(scrollParent, el, center = true) {
+  const parentTop = scrollParent.scrollTop;
+  const parentHeight = scrollParent.offsetHeight;
+  const elBounds = el.getBoundingClientRect();
+  const parentBounds = scrollParent.getBoundingClientRect();
+  const top = elBounds.top - parentBounds.top + scrollParent.scrollTop;
+  const height = el.offsetHeight;
+  if (center) {
+    scrollParent.scrollTop = top + (height - parentHeight) / 2;
+  } else if (top < parentTop) {
+    scrollParent.scrollTop = top;
+  } else if (top + height > parentTop + parentHeight) {
+    scrollParent.scrollTop = top - parentHeight + height;
+  }
+}
 export function generateInstanceBriefObj(rootInstances) {
   functionalIds.clear();
   captureIds.clear();
@@ -382,25 +262,142 @@ export const getViewportVueInstance = (() => {
     return _ins;
   };
 })();
+var classifyRE = /(?:^|[-_/])(\w)/g;
+export const classify = cached(str => {
+  return str && str.replace(classifyRE, toUpper);
+});
 
-function sanitize(data) {
-  if (!isPrimitive(data) && !Array.isArray(data) && !isPlainObject(data)) {
-    return Object.prototype.toString.call(data);
-  } else {
-    return data;
+export function getComponentName(options) {
+  const name = options._profile_.name || options.name || options._componentTag;
+  if (name) {
+    return name;
+  }
+  const file = options.__file; // injected by vue-loader
+  if (file) {
+    return classify(basename(file, '.vue'));
   }
 }
 
-function isPlainObject(obj) {
-  return Object.prototype.toString.call(obj) === '[object Object]';
+export function getInstanceName(instance) {
+  const name = getComponentName(instance.$options || instance.fnOptions || {});
+  if (name) return name;
+  return instance.$root === instance ? 'Root' : 'Anonymous Component';
 }
 
-function isPrimitive(data) {
-  if (data == null) {
-    return true;
-  }
-  const type = typeof data;
-  return type === 'string' || type === 'number' || type === 'boolean';
+export function focusInput(el) {
+  el.focus();
+  el.setSelectionRange(0, el.value.length);
+}
+
+const filter = '';
+export function findQualifiedChildrenFromList(instances) {
+  instances = instances.filter(child => !child._isBeingDestroyed);
+  return !filter
+    ? instances.map(capture)
+    : Array.prototype.concat.apply([], instances.map(findQualifiedChildren));
+}
+
+const restArguments = function(func, startIndex) {
+  startIndex = startIndex == null ? func.length - 1 : +startIndex;
+  return function() {
+    const length = Math.max(arguments.length - startIndex, 0);
+    const rest = Array(length);
+    let index = 0;
+    for (; index < length; index++) {
+      rest[index] = arguments[index + startIndex];
+    }
+    switch (startIndex) {
+      case 0:
+        return func.call(this, rest);
+      case 1:
+        return func.call(this, arguments[0], rest);
+      case 2:
+        return func.call(this, arguments[0], arguments[1], rest);
+    }
+    var args = Array(startIndex + 1);
+    for (index = 0; index < startIndex; index++) {
+      args[index] = arguments[index];
+    }
+    args[startIndex] = rest;
+    return func.apply(this, args);
+  };
+};
+const delay = restArguments(function(func, wait, args) {
+  return setTimeout(function() {
+    return func.apply(null, args);
+  }, wait);
+});
+
+// 函数去抖
+export function debounce(func, wait, immediate) {
+  var timeout, result;
+
+  var later = function(context, args) {
+    timeout = null;
+    if (args) result = func.apply(context, args);
+  };
+
+  var debounced = restArguments(function(args) {
+    if (timeout) clearTimeout(timeout);
+    if (immediate) {
+      var callNow = !timeout;
+      timeout = setTimeout(later, wait);
+      if (callNow) result = func.apply(this, args);
+    } else {
+      timeout = delay(later, wait, this, args);
+    }
+
+    return result;
+  });
+
+  debounced.cancel = function() {
+    clearTimeout(timeout);
+    timeout = null;
+  };
+
+  return debounced;
+}
+
+// 函数节流
+export function throttle(func, wait, options) {
+  var timeout, context, args, result;
+  var previous = 0;
+  if (!options) options = {};
+
+  var later = function() {
+    previous = options.leading === false ? 0 : new Date().getTime();
+    timeout = null;
+    result = func.apply(context, args);
+    if (!timeout) context = args = null;
+  };
+
+  var throttled = function() {
+    var now = new Date().getTime();
+    if (!previous && options.leading === false) previous = now;
+    var remaining = wait - (now - previous);
+    context = this;
+    args = arguments;
+    if (remaining <= 0 || remaining > wait) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      previous = now;
+      result = func.apply(context, args);
+      if (!timeout) context = args = null;
+    } else if (!timeout && options.trailing !== false) {
+      timeout = setTimeout(later, remaining);
+    }
+    return result;
+  };
+
+  throttled.cancel = function() {
+    clearTimeout(timeout);
+    previous = 0;
+    timeout = context = args = null;
+  };
+
+  return throttled;
 }
 
 const UNDEFINED = '_BM_UNDEFINED_'; // jason 可序列化值为 undefined
