@@ -437,6 +437,7 @@ export function parseQueryString(url) {
 }
 
 export function getInstanceProfile(instance) {
+  if (!instance) return null;
   return instance.$options._profile_ || null;
 }
 export function findRelatedComponent(el) {

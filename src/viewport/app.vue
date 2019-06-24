@@ -8,6 +8,7 @@
     :use-window-as-scroll-container="false"
     :should-cancel-start="() => {}"
     :distance="10"
+    :press-delay="10"
     axis="y"
     lock-axis="y"
     @sort-start="_handleSortStart"
@@ -16,9 +17,11 @@
     <component
       v-for="(val, idx) in componentStack"
       :is="val.name"
-      :key="`${getRandomStr(6)}-${val.name}`"
+      :key="`${val.id}-${val.name}`"
+      :id="val.id"
       :index="idx"
-      @change-prop="val.childEmitEven"
+      :class="`${val.id}-${val.name}`"
+      @change-prop="_childEmitEven(...arguments ,val.id)"
       v-bind="val.props"
     ></component>
   </sortble-container>
@@ -47,9 +50,6 @@ const sort_status = {
   sorting: false,
   moving: false
 };
-const drag_status = {
-  draging: false
-};
 
 export default {
   components: {
@@ -57,71 +57,23 @@ export default {
   },
   data() {
     this.children = [];
+    this.componentInstanceMap = {}; // id 对应实例
+    this.instancesMap = {};
+    this.loadingCompleteStatusMap = {};
+    this.draging = false;
+    this.pageId = null;
     return {
-      componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
-      instancesMap: {},
-      loadingCompleteStatusMap: {},
-      pageId: null,
-      index: 0
+      componentStack: [] // 组件数据模型, 在此分发传入各个组件的 props
     };
   },
   mounted() {
     this.pageId = parseQueryString(location.href).id;
     window._CURRENT_VIEWPORT_VUE_INSTANCE_ = this;
-    window.onresize = debounce(() => {
-      console.log("viewport resize");
-      selector.resetHighlight();
-      this._setMeta(document.body.clientWidth);
-    }, 150);
+
     selector.startSelecting();
-    // document.addEventListener("mouseleave", () => {
-    //   selector.clearHoverHighlight();
-    // });
-    // document.addEventListener("mouseenter", () => {
-    //   selector.startSelecting();
-    // });
-    document.addEventListener("dragenter", e => {
-      e.preventDefault();
-      if (drag_status.draging) return;
-      drag_status.draging = true;
-    });
-    document.addEventListener("dragover", e => {
-      e.preventDefault();
-    });
-    document.addEventListener("dragleave", e => {
-      e.preventDefault();
-    });
-    document.addEventListener("dragleave", e => e.preventDefault());
-    document.addEventListener(
-      "scroll",
-      throttle(e => {
-        const scroll_top = document.documentElement.scrollTop;
-        const scroll_height = document.documentElement.scrollHeight;
-        const window_height = document.documentElement.clientHeight;
-        const percent = scroll_top / (scroll_height - window_height);
-        window.parent.postMessage({
-          type: "viewport-scroll-percent",
-          percent: percent.toFixed(2)
-        });
-      }, 20)
-    );
-    document.addEventListener("drop", e => {
-      const msg = e.dataTransfer.getData("WIDGET_TYPE");
-      if (msg) {
-        this._asyncAddComponent("widget-search");
-        // this._asyncAddComponent("widget-button");
-        window.parent.postMessage({
-          type: "drag-end",
-          axis: {
-            x: e.x,
-            y: e.y
-          }
-        });
-      }
-      drag_status.draging = false;
-    });
+
     EventBus.$on("element-selected", instance => {
-      this._selectComponentAndHighlightByIdx(this._findComponentIdx(instance));
+      this._selectComponentAndHighlightById(this._findComponentId(instance));
     });
     EventBus.$on("element-mouseover", instance =>
       window.parent.postMessage({
@@ -130,17 +82,68 @@ export default {
       })
     );
 
+    this._initDocumentEvent();
     this._observerGeometric();
     this._renderPageFromLocal(); // 加载保存的组件数据
   },
   methods: {
     getRandomStr,
+    _initDocumentEvent() {
+      // document.addEventListener("mouseleave", () => {
+      //   selector.clearHoverHighlight();
+      // });
+      // document.addEventListener("mouseenter", () => {
+      //   selector.startSelecting();
+      // });
+      window.onresize = debounce(() => {
+        console.log("viewport resize");
+        selector.resetHighlight();
+        this._setMeta(document.body.clientWidth);
+      }, 150);
+      document.addEventListener("dragenter", e => {
+        e.preventDefault();
+        if (this.draging) return;
+        this.draging = true;
+        console.log("dragenter");
+      });
+      document.addEventListener(
+        "dragover",
+        throttle(e => {
+          console.log(e.x, e.y);
+          e.preventDefault();
+        }, 20)
+      );
+      document.addEventListener("drop", e => {
+        console.log("drop");
+        const msg = e.dataTransfer.getData("WIDGET_TYPE");
+        if (msg) {
+          this._asyncAddComponent("widget-button");
+          window.parent.postMessage({
+            type: "drag-end",
+            axis: {
+              x: e.x,
+              y: e.y
+            }
+          });
+        }
+      });
+      document.addEventListener(
+        "scroll",
+        throttle(e => {
+          const scroll_top = document.documentElement.scrollTop;
+          const scroll_height = document.documentElement.scrollHeight;
+          const window_height = document.documentElement.clientHeight;
+          const percent = scroll_top / (scroll_height - window_height);
+          window.parent.postMessage({
+            type: "viewport-scroll-percent",
+            percent: percent.toFixed(2)
+          });
+        }, 20)
+      );
+    },
     _handleSortStart({ index }) {
       selector.stopSelecting();
       sort_status.sorting = true;
-    },
-    _getInstanceList() {
-      return this.$refs.viewportContent.$children || [];
     },
     // 排序完成后所有的排序元素实例都会销毁重建
     _handleSortEnd({ newIndex, oldIndex }) {
@@ -149,7 +152,7 @@ export default {
       setTimeout(() => {
         if (newIndex === oldIndex) return; // 没有移动过
         this._genComponentsTree();
-        this._selectComponentAndHighlightByIdx(newIndex);
+        this._selectComponentAndHighlightById(this.componentStack[newIndex].id);
       });
     },
     _getRealDomInstanceTree(el) {
@@ -160,14 +163,14 @@ export default {
       }
       return ret;
     },
-    _selectComponentAndHighlightByIdx(idx) {
-      this.index = idx;
-      const component = this.componentStack[idx];
-      const instance = this._getInstanceList()[idx];
+    _selectComponentAndHighlightById(id) {
+      this.id = id;
+      const instance = this.componentInstanceMap[id];
+      const component = this._findComponentObjById(id);
       selector.highlighitSelectedInstance(instance);
       window.parent.postMessage({
         type: "select-component",
-        profile: getInstanceProfile(instance),
+        profile: getInstanceProfile(instance) || {},
         id: instance._EDITER_TREE_UID__,
         name: component.name
       });
@@ -182,36 +185,46 @@ export default {
       const mutationObserver = new MutationObserver((mutations, observer) => {
         // 重置高亮
         if (!sort_status.sorting) {
-          console.log("viewport attr changed");
           selector.resetHighlight();
         }
       });
-      mutationObserver.observe(this.$el, {
+      mutationObserver.observe(this.$refs.viewportContent.$el, {
         subtree: true,
         attributes: true
       });
     },
-    _findComponentIdx(ins) {
-      let ret = 0;
-      this._getInstanceList().forEach((val, idx) => {
-        if (val === ins) ret = idx;
+    _findComponentId(ins) {
+      const map = this.componentInstanceMap;
+      let ret = null;
+      Object.keys(this.componentInstanceMap).forEach(key => {
+        if (map[key] === ins) ret = key;
       });
       return ret;
     },
-
+    _findComponentObjById(id) {
+      let ret = null;
+      this.componentStack.forEach(val => {
+        if (val.id === id) ret = val;
+      });
+      return ret;
+    },
+    _childEmitEven(obj, id) {
+      const props = this.componentInstanceMap[id].props;
+      Object.keys(obj).forEach(key => (props[key] = obj[key]));
+      window.parent.postMessage({
+        type: "flush-controller-value"
+      });
+    },
     _addComponent(name, propsObj) {
+      const _id = getRandomStr(6);
       this.componentStack.push({
         name: name,
         props: propsObj,
-        childEmitEven: (prpos => {
-          return obj => {
-            Object.keys(obj).forEach(key => (prpos[key] = obj[key]));
-            window.parent.postMessage({
-              type: "flush-controller-value"
-            });
-          };
-        })(propsObj)
+        id: _id
       }); // 在此初始化组件
+      this.$nextTick(() => {
+        this.componentInstanceMap[_id] = document.getElementById(_id).__vue__;
+      });
     },
     _asyncLoadComponent(name) {
       const widget = widgets[name];
@@ -289,7 +302,9 @@ export default {
       });
     },
     _genComponentsTree() {
-      const instances = this._getInstanceList();
+      const instances = this._getRealDomInstanceTree(
+        this.$refs.viewportContent.$el
+      );
       const instancesTree = generateInstanceBriefObj(instances);
       const map = {};
       function walk(instance) {
@@ -331,11 +346,16 @@ export default {
       document.getElementsByTagName("head")[0].appendChild(meta);
     },
     updateWidgetProp(key, value) {
-      const compObj = this.componentStack[this.index];
+      const compObj = this._findComponentObjById(this.id);
       compObj.props[key] = value;
+      setTimeout(() => {
+        this._genComponentsTree();
+        this._selectComponentAndHighlightById(this.id);
+        // 还需要找到 mouseover 的元素
+      });
     },
     getWidgetDataValue(key) {
-      const vm = this._getInstanceList()[this.index];
+      const vm = this.componentInstanceMap[this.id];
       return vm[key];
     },
     // 清空编辑页面
@@ -354,6 +374,9 @@ export default {
     autoSave() {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
+    onDragend(bol) {
+      this.draging = !!bol;
+    },
     highlighitInstance(id) {
       const instance = this.instancesMap[id];
       selector.highlighitMouseoverInstance(instance);
@@ -361,8 +384,7 @@ export default {
     highlighitSelectedInstance(id) {
       const instance = this.instancesMap[id];
       selector.clearHighlight();
-      selector.highlighitSelectedInstance(instance);
-      this._selectComponentAndHighlightByIdx(this._findComponentIdx(instance));
+      this._selectComponentAndHighlightById(this._findComponentId(instance));
     },
     viewportScrollTo(percent) {
       const scroll_height = document.documentElement.scrollHeight;

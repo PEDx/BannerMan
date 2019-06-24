@@ -34,6 +34,7 @@
             style="overflow: hidden"
             :tabindex="-1"
             @dragstart="handleDragstart"
+            @dragend="handleDragend"
           >
             <i :class="item.icon"></i>
             <p>{{ item.name }}</p>
@@ -73,8 +74,8 @@
                 title="预览"
                 width="auto"
                 trigger="hover"
-                content=""
-                transition=""
+                content
+                transition
                 @after-enter="popoverShow(val)"
               >
                 <img :src="checkImgSrc" alt class="check-view-img">
@@ -95,6 +96,7 @@
 <script>
 import foldBar from "../components/fold-bar";
 import splitPane from "../components/split-pane";
+import { getViewportVueInstance } from "../../utils/index";
 const widgets = [
   {
     group: "BASICS",
@@ -179,6 +181,9 @@ export default {
   methods: {
     handleDragstart(e) {
       e.dataTransfer.setData("WIDGET_TYPE", "hello");
+    },
+    handleDragend(e) {
+      getViewportVueInstance().onDragend(false);
     },
     handleUploadSuccess() {},
     handleUploadProgress() {},
