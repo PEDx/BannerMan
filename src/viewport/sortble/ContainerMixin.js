@@ -75,7 +75,7 @@ export const ContainerMixin = {
     this.document = this.container.ownerDocument || document;
     this._window = this.contentWindow || window;
     this.scrollContainer = this.useWindowAsScrollContainer
-      ? this.document.body
+      ? this.document.scrollingElement
       : this.container;
 
     for (const key in this.events) {
@@ -306,12 +306,11 @@ export const ContainerMixin = {
             this.height / 2;
           this.maxTranslate.y =
             (useWindowAsScrollContainer
-              ? this._window.innerHeight
+              ? window.innerHeight
               : containerBoundingRect.top + containerBoundingRect.height) -
             this.boundingClientRect.top -
             this.height / 2;
         }
-
         if (helperClass) {
           this.helper.classList.add(...helperClass.split(' '));
         }
@@ -638,6 +637,7 @@ export const ContainerMixin = {
         top: window.pageYOffset - this.initialWindowScroll.top,
         left: window.pageXOffset - this.initialWindowScroll.left
       };
+      // debugger
       this.newIndex = null;
 
       for (let i = 0, len = nodes.length; i < len; i++) {
@@ -649,9 +649,6 @@ export const ContainerMixin = {
           width: this.width > width ? width / 2 : this.width / 2,
           height: this.height > height ? height / 2 : this.height / 2
         };
-        // this.height > height ? height / 2 : this.height / 2
-        // console.log(`this.height  当前拖拉元素的高度值 >>>>> ${this.height}`);
-        // console.log(`height >>>>> ${height}`);
         const translate = {
           x: 0,
           y: 0
@@ -769,13 +766,12 @@ export const ContainerMixin = {
           // edgeOffset: {top: 240, left: 0} 变换移动元素距离上边距距离
           // height: 340 变换移动元素高度
           // offset: {width: 207, height: 120}
-          // scrollDifference: {top: 0, left: 0}
+          // scrollDifference: {top: 0, left: 0} // 滚动的距离
           // sortingOffset: {left: 0, top: 78} 拖拉元素距离上边距距离
           // _height: 240 拖拉元素高度
           if (
             index > this.index &&
-            sortingOffset.top + scrollDifference.top >=
-              edgeOffset.top + height / 2 - this.height
+            sortingOffset.top >= edgeOffset.top + height / 2 - this.height
           ) {
             // 超过下面临近元素的二分之一高度就移动
             // 如果向下拉
@@ -783,8 +779,7 @@ export const ContainerMixin = {
             this.newIndex = index;
           } else if (
             index < this.index &&
-            sortingOffset.top + scrollDifference.top <=
-              edgeOffset.top + height / 2
+            sortingOffset.top <= edgeOffset.top + height / 2
           ) {
             // 超过上面临近元素的二分之一高度就移动
             // 如果向上拉
@@ -807,7 +802,7 @@ export const ContainerMixin = {
       console.log('>>>>>>>>');
       console.log(arg);
       console.log('<<<<<<<<');
-    }, 200),
+    }, 203),
     autoscroll() {
       const translate = this.translate;
       const direction = {
@@ -822,7 +817,6 @@ export const ContainerMixin = {
         x: 10,
         y: 10
       };
-
       if (translate.y >= this.maxTranslate.y - this.height / 2) {
         direction.y = 1; // Scroll Down
         speed.y =
@@ -871,7 +865,7 @@ export const ContainerMixin = {
           this.translate.x += offset.left;
           this.translate.y += offset.top;
           this.animateNodes();
-        }, 5);
+        }, 15);
       }
     }
   }
