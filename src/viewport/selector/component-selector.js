@@ -98,14 +98,12 @@ export default class ComponentSelector {
   clearHoverHighlight() {
     unHighlight();
   }
-  highlighitMouseoverInstance(instance, idx) {
+  highlighitMouseoverInstance(instance) {
     this.mouseOverInstance = instance;
-    this.mouseOverIdx = idx;
     highlight(instance);
   }
-  highlighitSelectedInstance(instance, idx) {
+  highlighitSelectedInstance(instance) {
     this.selectedInstance = instance;
-    this.selectedIdx = instance;
     highlightSelected(instance);
   }
   /**

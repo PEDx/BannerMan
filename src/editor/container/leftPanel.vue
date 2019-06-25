@@ -183,7 +183,7 @@ export default {
       e.dataTransfer.setData("WIDGET_TYPE", "hello");
     },
     handleDragend(e) {
-      getViewportVueInstance().onDragend(false);
+      getViewportVueInstance().onDragend();
     },
     handleUploadSuccess() {},
     handleUploadProgress() {},

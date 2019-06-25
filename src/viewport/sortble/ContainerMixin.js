@@ -7,6 +7,7 @@ import {
   getElementMargin,
   arrayMove
 } from './utils';
+import { throttle } from '../../utils/index';
 
 // Export Sortable Container Component Mixin
 export const ContainerMixin = {
@@ -80,10 +81,17 @@ export const ContainerMixin = {
     for (const key in this.events) {
       if (this.events.hasOwnProperty(key)) {
         events[key].forEach(eventName =>
-          this.container.addEventListener(eventName, this.events[key], false)
+          this.container.addEventListener(
+            eventName,
+            throttle(e => {
+              this.events[key](e);
+            }, 20),
+            false
+          )
         );
       }
     }
+    // this.exposeCustomApi();
   },
 
   beforeDestroy() {
@@ -124,7 +132,9 @@ export const ContainerMixin = {
         if (
           useDragHandle &&
           !closest(e.target, el => el.sortableHandle != null)
-        ) { return; }
+        ) {
+          return;
+        }
 
         this.manager.active = { index, collection };
 
@@ -240,8 +250,8 @@ export const ContainerMixin = {
           top: window.pageYOffset,
           left: window.pageXOffset
         };
-
         const fields = node.querySelectorAll('input, textarea, select');
+        // 构造 ghost 虚拟的拖拽节点
         const clonedNode = node.cloneNode(true);
         const clonedFields = [
           ...clonedNode.querySelectorAll('input, textarea, select')
@@ -263,9 +273,11 @@ export const ContainerMixin = {
           margin.left}px`;
         this.helper.style.width = `${this.width}px`;
         this.helper.style.height = `${this.height}px`;
+        // this.helper.style.outline = `1px solid red`;
         this.helper.style.boxSizing = 'border-box';
         this.helper.style.pointerEvents = 'none';
 
+        // 是否隐藏 ghost 节点
         if (hideSortableGhost) {
           this.sortableGhost = node;
           node.style.visibility = 'hidden';
@@ -303,7 +315,6 @@ export const ContainerMixin = {
         if (helperClass) {
           this.helper.classList.add(...helperClass.split(' '));
         }
-
         this.listenerNode = e.touches ? node : this._window;
         events.move.forEach(eventName =>
           this.listenerNode.addEventListener(
@@ -328,15 +339,36 @@ export const ContainerMixin = {
     },
 
     handleSortMove(e) {
+      // 由鼠标移动触发
       e.preventDefault(); // Prevent scrolling on mobile
 
+      // 随着拖拉更新 ghost 节点的位置
       this.updatePosition(e);
+      // 更新 ghost 的同时, 更新列表中其他节点的位置
       this.animateNodes();
       this.autoscroll();
 
       this.$emit('sort-move', { event: e });
     },
-
+    exposeCustomApi() {
+      this.startDragInElement = this._startDragInElement;
+      this.endDragInElement = this._endDragInElement;
+      this.exposeUpdatePosition = this.updatePosition;
+      this.hackState = this._hackState;
+      this.clearHackState = this._clearHackState;
+    },
+    _hackState(e) {
+      this.manager.active = {
+        collection: 'default',
+        index: 2
+      };
+      this._pos = {
+        x: e.pageX,
+        y: e.pageY
+      };
+      // 初始进入 viewport 的位置
+      this.handlePress(e);
+    },
     handleSortEnd(e) {
       const { collection } = this.manager.active;
 
@@ -593,7 +625,7 @@ export const ContainerMixin = {
 
     animateNodes() {
       const { transitionDuration, hideSortableGhost } = this.$props;
-      const nodes = this.manager.getOrderedRefs();
+      const nodes = this.manager.getOrderedRefs(); // 拿到排序好的真实 dom
       const deltaScroll = {
         left: this.scrollContainer.scrollLeft - this.initialScroll.left,
         top: this.scrollContainer.scrollTop - this.initialScroll.top
@@ -617,7 +649,9 @@ export const ContainerMixin = {
           width: this.width > width ? width / 2 : this.width / 2,
           height: this.height > height ? height / 2 : this.height / 2
         };
-
+        // this.height > height ? height / 2 : this.height / 2
+        // console.log(`this.height  当前拖拉元素的高度值 >>>>> ${this.height}`);
+        // console.log(`height >>>>> ${height}`);
         const translate = {
           x: 0,
           y: 0
@@ -732,18 +766,28 @@ export const ContainerMixin = {
             }
           }
         } else if (this._axis.y) {
+          // edgeOffset: {top: 240, left: 0} 变换移动元素距离上边距距离
+          // height: 340 变换移动元素高度
+          // offset: {width: 207, height: 120}
+          // scrollDifference: {top: 0, left: 0}
+          // sortingOffset: {left: 0, top: 78} 拖拉元素距离上边距距离
+          // _height: 240 拖拉元素高度
           if (
             index > this.index &&
-            sortingOffset.top + scrollDifference.top + offset.height >=
-              edgeOffset.top
+            sortingOffset.top + scrollDifference.top >=
+              edgeOffset.top + height / 2 - this.height
           ) {
+            // 超过下面临近元素的二分之一高度就移动
+            // 如果向下拉
             translate.y = -(this.height + this.marginOffset.y);
             this.newIndex = index;
           } else if (
             index < this.index &&
             sortingOffset.top + scrollDifference.top <=
-              edgeOffset.top + offset.height
+              edgeOffset.top + height / 2
           ) {
+            // 超过上面临近元素的二分之一高度就移动
+            // 如果向上拉
             translate.y = this.height + this.marginOffset.y;
             if (this.newIndex == null) {
               this.newIndex = index;
@@ -759,7 +803,11 @@ export const ContainerMixin = {
         this.newIndex = this.index;
       }
     },
-
+    throttleLog: throttle(arg => {
+      console.log('>>>>>>>>');
+      console.log(arg);
+      console.log('<<<<<<<<');
+    }, 200),
     autoscroll() {
       const translate = this.translate;
       const direction = {

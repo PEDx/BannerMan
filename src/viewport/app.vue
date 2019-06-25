@@ -8,7 +8,6 @@
     :use-window-as-scroll-container="false"
     :should-cancel-start="() => {}"
     :distance="10"
-    :press-delay="10"
     axis="y"
     lock-axis="y"
     @sort-start="_handleSortStart"
@@ -374,8 +373,8 @@ export default {
     autoSave() {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
-    onDragend(bol) {
-      this.draging = !!bol;
+    onDragend() {
+      this.draging = false;
     },
     highlighitInstance(id) {
       const instance = this.instancesMap[id];
