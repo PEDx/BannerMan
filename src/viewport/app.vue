@@ -23,6 +23,9 @@
       @change-prop="_childEmitEven(...arguments ,val.id)"
       v-bind="val.props"
     ></component>
+    <sortble-item :index="componentStack.length" v-show="true" :is-placeholder="true">
+      <div style="width: 100%;height: 80px; border: 2px dashed #eee;box-sizing: border-box;"></div>
+    </sortble-item>
   </sortble-container>
 </template>
 
@@ -38,7 +41,7 @@ import {
 } from "../utils/index";
 import storage from "../storage";
 import ComponentSelector from "./selector/component-selector";
-import { ElementMixin, SlickList } from "./sortble";
+import { ElementMixin, SlickList, SlickItem } from "./sortble";
 import widgets from "../widgets";
 import EventBus from "../bus";
 const selector = new ComponentSelector();
@@ -52,17 +55,20 @@ const sort_status = {
 
 export default {
   components: {
-    "sortble-container": SlickList
+    "sortble-container": SlickList,
+    "sortble-item": SlickItem
   },
   data() {
     this.children = [];
     this.componentInstanceMap = {}; // id 对应实例
     this.instancesMap = {};
     this.loadingCompleteStatusMap = {};
-    this.draging = false;
     this.pageId = null;
+    this.treeScrolling = false;
+    this.resourceDraging = false;
     return {
-      componentStack: [] // 组件数据模型, 在此分发传入各个组件的 props
+      componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
+      draging: false
     };
   },
   mounted() {
@@ -80,7 +86,9 @@ export default {
         id: instance._EDITER_TREE_UID__
       })
     );
-
+    this.scrollEnd = debounce(() => {
+      this.treeScrolling = false;
+    }, 2000);
     this._initDocumentEvent();
     this._observerGeometric();
     this._renderPageFromLocal(); // 加载保存的组件数据
@@ -102,15 +110,18 @@ export default {
       document.addEventListener("dragenter", e => {
         e.preventDefault();
         if (this.draging) return;
+        if (this.dragingType === "drag_resource") return;
+        this.$refs.viewportContent.hackState(e);
         this.draging = true;
         console.log("dragenter");
       });
       document.addEventListener(
         "dragover",
         throttle(e => {
-          console.log(e.x, e.y);
+          if (this.dragingType === "drag_resource") return;
+          this.$refs.viewportContent.handleSortMove(e);
           e.preventDefault();
-        }, 20)
+        }, 16)
       );
       document.addEventListener("drop", e => {
         console.log("drop");
@@ -129,6 +140,8 @@ export default {
       document.addEventListener(
         "scroll",
         throttle(e => {
+          if (this.treeScrolling) return;
+          // 此处会相互触发 srcoll 事件
           const scroll_top = document.documentElement.scrollTop;
           const scroll_height = document.documentElement.scrollHeight;
           const window_height = document.documentElement.clientHeight;
@@ -137,6 +150,7 @@ export default {
             type: "viewport-scroll-percent",
             percent: percent.toFixed(2)
           });
+          this.scrollEnd();
         }, 20)
       );
     },
@@ -147,22 +161,25 @@ export default {
     // 排序完成后所有的排序元素实例都会销毁重建
     _handleSortEnd({ newIndex, oldIndex }) {
       selector.startSelecting();
-      sort_status.sorting = false;
+      if (this.draging) return;
       setTimeout(() => {
         if (newIndex === oldIndex) return; // 没有移动过
+        const id = this.componentStack[newIndex].id;
         this._genComponentsTree();
-        this._selectComponentAndHighlightById(this.componentStack[newIndex].id);
+        this._selectComponentAndHighlightById(id);
+        sort_status.sorting = false;
       });
     },
     _getRealDomInstanceTree(el) {
       const ret = [];
       for (let i = 0, len = el.children.length; i < len; i++) {
         const _el = el.children[i];
-        ret.push(_el.__vue__);
+        _el.__vue__.$options._profile_ && ret.push(_el.__vue__);
       }
       return ret;
     },
     _selectComponentAndHighlightById(id) {
+      if (!id) return;
       this.id = id;
       const instance = this.componentInstanceMap[id];
       const component = this._findComponentObjById(id);
@@ -250,18 +267,6 @@ export default {
       ].map(this._asyncLoadComponent);
       serialization(promiseArr).then(res => {});
     },
-    _test_drag_() {
-      this.$refs.viewportContent._pos = {
-        x: 0,
-        y: 200
-      };
-      this.$refs.viewportContent.sorting = false;
-      this.$refs.viewportContent.manager.active = {
-        collection: "default",
-        index: 1
-      };
-      this.$refs.viewportContent._touched = true;
-    },
     // 第一次添加组件会是异步加载
     _asyncAddComponent(widgetName) {
       this._asyncLoadComponent(widgetName).then(ins => {
@@ -304,6 +309,7 @@ export default {
       const instances = this._getRealDomInstanceTree(
         this.$refs.viewportContent.$el
       );
+      // debugger;
       const instancesTree = generateInstanceBriefObj(instances);
       const map = {};
       function walk(instance) {
@@ -373,7 +379,8 @@ export default {
     autoSave() {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
-    onDragend() {
+    onDragend(e) {
+      if (this.draging) this.$refs.viewportContent.clearHackState(e);
       this.draging = false;
     },
     highlighitInstance(id) {
@@ -386,11 +393,17 @@ export default {
       this._selectComponentAndHighlightById(this._findComponentId(instance));
     },
     viewportScrollTo(percent) {
+      if (sort_status.sorting) return;
+      this.treeScrolling = true;
       const scroll_height = document.documentElement.scrollHeight;
       const window_height = document.documentElement.clientHeight;
       document.documentElement.scrollTo({
         top: (scroll_height - window_height) * percent
       });
+      this.scrollEnd();
+    },
+    setDragType(tyoe) {
+      this.dragingType = tyoe;
     }
   }
 };

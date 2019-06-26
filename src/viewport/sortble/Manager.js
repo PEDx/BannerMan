@@ -29,6 +29,12 @@ export default class Manager {
     );
   }
 
+  getPlaceholder() {
+    return this.refs[this.active.collection].find(
+      ({ node }) => !!node.sortableInfo.isPlaceholder
+    );
+  }
+
   getIndex(collection, ref) {
     return this.refs[collection].indexOf(ref);
   }

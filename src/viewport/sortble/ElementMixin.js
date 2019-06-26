@@ -13,6 +13,10 @@ export const ElementMixin = {
     disabled: {
       type: Boolean,
       default: false
+    },
+    isPlaceholder: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -55,7 +59,8 @@ export const ElementMixin = {
       node.sortableInfo = {
         index,
         collection,
-        manager: this.manager
+        manager: this.manager,
+        isPlaceholder: this.isPlaceholder
       };
 
       this.ref = { node };

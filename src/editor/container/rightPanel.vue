@@ -38,7 +38,7 @@ import controllerItem from "../components/controller-item";
 import splitPane from "../components/split-pane";
 import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
-import { getViewportVueInstance } from "../../utils/index";
+import { getViewportVueInstance, debounce } from "../../utils/index";
 import EventBus from "../../bus";
 
 export default {
@@ -95,9 +95,11 @@ export default {
     window.addEventListener(
       "message",
       e => {
-        // 刷新组件树
+        // 滚动条同步
         if (e.data.type === "viewport-scroll-percent") {
+          this.viewportSrcolling = true;
           this.$refs.tree.contentScrollTo(+e.data.percent);
+          this.scrollEnd();
         }
       },
       false
@@ -125,6 +127,9 @@ export default {
     EventBus.$on("tree-select-instance", id => {
       getViewportVueInstance().highlighitSelectedInstance(id);
     });
+    this.scrollEnd = debounce(() => {
+      this.viewportSrcolling = false;
+    }, 2000);
   },
   methods: {
     handleSplitChange(data) {
@@ -136,6 +141,8 @@ export default {
       ins.updateWidgetProp(key, value);
     },
     handleContentScroll(percent) {
+      // 此处会相互触发 srcoll 事件, 需要防止
+      if (this.viewportSrcolling) return;
       const ins = getViewportVueInstance();
       ins.viewportScrollTo(percent);
     }

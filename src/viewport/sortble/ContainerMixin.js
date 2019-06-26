@@ -91,7 +91,7 @@ export const ContainerMixin = {
         );
       }
     }
-    // this.exposeCustomApi();
+    this.exposeCustomApi();
   },
 
   beforeDestroy() {
@@ -146,7 +146,6 @@ export const ContainerMixin = {
         if (e.target.tagName.toLowerCase() === 'a') {
           e.preventDefault();
         }
-
         if (!distance) {
           if (this.$props.pressDelay === 0) {
             this.handlePress(e);
@@ -216,7 +215,7 @@ export const ContainerMixin = {
           appendTo
         } = this.$props;
         const { node, collection } = active;
-        const { index } = node.sortableInfo;
+        const { index, isPlaceholder } = node.sortableInfo;
         const margin = getElementMargin(node);
 
         const containerBoundingRect = this.container.getBoundingClientRect();
@@ -233,6 +232,7 @@ export const ContainerMixin = {
         this.boundingClientRect = node.getBoundingClientRect();
         this.containerBoundingRect = containerBoundingRect;
         this.index = index;
+        this.placeholder = isPlaceholder;
         this.newIndex = index;
 
         this._axis = {
@@ -315,20 +315,22 @@ export const ContainerMixin = {
           this.helper.classList.add(...helperClass.split(' '));
         }
         this.listenerNode = e.touches ? node : this._window;
-        events.move.forEach(eventName =>
-          this.listenerNode.addEventListener(
-            eventName,
-            this.handleSortMove,
-            false
-          )
-        );
-        events.end.forEach(eventName =>
-          this.listenerNode.addEventListener(
-            eventName,
-            this.handleSortEnd,
-            false
-          )
-        );
+        if (!this.placeholder) {
+          events.move.forEach(eventName =>
+            this.listenerNode.addEventListener(
+              eventName,
+              this.handleSortMove,
+              false
+            )
+          );
+          events.end.forEach(eventName =>
+            this.listenerNode.addEventListener(
+              eventName,
+              this.handleSortEnd,
+              false
+            )
+          );
+        }
 
         this.sorting = true;
         this.sortingIndex = index;
@@ -346,27 +348,24 @@ export const ContainerMixin = {
       // 更新 ghost 的同时, 更新列表中其他节点的位置
       this.animateNodes();
       this.autoscroll();
-
       this.$emit('sort-move', { event: e });
     },
     exposeCustomApi() {
-      this.startDragInElement = this._startDragInElement;
-      this.endDragInElement = this._endDragInElement;
-      this.exposeUpdatePosition = this.updatePosition;
       this.hackState = this._hackState;
       this.clearHackState = this._clearHackState;
     },
     _hackState(e) {
       this.manager.active = {
         collection: 'default',
-        index: 2
-      };
-      this._pos = {
-        x: e.pageX,
-        y: e.pageY
+        index: 9
       };
       // 初始进入 viewport 的位置
+      const placeholder = this.manager.getPlaceholder();
+      console.log(placeholder);
       this.handlePress(e);
+    },
+    _clearHackState(e) {
+      this.handleSortEnd(e);
     },
     handleSortEnd(e) {
       const { collection } = this.manager.active;
@@ -420,7 +419,12 @@ export const ContainerMixin = {
           newIndex: this.newIndex,
           collection
         });
-        this.$emit('input', arrayMove(this.value, this.index, this.newIndex));
+        this.$emit(
+          'input',
+          this.placeholder
+            ? this.value
+            : arrayMove(this.value, this.index, this.newIndex)
+        );
 
         this._touched = false;
       };
@@ -846,7 +850,6 @@ export const ContainerMixin = {
             (translate.x - this.width / 2 - this.minTranslate.x) / this.width
           );
       }
-
       if (this.autoscrollInterval) {
         clearInterval(this.autoscrollInterval);
         this.autoscrollInterval = null;

@@ -33,7 +33,7 @@
             class="widget"
             style="overflow: hidden"
             :tabindex="-1"
-            @dragstart="handleDragstart"
+            @dragstart="handleWidgetDragstart"
             @dragend="handleDragend"
           >
             <i :class="item.icon"></i>
@@ -64,6 +64,7 @@
             v-for="(val, idx) in fileList"
             :key="idx"
             :draggable="true"
+            @dragstart="handleResDragstart"
             :tabindex="-1"
           >
             <p class="f-toe">
@@ -179,11 +180,16 @@ export default {
   },
   mounted() {},
   methods: {
-    handleDragstart(e) {
+    handleWidgetDragstart(e) {
+      getViewportVueInstance().setDragType("drag_widget");
+      e.dataTransfer.setData("WIDGET_TYPE", "hello");
+    },
+    handleResDragstart(e) {
+      getViewportVueInstance().setDragType("drag_resource");
       e.dataTransfer.setData("WIDGET_TYPE", "hello");
     },
     handleDragend(e) {
-      getViewportVueInstance().onDragend();
+      getViewportVueInstance().onDragend(e);
     },
     handleUploadSuccess() {},
     handleUploadProgress() {},
