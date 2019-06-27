@@ -2,55 +2,59 @@
 export const ElementMixin = {
   inject: ['manager'],
   props: {
-    index: {
+    ElementMixinIndex: {
       type: Number,
       required: true
     },
-    collection: {
+    ElementMixinCollection: {
       type: [String, Number],
       default: 'default'
     },
-    disabled: {
+    ElementMixinDisabled: {
       type: Boolean,
       default: false
     },
-    isPlaceholder: {
+    ElementMixinIsPlaceholder: {
       type: Boolean,
       default: false
     }
   },
 
   mounted() {
-    const { collection, disabled, index } = this.$props;
+    const {
+      ElementMixinCollection,
+      ElementMixinDisabled,
+      ElementMixinIndex
+    } = this.$props;
 
-    if (!disabled) {
-      this.setDraggable(collection, index);
+    if (!ElementMixinDisabled) {
+      this.setDraggable(ElementMixinCollection, ElementMixinIndex);
     }
   },
 
   watch: {
-    index(newIndex) {
+    ElementMixinIndex(newIndex) {
       if (this.$el && this.$el.sortableInfo) {
         this.$el.sortableInfo.index = newIndex;
       }
     },
-    disabled(isDisabled) {
+    ElementMixinDisabled(isDisabled) {
       if (isDisabled) {
-        this.removeDraggable(this.collection);
+        this.removeDraggable(this.ElementMixinCollection);
       } else {
-        this.setDraggable(this.collection, this.index);
+        this.setDraggable(this.ElementMixinCollection, this.ElementMixinIndex);
       }
     },
-    collection(newCollection, oldCollection) {
+    ElementMixinCollection(newCollection, oldCollection) {
       this.removeDraggable(oldCollection);
-      this.setDraggable(newCollection, this.index);
+      this.setDraggable(newCollection, this.ElementMixinIndex);
     }
   },
 
   beforeDestroy() {
-    const { collection, disabled } = this;
+    const { ElementMixinCollection, ElementMixinDisabled } = this;
 
-    if (!disabled) this.removeDraggable(collection);
+    if (!ElementMixinDisabled) this.removeDraggable(ElementMixinCollection);
   },
   methods: {
     setDraggable(collection, index) {
@@ -60,7 +64,7 @@ export const ElementMixin = {
         index,
         collection,
         manager: this.manager,
-        isPlaceholder: this.isPlaceholder
+        isPlaceholder: this.ElementMixinIsPlaceholder
       };
 
       this.ref = { node };

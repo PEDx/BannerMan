@@ -18,12 +18,16 @@
       :is="val.name"
       :key="`${val.id}-${val.name}`"
       :id="val.id"
-      :index="idx"
-      :class="`${val.id}-${val.name}`"
+      :element-mixin-index="idx"
       @change-prop="_childEmitEven(...arguments ,val.id)"
       v-bind="val.props"
     ></component>
-    <sortble-item :index="componentStack.length" v-show="true" :is-placeholder="true">
+    <sortble-item
+      :element-mixin-index="componentStack.length"
+      v-show="true"
+      :element-mixin-is-placeholder="true"
+      style="position: absolute; top: 0px;left: 0;width: 100%;"
+    >
       <div style="width: 100%;height: 80px; border: 2px dashed #eee;box-sizing: border-box;"></div>
     </sortble-item>
   </sortble-container>
@@ -88,7 +92,7 @@ export default {
     );
     this.scrollEnd = debounce(() => {
       this.treeScrolling = false;
-    }, 2000);
+    }, 5000);
     this._initDocumentEvent();
     this._observerGeometric();
     this._renderPageFromLocal(); // 加载保存的组件数据
@@ -111,17 +115,17 @@ export default {
         e.preventDefault();
         if (this.draging) return;
         if (this.dragingType === "drag_resource") return;
-        this.$refs.viewportContent.hackState(e);
         this.draging = true;
+        this.$refs.viewportContent.hackState(e);
         console.log("dragenter");
       });
       document.addEventListener(
         "dragover",
         throttle(e => {
           if (this.dragingType === "drag_resource") return;
-          this.$refs.viewportContent.handleSortMove(e);
+          this.$refs.viewportContent.palceholderMove(e);
           e.preventDefault();
-        }, 16)
+        }, 20)
       );
       document.addEventListener("drop", e => {
         console.log("drop");
@@ -150,7 +154,6 @@ export default {
             type: "viewport-scroll-percent",
             percent: percent.toFixed(2)
           });
-          this.scrollEnd();
         }, 20)
       );
     },
@@ -231,8 +234,8 @@ export default {
         type: "flush-controller-value"
       });
     },
-    _addComponent(name, propsObj) {
-      const _id = getRandomStr(6);
+    _addComponent(name, propsObj, id) {
+      const _id = id || `${getRandomStr(6)}-${name}`;
       this.componentStack.push({
         name: name,
         props: propsObj,
@@ -288,7 +291,7 @@ export default {
             profile.controllers.forEach(val => {
               _obj[val.propName] = data.props[val.propName];
             });
-            resolve([data.name, _obj]);
+            resolve([data.name, _obj, data.id]);
           })
           .catch(e => reject(e));
       });
@@ -382,6 +385,7 @@ export default {
     onDragend(e) {
       if (this.draging) this.$refs.viewportContent.clearHackState(e);
       this.draging = false;
+      this.treeScrolling = false;
     },
     highlighitInstance(id) {
       const instance = this.instancesMap[id];

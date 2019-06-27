@@ -232,7 +232,7 @@ export const ContainerMixin = {
         this.boundingClientRect = node.getBoundingClientRect();
         this.containerBoundingRect = containerBoundingRect;
         this.index = index;
-        this.placeholder = isPlaceholder;
+        this.isPlaceholder = isPlaceholder;
         this.newIndex = index;
 
         this._axis = {
@@ -315,7 +315,7 @@ export const ContainerMixin = {
           this.helper.classList.add(...helperClass.split(' '));
         }
         this.listenerNode = e.touches ? node : this._window;
-        if (!this.placeholder) {
+        if (!this.isPlaceholder) {
           events.move.forEach(eventName =>
             this.listenerNode.addEventListener(
               eventName,
@@ -353,151 +353,28 @@ export const ContainerMixin = {
     exposeCustomApi() {
       this.hackState = this._hackState;
       this.clearHackState = this._clearHackState;
+      this.palceholderMove = this._palceholderMove;
     },
     _hackState(e) {
       this.manager.active = {
         collection: 'default',
         index: 9
       };
-      // 初始进入 viewport 的位置
       const placeholder = this.manager.getPlaceholder();
-      console.log(placeholder);
+      placeholder.node.style.top = `${e.pageY - 40}px`;
       this.handlePress(e);
+      console.log(e);
+      console.log(placeholder);
+    },
+    _palceholderMove(e) {
+      this.mousePos = {
+        scrollTop: e.pageY,
+        edgeTop: e.y
+      };
+      this.handleSortMove(e);
     },
     _clearHackState(e) {
       this.handleSortEnd(e);
-    },
-    handleSortEnd(e) {
-      const { collection } = this.manager.active;
-
-      // Remove the event listeners if the node is still in the DOM
-      if (this.listenerNode) {
-        events.move.forEach(eventName =>
-          this.listenerNode.removeEventListener(eventName, this.handleSortMove)
-        );
-        events.end.forEach(eventName =>
-          this.listenerNode.removeEventListener(eventName, this.handleSortEnd)
-        );
-      }
-
-      const nodes = this.manager.refs[collection];
-
-      const onEnd = () => {
-        // Remove the helper from the DOM
-        this.helper.parentNode.removeChild(this.helper);
-
-        if (this.hideSortableGhost && this.sortableGhost) {
-          this.sortableGhost.style.visibility = '';
-          this.sortableGhost.style.opacity = '';
-        }
-
-        for (let i = 0, len = nodes.length; i < len; i++) {
-          const node = nodes[i];
-          const el = node.node;
-
-          // Clear the cached offsetTop / offsetLeft value
-          node.edgeOffset = null;
-
-          // Remove the transforms / transitions
-          el.style[`${vendorPrefix}Transform`] = '';
-          el.style[`${vendorPrefix}TransitionDuration`] = '';
-        }
-
-        // Stop autoscroll
-        clearInterval(this.autoscrollInterval);
-        this.autoscrollInterval = null;
-
-        // Update state
-        this.manager.active = null;
-
-        this.sorting = false;
-        this.sortingIndex = null;
-
-        this.$emit('sort-end', {
-          event: e,
-          oldIndex: this.index,
-          newIndex: this.newIndex,
-          collection
-        });
-        this.$emit(
-          'input',
-          this.placeholder
-            ? this.value
-            : arrayMove(this.value, this.index, this.newIndex)
-        );
-
-        this._touched = false;
-      };
-
-      if (
-        this.$props.transitionDuration ||
-        this.$props.draggedSettlingDuration
-      ) {
-        this.transitionHelperIntoPlace(nodes).then(() => onEnd());
-      } else {
-        onEnd();
-      }
-    },
-
-    transitionHelperIntoPlace(nodes) {
-      if (this.$props.draggedSettlingDuration === 0) {
-        return Promise.resolve();
-      }
-
-      const deltaScroll = {
-        left: this.scrollContainer.scrollLeft - this.initialScroll.left,
-        top: this.scrollContainer.scrollTop - this.initialScroll.top
-      };
-      const indexNode = nodes[this.index].node;
-      const newIndexNode = nodes[this.newIndex].node;
-
-      let targetX = -deltaScroll.left;
-      if (this.translate && this.translate.x > 0) {
-        // Diff against right edge when moving to the right
-        targetX +=
-          newIndexNode.offsetLeft +
-          newIndexNode.offsetWidth -
-          (indexNode.offsetLeft + indexNode.offsetWidth);
-      } else {
-        targetX += newIndexNode.offsetLeft - indexNode.offsetLeft;
-      }
-
-      let targetY = -deltaScroll.top;
-      if (this.translate && this.translate.y > 0) {
-        // Diff against the bottom edge when moving down
-        targetY +=
-          newIndexNode.offsetTop +
-          newIndexNode.offsetHeight -
-          (indexNode.offsetTop + indexNode.offsetHeight);
-      } else {
-        targetY += newIndexNode.offsetTop - indexNode.offsetTop;
-      }
-
-      const duration =
-        this.$props.draggedSettlingDuration !== null
-          ? this.$props.draggedSettlingDuration
-          : this.$props.transitionDuration;
-
-      this.helper.style[
-        `${vendorPrefix}Transform`
-      ] = `translate3d(${targetX}px,${targetY}px, 0)`;
-      this.helper.style[`${vendorPrefix}TransitionDuration`] = `${duration}ms`;
-
-      return new Promise(resolve => {
-        // Register an event handler to clean up styles when the transition
-        // finishes.
-        const cleanup = event => {
-          if (!event || event.propertyName === 'transform') {
-            clearTimeout(cleanupTimer);
-            this.helper.style[`${vendorPrefix}Transform`] = '';
-            this.helper.style[`${vendorPrefix}TransitionDuration`] = '';
-            resolve();
-          }
-        };
-        // Force cleanup in case 'transitionend' never fires
-        const cleanupTimer = setTimeout(cleanup, duration + 10);
-        this.helper.addEventListener('transitionend', cleanup, false);
-      });
     },
 
     getEdgeOffset(node, offset = { top: 0, left: 0 }) {
@@ -577,55 +454,6 @@ export const ContainerMixin = {
         y: offsetY
       };
     },
-
-    updatePosition(e) {
-      const { lockAxis, lockToContainerEdges } = this.$props;
-
-      const offset = this.getOffset(e);
-      const translate = {
-        x: offset.x - this.initialOffset.x,
-        y: offset.y - this.initialOffset.y
-      };
-      // Adjust for window scroll
-      translate.y -= window.pageYOffset - this.initialWindowScroll.top;
-      translate.x -= window.pageXOffset - this.initialWindowScroll.left;
-
-      this.translate = translate;
-
-      if (lockToContainerEdges) {
-        const [minLockOffset, maxLockOffset] = this.getLockPixelOffsets();
-        const minOffset = {
-          x: this.width / 2 - minLockOffset.x,
-          y: this.height / 2 - minLockOffset.y
-        };
-        const maxOffset = {
-          x: this.width / 2 - maxLockOffset.x,
-          y: this.height / 2 - maxLockOffset.y
-        };
-
-        translate.x = limit(
-          this.minTranslate.x + minOffset.x,
-          this.maxTranslate.x - maxOffset.x,
-          translate.x
-        );
-        translate.y = limit(
-          this.minTranslate.y + minOffset.y,
-          this.maxTranslate.y - maxOffset.y,
-          translate.y
-        );
-      }
-
-      if (lockAxis === 'x') {
-        translate.y = 0;
-      } else if (lockAxis === 'y') {
-        translate.x = 0;
-      }
-
-      this.helper.style[`${vendorPrefix}Transform`] = `translate3d(${
-        translate.x
-      }px,${translate.y}px, 0)`;
-    },
-
     animateNodes() {
       const { transitionDuration, hideSortableGhost } = this.$props;
       const nodes = this.manager.getOrderedRefs(); // 拿到排序好的真实 dom
@@ -637,13 +465,16 @@ export const ContainerMixin = {
         left: this.offsetEdge.left + this.translate.x + deltaScroll.left,
         top: this.offsetEdge.top + this.translate.y + deltaScroll.top
       };
+      // if (this.isPlaceholder) {
+      //   sortingOffset.top = this.placeholderPos.top;
+      // }
       const scrollDifference = {
         top: window.pageYOffset - this.initialWindowScroll.top,
         left: window.pageXOffset - this.initialWindowScroll.left
       };
-      // debugger
       this.newIndex = null;
 
+      // 在此计算每个元素是否应该移动,移动多少位置
       for (let i = 0, len = nodes.length; i < len; i++) {
         const { node } = nodes[i];
         const index = node.sortableInfo.index;
@@ -673,7 +504,10 @@ export const ContainerMixin = {
         if (nextNode && !nextNode.edgeOffset) {
           nextNode.edgeOffset = this.getEdgeOffset(nextNode.node);
         }
-
+        if (node.sortableInfo.isPlaceholder) {
+          edgeOffset.top += 80
+          nodes[i].edgeOffset = edgeOffset = this.getEdgeOffset(prevNode);
+        }
         // If the node is the one we're currently animating, skip it
         if (index === this.index) {
           if (hideSortableGhost) {
@@ -778,7 +612,7 @@ export const ContainerMixin = {
             sortingOffset.top >= edgeOffset.top + height / 2 - this.height
           ) {
             // 超过下面临近元素的二分之一高度就移动
-            // 如果向下拉
+            // 向下拉
             translate.y = -(this.height + this.marginOffset.y);
             this.newIndex = index;
           } else if (
@@ -786,7 +620,7 @@ export const ContainerMixin = {
             sortingOffset.top <= edgeOffset.top + height / 2
           ) {
             // 超过上面临近元素的二分之一高度就移动
-            // 如果向上拉
+            // 向上拉
             translate.y = this.height + this.marginOffset.y;
             if (this.newIndex == null) {
               this.newIndex = index;
@@ -802,6 +636,54 @@ export const ContainerMixin = {
         this.newIndex = this.index;
       }
     },
+    updatePosition(e) {
+      const { lockAxis, lockToContainerEdges } = this.$props;
+
+      const offset = this.getOffset(e);
+      const translate = {
+        x: offset.x - this.initialOffset.x,
+        y: offset.y - this.initialOffset.y
+      };
+      // Adjust for window scroll
+      translate.y -= window.pageYOffset - this.initialWindowScroll.top;
+      translate.x -= window.pageXOffset - this.initialWindowScroll.left;
+
+      this.translate = translate;
+
+      if (lockToContainerEdges) {
+        const [minLockOffset, maxLockOffset] = this.getLockPixelOffsets();
+        const minOffset = {
+          x: this.width / 2 - minLockOffset.x,
+          y: this.height / 2 - minLockOffset.y
+        };
+        const maxOffset = {
+          x: this.width / 2 - maxLockOffset.x,
+          y: this.height / 2 - maxLockOffset.y
+        };
+
+        translate.x = limit(
+          this.minTranslate.x + minOffset.x,
+          this.maxTranslate.x - maxOffset.x,
+          translate.x
+        );
+        translate.y = limit(
+          this.minTranslate.y + minOffset.y,
+          this.maxTranslate.y - maxOffset.y,
+          translate.y
+        );
+      }
+
+      if (lockAxis === 'x') {
+        translate.y = 0;
+      } else if (lockAxis === 'y') {
+        translate.x = 0;
+      }
+
+      this.helper.style[`${vendorPrefix}Transform`] = `translate3d(${
+        translate.x
+      }px,${translate.y}px, 0)`;
+    },
+
     throttleLog: throttle(arg => {
       console.log('>>>>>>>>');
       console.log(arg);
@@ -869,6 +751,138 @@ export const ContainerMixin = {
           this.translate.y += offset.top;
           this.animateNodes();
         }, 15);
+      }
+    },
+    transitionHelperIntoPlace(nodes) {
+      if (this.$props.draggedSettlingDuration === 0) {
+        return Promise.resolve();
+      }
+
+      const deltaScroll = {
+        left: this.scrollContainer.scrollLeft - this.initialScroll.left,
+        top: this.scrollContainer.scrollTop - this.initialScroll.top
+      };
+      const indexNode = nodes[this.index].node;
+      const newIndexNode = nodes[this.newIndex].node;
+
+      let targetX = -deltaScroll.left;
+      if (this.translate && this.translate.x > 0) {
+        // Diff against right edge when moving to the right
+        targetX +=
+          newIndexNode.offsetLeft +
+          newIndexNode.offsetWidth -
+          (indexNode.offsetLeft + indexNode.offsetWidth);
+      } else {
+        targetX += newIndexNode.offsetLeft - indexNode.offsetLeft;
+      }
+
+      let targetY = -deltaScroll.top;
+      if (this.translate && this.translate.y > 0) {
+        // Diff against the bottom edge when moving down
+        targetY +=
+          newIndexNode.offsetTop +
+          newIndexNode.offsetHeight -
+          (indexNode.offsetTop + indexNode.offsetHeight);
+      } else {
+        targetY += newIndexNode.offsetTop - indexNode.offsetTop;
+      }
+
+      const duration =
+        this.$props.draggedSettlingDuration !== null
+          ? this.$props.draggedSettlingDuration
+          : this.$props.transitionDuration;
+
+      this.helper.style[
+        `${vendorPrefix}Transform`
+      ] = `translate3d(${targetX}px,${targetY}px, 0)`;
+      this.helper.style[`${vendorPrefix}TransitionDuration`] = `${duration}ms`;
+
+      return new Promise(resolve => {
+        // Register an event handler to clean up styles when the transition
+        // finishes.
+        const cleanup = event => {
+          if (!event || event.propertyName === 'transform') {
+            clearTimeout(cleanupTimer);
+            this.helper.style[`${vendorPrefix}Transform`] = '';
+            this.helper.style[`${vendorPrefix}TransitionDuration`] = '';
+            resolve();
+          }
+        };
+        // Force cleanup in case 'transitionend' never fires
+        const cleanupTimer = setTimeout(cleanup, duration + 10);
+        this.helper.addEventListener('transitionend', cleanup, false);
+      });
+    },
+    handleSortEnd(e) {
+      const { collection } = this.manager.active;
+
+      // Remove the event listeners if the node is still in the DOM
+      if (this.listenerNode) {
+        events.move.forEach(eventName =>
+          this.listenerNode.removeEventListener(eventName, this.handleSortMove)
+        );
+        events.end.forEach(eventName =>
+          this.listenerNode.removeEventListener(eventName, this.handleSortEnd)
+        );
+      }
+
+      const nodes = this.manager.refs[collection];
+
+      const onEnd = () => {
+        // Remove the helper from the DOM
+        this.helper.parentNode.removeChild(this.helper);
+
+        if (this.hideSortableGhost && this.sortableGhost) {
+          this.sortableGhost.style.visibility = '';
+          this.sortableGhost.style.opacity = '';
+        }
+
+        for (let i = 0, len = nodes.length; i < len; i++) {
+          const node = nodes[i];
+          const el = node.node;
+
+          // Clear the cached offsetTop / offsetLeft value
+          node.edgeOffset = null;
+
+          // Remove the transforms / transitions
+          el.style[`${vendorPrefix}Transform`] = '';
+          el.style[`${vendorPrefix}TransitionDuration`] = '';
+        }
+
+        // Stop autoscroll
+        clearInterval(this.autoscrollInterval);
+        this.autoscrollInterval = null;
+
+        // Update state
+        this.manager.active = null;
+
+        this.sorting = false;
+        this.sortingIndex = null;
+
+        this.$emit('sort-end', {
+          event: e,
+          oldIndex: this.index,
+          newIndex: this.newIndex,
+          collection
+        });
+        // console.log(this.value);
+
+        this.$emit(
+          'input',
+          this.isPlaceholder
+            ? this.value
+            : arrayMove(this.value, this.index, this.newIndex)
+        );
+        this._touched = false;
+      };
+
+      if (
+        this.$props.transitionDuration ||
+        this.$props.draggedSettlingDuration
+      ) {
+        this.transitionHelperIntoPlace(nodes).then(() => onEnd());
+      } else {
+        onEnd();
       }
     }
   }
