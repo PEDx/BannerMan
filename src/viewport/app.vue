@@ -3,7 +3,7 @@
     class="viewport-content"
     ref="viewportContent"
     v-model="componentStack"
-    :lock-to-container-edges="true"
+    :lock-to-container-edges="false"
     :hide-sortable-ghost="true"
     :use-window-as-scroll-container="true"
     :should-cancel-start="() => {}"
@@ -24,9 +24,8 @@
     ></component>
     <sortble-item
       :element-mixin-index="componentStack.length"
-      v-show="true"
       :element-mixin-is-placeholder="true"
-      style="position: absolute; top: 0px;left: 0;width: 100%;"
+      style="position: absolute; top: 0px;left: 0;width: 100%;display: none;"
     >
       <div style="width: 100%;height: 80px; border: 2px dashed #eee;box-sizing: border-box;"></div>
     </sortble-item>
@@ -131,7 +130,7 @@ export default {
         console.log("drop");
         const msg = e.dataTransfer.getData("WIDGET_TYPE");
         if (msg) {
-          this._asyncAddComponent("widget-button");
+          // this._asyncAddComponent("widget-button");
           window.parent.postMessage({
             type: "drag-end",
             axis: {
@@ -162,10 +161,15 @@ export default {
       sort_status.sorting = true;
     },
     // 排序完成后所有的排序元素实例都会销毁重建
-    _handleSortEnd({ newIndex, oldIndex }) {
+    _handleSortEnd({ newIndex, oldIndex, isPlaceholder }) {
       selector.startSelecting();
       if (this.draging) return;
       setTimeout(() => {
+        if (isPlaceholder) {
+          if (newIndex === oldIndex) newIndex++;
+          this._asyncAddComponent("widget-button", newIndex);
+          return;
+        } // 在指定位置添加新组件
         if (newIndex === oldIndex) return; // 没有移动过
         const id = this.componentStack[newIndex].id;
         this._genComponentsTree();
@@ -234,13 +238,16 @@ export default {
         type: "flush-controller-value"
       });
     },
-    _addComponent(name, propsObj, id) {
+    _addComponent({ name, propsObj, id }, place) {
       const _id = id || `${getRandomStr(6)}-${name}`;
-      this.componentStack.push({
+      const _len = this.componentStack.length;
+      this.componentStack.splice(place || _len, 0, {
         name: name,
         props: propsObj,
         id: _id
-      }); // 在此初始化组件
+      });
+      // 插入组件
+
       this.$nextTick(() => {
         this.componentInstanceMap[_id] = document.getElementById(_id).__vue__;
       });
@@ -271,14 +278,14 @@ export default {
       serialization(promiseArr).then(res => {});
     },
     // 第一次添加组件会是异步加载
-    _asyncAddComponent(widgetName) {
+    _asyncAddComponent(widgetName, place) {
       this._asyncLoadComponent(widgetName).then(ins => {
         const profile = ins.default.extendOptions._profile_;
         const _obj = {};
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
         });
-        this._addComponent(widgetName, _obj);
+        this._addComponent({ name: widgetName, propsObj: _obj }, place);
         setTimeout(this._genComponentsTree);
       });
     },
@@ -291,7 +298,7 @@ export default {
             profile.controllers.forEach(val => {
               _obj[val.propName] = data.props[val.propName];
             });
-            resolve([data.name, _obj, data.id]);
+            resolve({ name: data.name, propsObj: _obj, id: data.id });
           })
           .catch(e => reject(e));
       });
@@ -304,7 +311,7 @@ export default {
         this._asyncFormatComponentFromLocalData
       );
       serialization(_promiseArr).then(res => {
-        res.forEach(val => this._addComponent(...val));
+        res.forEach(val => this._addComponent(val));
         setTimeout(this._genComponentsTree);
       });
     },

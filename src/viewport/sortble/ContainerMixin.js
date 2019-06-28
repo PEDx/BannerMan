@@ -8,7 +8,7 @@ import {
   arrayMove
 } from './utils';
 import { throttle } from '../../utils/index';
-
+const PLACEHOLDER_HEIGHT = 80;
 // Export Sortable Container Component Mixin
 export const ContainerMixin = {
   data() {
@@ -357,14 +357,15 @@ export const ContainerMixin = {
     },
     _hackState(e) {
       this.manager.active = {
-        collection: 'default',
-        index: 9
+        collection: 'default'
       };
+      this.manager.active.index = this.manager.getOrderedRefs().length - 1;
+      // debugger;
       const placeholder = this.manager.getPlaceholder();
-      placeholder.node.style.top = `${e.pageY - 40}px`;
+      placeholder.node.style.top = `${e.pageY - PLACEHOLDER_HEIGHT / 2}px`;
+      placeholder.node.style.display = `block`;
+      this.$el.style.height = `${this.$el.clientHeight + PLACEHOLDER_HEIGHT}px`;
       this.handlePress(e);
-      console.log(e);
-      console.log(placeholder);
     },
     _palceholderMove(e) {
       this.mousePos = {
@@ -374,6 +375,9 @@ export const ContainerMixin = {
       this.handleSortMove(e);
     },
     _clearHackState(e) {
+      const placeholder = this.manager.getPlaceholder();
+      this.$el.style.height = `auto`;
+      placeholder.node.style.display = `none`;
       this.handleSortEnd(e);
     },
 
@@ -505,8 +509,7 @@ export const ContainerMixin = {
           nextNode.edgeOffset = this.getEdgeOffset(nextNode.node);
         }
         if (node.sortableInfo.isPlaceholder) {
-          edgeOffset.top += 80
-          nodes[i].edgeOffset = edgeOffset = this.getEdgeOffset(prevNode);
+          nodes[i].edgeOffset = edgeOffset = prevNode.edgeOffset;
         }
         // If the node is the one we're currently animating, skip it
         if (index === this.index) {
@@ -625,6 +628,7 @@ export const ContainerMixin = {
             if (this.newIndex == null) {
               this.newIndex = index;
             }
+            // console.log('down');
           }
         }
         node.style[`${vendorPrefix}Transform`] = `translate3d(${
@@ -863,7 +867,8 @@ export const ContainerMixin = {
           event: e,
           oldIndex: this.index,
           newIndex: this.newIndex,
-          collection
+          collection,
+          isPlaceholder: this.isPlaceholder
         });
         // console.log(this.value);
 
