@@ -96,6 +96,7 @@ export default class ComponentSelector {
     unHighlightSelected();
   }
   clearHoverHighlight() {
+    this.mouseOverInstance = null;
     unHighlight();
   }
   highlighitMouseoverInstance(instance) {

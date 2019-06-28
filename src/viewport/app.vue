@@ -72,6 +72,7 @@ export default {
     this.loadingCompleteStatusMap = {};
     this.pageId = null;
     this.dropEndComponentName = "";
+    this.selectedId = "";
     this.treeScrolling = false;
     this.resourceDraging = false;
     return {
@@ -193,7 +194,7 @@ export default {
     // 需要在生成组件树后再选中高亮
     _selectComponentAndHighlightById(id) {
       if (!id) return;
-      this.id = id;
+      this.selectedId = id;
       const instance = this.componentInstanceMap[id];
       const component = this._findComponentObjById(id);
       selector.highlighitSelectedInstance(instance);
@@ -350,9 +351,6 @@ export default {
         instancesTree
       });
     },
-    _deleteComponent(idx) {
-      this.componentStack.splice(idx, 1);
-    },
     _setMeta(baseWidth) {
       const scale = 1;
       const meta = document.createElement("meta");
@@ -372,17 +370,24 @@ export default {
       meta.setAttribute("content", metaContent);
       document.getElementsByTagName("head")[0].appendChild(meta);
     },
+    deleteComponent() {
+      // const compObj = this._findComponentObjById(this.selectedId);
+    },
+    resetComponentPropData() {
+      const compObj = this._findComponentObjById(this.selectedId);
+      Object.keys(compObj.props).forEach(key => (compObj.props[key] = void 0));
+    },
     updateWidgetProp(key, value) {
-      const compObj = this._findComponentObjById(this.id);
+      const compObj = this._findComponentObjById(this.selectedId);
       compObj.props[key] = value;
       setTimeout(() => {
         this._genComponentsTree();
-        this._selectComponentAndHighlightById(this.id);
+        this._selectComponentAndHighlightById(this.selectedId);
         // 还需要找到 mouseover 的元素
       });
     },
     getWidgetDataValue(key) {
-      const vm = this.componentInstanceMap[this.id];
+      const vm = this.componentInstanceMap[this.selectedId];
       return vm[key];
     },
     // 清空编辑页面
