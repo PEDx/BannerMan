@@ -1,5 +1,5 @@
 import path from 'path';
-import { getInstanceOrVnodeRect } from '../viewport/highlighter';
+import { getInstanceOrVnodeRect } from '../viewport/selector/highlighter';
 
 function isPlainObject(obj) {
   return Object.prototype.toString.call(obj) === '[object Object]';
@@ -437,6 +437,7 @@ export function parseQueryString(url) {
 }
 
 export function getInstanceProfile(instance) {
+  if (!instance) return null;
   return instance.$options._profile_ || null;
 }
 export function findRelatedComponent(el) {

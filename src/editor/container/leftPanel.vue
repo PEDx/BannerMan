@@ -33,7 +33,8 @@
             class="widget"
             style="overflow: hidden"
             :tabindex="-1"
-            @dragstart="handleDragstart"
+            @dragstart="handleWidgetDragstart"
+            @dragend="handleDragend"
           >
             <i :class="item.icon"></i>
             <p>{{ item.name }}</p>
@@ -63,6 +64,7 @@
             v-for="(val, idx) in fileList"
             :key="idx"
             :draggable="true"
+            @dragstart="handleResDragstart"
             :tabindex="-1"
           >
             <p class="f-toe">
@@ -73,8 +75,8 @@
                 title="预览"
                 width="auto"
                 trigger="hover"
-                content=""
-                transition=""
+                content
+                transition
                 @after-enter="popoverShow(val)"
               >
                 <img :src="checkImgSrc" alt class="check-view-img">
@@ -95,6 +97,7 @@
 <script>
 import foldBar from "../components/fold-bar";
 import splitPane from "../components/split-pane";
+import { getViewportVueInstance } from "../../utils/index";
 const widgets = [
   {
     group: "BASICS",
@@ -177,8 +180,16 @@ export default {
   },
   mounted() {},
   methods: {
-    handleDragstart(e) {
+    handleWidgetDragstart(e) {
+      getViewportVueInstance().setDragType("drag_widget");
       e.dataTransfer.setData("WIDGET_TYPE", "hello");
+    },
+    handleResDragstart(e) {
+      getViewportVueInstance().setDragType("drag_resource");
+      e.dataTransfer.setData("WIDGET_TYPE", "hello");
+    },
+    handleDragend(e) {
+      getViewportVueInstance().onDragend(e);
     },
     handleUploadSuccess() {},
     handleUploadProgress() {},

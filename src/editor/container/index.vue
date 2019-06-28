@@ -107,11 +107,11 @@ export default {
       "message",
       e => {
         if (e.data.type === "drag-end") {
-          this.percentage.x =
-            (e.data.axis.x / this.viewSize.width).toFixed(6) * 100;
-          this.percentage.y =
-            (e.data.axis.y / this.viewSize.height).toFixed(6) * 100;
-          this.dragAnim = true;
+          // this.percentage.x =
+          //   (e.data.axis.x / this.viewSize.width).toFixed(6) * 100;
+          // this.percentage.y =
+          //   (e.data.axis.y / this.viewSize.height).toFixed(6) * 100;
+          // this.dragAnim = true;
         }
       },
       false
@@ -360,7 +360,7 @@ export default {
 
 .scale-enter-active,
 .scale-leave-active {
-  animation: zoomIn 0.3s;
+  animation: zoomIn 0.5s;
 }
 .scale-enter,
 .scale-leave-to {

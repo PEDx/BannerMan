@@ -14,6 +14,7 @@ import {
   Slider,
   Input,
   Popover,
+  Card,
   Message,
   Notification
 } from 'element-ui';
@@ -27,6 +28,7 @@ Vue.use(Row)
   .use(Input)
   .use(Upload)
   .use(Popover)
+  .use(Card)
   .use(Button)
   .use(Select)
   .use(Option);

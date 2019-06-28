@@ -1,6 +1,6 @@
 <template>
   <div class="widget-button">
-    <button class="el-button">el-button</button>
+    <button class="el-button" @click="handleClick">el-button</button>
   </div>
 </template>
 <script>
@@ -28,7 +28,13 @@ export default {
       value: ""
     };
   },
-  mounted() {},
+  mounted() {
+    // setTimeout(() => {
+    //   this.$emit("change-prop", {
+    //     width: 134
+    //   });
+    // }, 4000);
+  },
   methods: {
     handleClick() {}
   }

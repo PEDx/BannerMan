@@ -1,11 +1,11 @@
-import EventBus from '../bus';
+import EventBus from '../../bus';
 import {
   highlight,
   unHighlight,
   unHighlightSelected,
   highlightSelected
 } from './highlighter';
-import { findRelatedComponent } from '../utils/index';
+import { findRelatedComponent } from '../../utils/index';
 const isBrowser = true;
 
 export default class ComponentSelector {
@@ -96,6 +96,7 @@ export default class ComponentSelector {
     unHighlightSelected();
   }
   clearHoverHighlight() {
+    this.mouseOverInstance = null;
     unHighlight();
   }
   highlighitMouseoverInstance(instance) {
