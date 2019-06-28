@@ -273,7 +273,7 @@ export const ContainerMixin = {
           margin.left}px`;
         this.helper.style.width = `${this.width}px`;
         this.helper.style.height = `${this.height}px`;
-        // this.helper.style.outline = `1px solid red`;
+        this.helper.style.outline = `1px dashed rgb(125, 125, 125)`;
         this.helper.style.boxSizing = 'border-box';
         this.helper.style.pointerEvents = 'none';
 
@@ -353,14 +353,13 @@ export const ContainerMixin = {
     exposeCustomApi() {
       this.hackState = this._hackState;
       this.clearHackState = this._clearHackState;
-      this.palceholderMove = this._palceholderMove;
+      this.palceholderMove = throttle(this._palceholderMove, 16);
     },
     _hackState(e) {
       this.manager.active = {
         collection: 'default'
       };
       this.manager.active.index = this.manager.getOrderedRefs().length - 1;
-      // debugger;
       const placeholder = this.manager.getPlaceholder();
       placeholder.node.style.top = `${e.pageY - PLACEHOLDER_HEIGHT / 2}px`;
       placeholder.node.style.display = `block`;
@@ -509,7 +508,9 @@ export const ContainerMixin = {
           nextNode.edgeOffset = this.getEdgeOffset(nextNode.node);
         }
         if (node.sortableInfo.isPlaceholder) {
-          nodes[i].edgeOffset = edgeOffset = prevNode.edgeOffset;
+          nodes[i].edgeOffset = edgeOffset = { ...prevNode.edgeOffset };
+          edgeOffset.top += 2000;
+          // debugger
         }
         // If the node is the one we're currently animating, skip it
         if (index === this.index) {
@@ -870,6 +871,8 @@ export const ContainerMixin = {
           collection,
           isPlaceholder: this.isPlaceholder
         });
+        // console.log(this.index);
+        // console.log(this.newIndex);
         // console.log(this.value);
 
         this.$emit(

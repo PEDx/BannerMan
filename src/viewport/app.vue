@@ -27,7 +27,11 @@
       :element-mixin-is-placeholder="true"
       style="position: absolute; top: 0px;left: 0;width: 100%;display: none;"
     >
-      <div style="width: 100%;height: 80px; border: 2px dashed #eee;box-sizing: border-box;"></div>
+      <div
+        style="width: 100%;height: 80px;line-height: 80px;text-align: center;box-sizing: border-box;background-color: rgba(166, 160, 183, 0.16);"
+      >
+        <i class="el-icon-plus" style="color: #bbb2a8;font-size: 34px;">+</i>
+      </div>
     </sortble-item>
   </sortble-container>
 </template>
@@ -67,6 +71,7 @@ export default {
     this.instancesMap = {};
     this.loadingCompleteStatusMap = {};
     this.pageId = null;
+    this.dropEndComponentName = "";
     this.treeScrolling = false;
     this.resourceDraging = false;
     return {
@@ -91,7 +96,7 @@ export default {
     );
     this.scrollEnd = debounce(() => {
       this.treeScrolling = false;
-    }, 5000);
+    }, 500);
     this._initDocumentEvent();
     this._observerGeometric();
     this._renderPageFromLocal(); // 加载保存的组件数据
@@ -99,9 +104,9 @@ export default {
   methods: {
     getRandomStr,
     _initDocumentEvent() {
-      // document.addEventListener("mouseleave", () => {
-      //   selector.clearHoverHighlight();
-      // });
+      document.addEventListener("mouseleave", () => {
+        selector.clearHoverHighlight();
+      });
       // document.addEventListener("mouseenter", () => {
       //   selector.startSelecting();
       // });
@@ -115,22 +120,19 @@ export default {
         if (this.draging) return;
         if (this.dragingType === "drag_resource") return;
         this.draging = true;
+        this.dropEndComponentName = "";
         this.$refs.viewportContent.hackState(e);
-        console.log("dragenter");
       });
-      document.addEventListener(
-        "dragover",
-        throttle(e => {
-          if (this.dragingType === "drag_resource") return;
-          this.$refs.viewportContent.palceholderMove(e);
-          e.preventDefault();
-        }, 20)
-      );
+      document.addEventListener("dragover", e => {
+        if (this.dragingType === "drag_resource") return;
+        this.$refs.viewportContent.palceholderMove(e);
+        e.preventDefault();
+      });
       document.addEventListener("drop", e => {
-        console.log("drop");
         const msg = e.dataTransfer.getData("WIDGET_TYPE");
+        console.log("drop");
         if (msg) {
-          // this._asyncAddComponent("widget-button");
+          this.dropEndComponentName = "widget-button";
           window.parent.postMessage({
             type: "drag-end",
             axis: {
@@ -165,12 +167,15 @@ export default {
       selector.startSelecting();
       if (this.draging) return;
       setTimeout(() => {
+        // 添加元素并排序
         if (isPlaceholder) {
-          if (newIndex === oldIndex) newIndex++;
-          this._asyncAddComponent("widget-button", newIndex);
+          // console.log(newIndex, oldIndex);
+          if (!this.dropEndComponentName) return;
+          this._asyncAddComponent(this.dropEndComponentName, newIndex);
           return;
         } // 在指定位置添加新组件
-        if (newIndex === oldIndex) return; // 没有移动过
+        // 正常排序
+        if (newIndex === oldIndex && !isPlaceholder) return; // 没有移动过
         const id = this.componentStack[newIndex].id;
         this._genComponentsTree();
         this._selectComponentAndHighlightById(id);
@@ -185,6 +190,7 @@ export default {
       }
       return ret;
     },
+    // 需要在生成组件树后再选中高亮
     _selectComponentAndHighlightById(id) {
       if (!id) return;
       this.id = id;
@@ -285,8 +291,13 @@ export default {
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
         });
+        // console.log(place);
         this._addComponent({ name: widgetName, propsObj: _obj }, place);
-        setTimeout(this._genComponentsTree);
+        setTimeout(() => {
+          const id = this.componentStack[place].id;
+          this._genComponentsTree();
+          this._selectComponentAndHighlightById(id);
+        });
       });
     },
     _asyncFormatComponentFromLocalData(data) {
@@ -316,6 +327,7 @@ export default {
       });
     },
     _genComponentsTree() {
+      console.log("_genComponentsTree");
       const instances = this._getRealDomInstanceTree(
         this.$refs.viewportContent.$el
       );

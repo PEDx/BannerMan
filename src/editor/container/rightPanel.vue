@@ -129,7 +129,7 @@ export default {
     });
     this.scrollEnd = debounce(() => {
       this.viewportSrcolling = false;
-    }, 5000);
+    }, 500);
   },
   methods: {
     handleSplitChange(data) {
