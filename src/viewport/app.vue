@@ -239,6 +239,7 @@ export default {
       return ret;
     },
     _childEmitEven(obj, id) {
+      // 监听组件更新自己 props 事件
       const props = this.componentInstanceMap[id].props;
       Object.keys(obj).forEach(key => (props[key] = obj[key]));
       window.parent.postMessage({

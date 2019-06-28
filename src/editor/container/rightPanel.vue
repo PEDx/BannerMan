@@ -19,10 +19,7 @@
             </div>
           </div>
         </div>
-        <controller-item
-          v-for="(val, idx) in controllerList"
-          :key="`${new Date().getTime()}-${idx}`"
-        >
+        <controller-item v-for="(val) in controllerList" :key="`${val.id}`">
           <span slot="label">{{ val.label }}</span>
           <component
             :is="controllerTypeMap[val.controllerType]"
@@ -51,7 +48,11 @@ import controllerItem from "../components/controller-item";
 import splitPane from "../components/split-pane";
 import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
-import { getViewportVueInstance, debounce } from "../../utils/index";
+import {
+  getViewportVueInstance,
+  debounce,
+  getRandomStr
+} from "../../utils/index";
 import EventBus from "../../bus";
 
 export default {
@@ -92,6 +93,7 @@ export default {
           this.name = profile.name;
           this.controllerList.forEach(val => {
             val.value = ins.getWidgetDataValue(val.propName);
+            val.id = getRandomStr(6);
           });
         }
       },
@@ -167,6 +169,7 @@ export default {
       this.$nextTick(() =>
         this.controllerList.forEach(val => {
           val.value = ins.getWidgetDataValue(val.propName);
+          val.id = getRandomStr(6);
         })
       );
     },
