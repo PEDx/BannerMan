@@ -1,5 +1,5 @@
 export default {
-  name: '搜索框',
+  name: '容器',
   icon: '',
   description: '描述',
   controllers: [
@@ -12,11 +12,6 @@ export default {
       propName: 'height',
       controllerType: 'CTRL_NUMBER_INPUT',
       label: '高度'
-    },
-    {
-      propName: 'image',
-      controllerType: 'CTRL_RESOURCE_DROP',
-      label: '图片资源'
     }
   ]
 };

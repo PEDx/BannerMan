@@ -1,12 +1,6 @@
 <template>
-  <div class="widget-search">
-    <input
-      v-model="value"
-      type="text"
-      :style="{width: `${width}px`, height: `${height}px`}"
-      @click="handleClick"
-    >
-    <img :src="image && image.url" alt>
+  <div class="widget-container">
+    <button class="el-button" @click="handleClick">el-button</button>
   </div>
 </template>
 <script>
@@ -27,10 +21,6 @@ export default {
     height: {
       default: 40,
       type: Number
-    },
-    image: {
-      default: () => {},
-      type: Object
     }
   },
   data() {
@@ -38,32 +28,38 @@ export default {
       value: ""
     };
   },
+  mounted() {},
   methods: {
     handleClick() {}
   }
 };
 </script>
 <style lang="scss" scoped>
-.widget-search {
+.widget-container {
   box-sizing: border-box;
   padding: 0 10px;
 }
-input {
-  -webkit-appearance: none;
-  background-color: #fff;
-  background-image: none;
-  border-radius: 4px;
-  border: 1px solid #dcdfe6;
-  box-sizing: border-box;
-  color: #606266;
+.el-button {
   display: inline-block;
-  font-size: inherit;
-  height: 40px;
-  line-height: 40px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #dcdfe6;
+  color: #606266;
+  -webkit-appearance: none;
+  text-align: center;
+  box-sizing: border-box;
   outline: none;
-  padding: 0 15px;
-  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-  width: 100%;
+  margin: 0;
+  transition: 0.1s;
+  font-weight: 500;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  padding: 12px 20px;
+  font-size: 14px;
+  border-radius: 4px;
 }
 </style>
 

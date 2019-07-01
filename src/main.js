@@ -11,6 +11,7 @@ import {
   InputNumber,
   Button,
   Upload,
+  Tooltip,
   Slider,
   Input,
   Popover,
@@ -26,6 +27,7 @@ Vue.use(Row)
   .use(InputNumber)
   .use(Slider)
   .use(Input)
+  .use(Tooltip)
   .use(Upload)
   .use(Popover)
   .use(Card)

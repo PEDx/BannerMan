@@ -40,6 +40,7 @@
 import {
   debounce,
   throttle,
+  // parse,
   generateInstanceBriefObj,
   parseQueryString,
   getInstanceProfile,
@@ -206,6 +207,11 @@ export default {
       });
     },
     // 监听元素几何属性变化
+    _loadImage(e) {
+      const img = e.target;
+      img.removeEventListener("load", this._loadImage, false);
+      selector.resetHighlight();
+    },
     _observerGeometric() {
       const MutationObserver =
         window.MutationObserver ||
@@ -214,13 +220,30 @@ export default {
       // IE 11 及以上兼容
       const mutationObserver = new MutationObserver((mutations, observer) => {
         // 重置高亮
+        mutations.forEach(mutation => {
+          switch (mutation.type) {
+            case "attributes":
+              if (mutation.target.tagName === "IMG") {
+                mutation.target.addEventListener(
+                  "load",
+                  this._loadImage,
+                  false
+                );
+              }
+              break;
+            default:
+          }
+        });
         if (!sort_status.sorting) {
+          console.log("MutationObserver");
           selector.resetHighlight();
         }
       });
       mutationObserver.observe(this.$refs.viewportContent.$el, {
-        subtree: true,
-        attributes: true
+        characterData: true,
+        childList: true,
+        attributes: true,
+        subtree: true
       });
     },
     _findComponentId(ins) {
@@ -378,14 +401,10 @@ export default {
       const compObj = this._findComponentObjById(this.selectedId);
       Object.keys(compObj.props).forEach(key => (compObj.props[key] = void 0));
     },
-    updateWidgetProp(key, value) {
+    updateWidgetProp(data) {
+      data = JSON.parse(data);
       const compObj = this._findComponentObjById(this.selectedId);
-      compObj.props[key] = value;
-      setTimeout(() => {
-        this._genComponentsTree();
-        this._selectComponentAndHighlightById(this.selectedId);
-        // 还需要找到 mouseover 的元素
-      });
+      compObj.props[data.key] = data.value;
     },
     getWidgetDataValue(key) {
       const vm = this.componentInstanceMap[this.selectedId];

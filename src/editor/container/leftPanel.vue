@@ -60,12 +60,13 @@
         </template>
         <div class="file-list" style="padding: 8px 0;">
           <div
-            class="file-list-item"
+            :class="{'file-list-item': true, active: currentPickResItemIdx == idx}"
             v-for="(val, idx) in fileList"
             :key="idx"
             :draggable="true"
-            @dragstart="handleResDragstart"
-            :tabindex="-1"
+            @dragstart="handleResDragstart(...arguments, val)"
+            @dragend="handleResDragend"
+            @click="handleClick(idx)"
           >
             <p class="f-toe">
               <i class="el-icon-picture item-icon"></i>
@@ -74,12 +75,14 @@
                 placement="right"
                 title="预览"
                 width="auto"
-                trigger="hover"
+                trigger="click"
                 content
                 transition
                 @after-enter="popoverShow(val)"
               >
-                <img :src="checkImgSrc" alt class="check-view-img">
+                <div class="content">
+                  <img :src="checkImgSrc" alt class="check-view-img" @load="handleImgLoad">
+                </div>
                 <el-button
                   slot="reference"
                   type="text"
@@ -98,6 +101,7 @@
 import foldBar from "../components/fold-bar";
 import splitPane from "../components/split-pane";
 import { getViewportVueInstance } from "../../utils/index";
+import EventBus from "../../bus";
 const widgets = [
   {
     group: "BASICS",
@@ -172,10 +176,10 @@ export default {
         },
         {
           name: "food2.jpeg",
-          url:
-            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
+          url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
         }
-      ]
+      ],
+      currentPickResItemIdx: -1
     };
   },
   mounted() {},
@@ -184,12 +188,22 @@ export default {
       getViewportVueInstance().setDragType("drag_widget");
       e.dataTransfer.setData("WIDGET_TYPE", "hello");
     },
-    handleResDragstart(e) {
+    handleResDragstart(e, file) {
       getViewportVueInstance().setDragType("drag_resource");
-      e.dataTransfer.setData("WIDGET_TYPE", "hello");
+      e.dataTransfer.setData("RESOURCE_TYPE", "image");
+      e.dataTransfer.setData("RESOURCE_FILE", JSON.stringify(file));
     },
     handleDragend(e) {
       getViewportVueInstance().onDragend(e);
+    },
+    handleResDragend(e) {
+      EventBus.$emit("resource-dragend");
+    },
+    handleClick(idx) {
+      this.currentPickResItemIdx = idx;
+    },
+    handleImgLoad(e) {
+      console.log(e);
     },
     handleUploadSuccess() {},
     handleUploadProgress() {},
@@ -269,15 +283,16 @@ $file-icon-color: #4ca2ab;
         }
       }
       &:focus {
-        background-color: #fd9527;
-        color: #333;
         outline: 0;
       }
       &:active {
-        background-color: #fd9527;
-        color: #333;
         outline: 0;
       }
+    }
+    .active {
+      background-color: #fd9527;
+      color: #333;
+      outline: 0;
     }
     .item-icon {
       font-size: 16px;

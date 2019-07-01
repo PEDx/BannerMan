@@ -227,6 +227,7 @@ function sanitize(data) {
     return data;
   }
 }
+
 export function scrollIntoView(scrollParent, el, center = true) {
   const parentTop = scrollParent.scrollTop;
   const parentHeight = scrollParent.offsetHeight;

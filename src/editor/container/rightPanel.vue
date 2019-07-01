@@ -5,7 +5,7 @@
       :split-percent="splitPercent"
       :split-status="splitStatus"
     >
-      <fold-bar title="属性" slot="left" pos="top">
+      <fold-bar title="属性控制" slot="left" pos="top">
         <div slot="prefix" class="component-info" v-if="controllerList.length">
           <div class="box">
             <span class="name">{{ name }}</span>
@@ -155,7 +155,7 @@ export default {
     },
     handleSubmitUpdate(key, value) {
       const ins = getViewportVueInstance();
-      ins.updateWidgetProp(key, value);
+      ins.updateWidgetProp(JSON.stringify({ key, value }));
     },
     handleContentScroll(percent) {
       // 此处会相互触发 srcoll 事件, 需要防止
@@ -186,11 +186,12 @@ export default {
     .box {
       height: 20px;
       line-height: 20px;
-      // background-color: #2525252b;
-      color: #fff;
-      border-top: 1px solid #68666f;
+      color: #fd9527;
+      border: 1px solid #343438;
       padding: 4px 10px;
-      padding-bottom: 0;
+      /* padding-bottom: 0; */
+      background-color: #252525;
+      border-radius: 4px;
     }
     .btn {
       margin-right: -12px;
