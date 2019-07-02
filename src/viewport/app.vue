@@ -209,6 +209,8 @@ export default {
     // 监听元素几何属性变化
     _loadImage(e) {
       const img = e.target;
+      console.log("imgLoad");
+      e.target.draggable = "false";
       img.removeEventListener("load", this._loadImage, false);
       selector.resetHighlight();
     },

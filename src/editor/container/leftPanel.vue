@@ -73,7 +73,7 @@
               {{ val.name }}
               <el-popover
                 placement="right"
-                title="预览"
+                :title="`预览 ${checkImgName} ${checkImgResolution}`"
                 width="auto"
                 trigger="click"
                 content
@@ -81,15 +81,19 @@
                 @after-enter="popoverShow(val)"
               >
                 <div class="content">
-                  <img :src="checkImgSrc" alt class="check-view-img" @load="handleImgLoad">
+                  <img :src="checkImgSrc" alt class="check-view-img">
                 </div>
-                <el-button
-                  slot="reference"
-                  type="text"
-                  class="item-icon f-fr check-img"
-                  icon="el-icon-view"
-                ></el-button>
+
+                <div slot="reference" class="f-fr">
+                  <el-button type="text" class="item-icon" icon="el-icon-view"></el-button>
+                </div>
               </el-popover>
+              <el-button
+                type="text"
+                class="item-icon delete-img f-fr"
+                icon="el-icon-delete"
+                @click="handleDelete(idx)"
+              ></el-button>
             </p>
           </div>
         </div>
@@ -163,6 +167,8 @@ export default {
       widgets,
       searchValue: "",
       checkImgSrc: "",
+      checkImgResolution: "",
+      checkImgName: "",
       splitPercent: +editorSetting.leftPanelSplit || 70,
       splitStatus: editorSetting.leftPanelStatus || {
         top: true,
@@ -202,8 +208,8 @@ export default {
     handleClick(idx) {
       this.currentPickResItemIdx = idx;
     },
-    handleImgLoad(e) {
-      console.log(e);
+    handleDelete(idx) {
+      this.fileList.splice(idx, 1);
     },
     handleUploadSuccess() {},
     handleUploadProgress() {},
@@ -216,6 +222,18 @@ export default {
     },
     popoverShow(img) {
       this.checkImgSrc = img.url;
+      this.checkImgName = img.name;
+      this.setImgNaturalWHInfo(img.url);
+    },
+    setImgNaturalWHInfo(url) {
+      var image = new Image();
+      image.src = url;
+      const naturalWidth = image.width;
+      const naturalHeight = image.Height;
+      image.onload = () => {
+        this.checkImgResolution = `( ${image.naturalWidth ||
+          naturalWidth} x ${image.naturalHeight || naturalHeight} )`;
+      };
     }
   }
 };
@@ -276,11 +294,8 @@ $file-icon-color: #4ca2ab;
       transition: all 0.2s;
       margin-bottom: 1px;
       &:hover {
-        background-color: #fd9527;
-        color: #333;
-        .check-img {
-          display: inline-block;
-        }
+        background-color: #343438;
+        // color: #fd9527;
       }
       &:focus {
         outline: 0;
@@ -290,23 +305,19 @@ $file-icon-color: #4ca2ab;
       }
     }
     .active {
-      background-color: #fd9527;
-      color: #333;
+      background-color: #343438;
+      color: #fd9527;
       outline: 0;
     }
     .item-icon {
-      font-size: 16px;
-      color: $img-icon-color;
+      font-size: 12px;
       margin-right: 2px;
       position: relative;
-      top: 2px;
-    }
-    .check-img {
-      display: none;
-      font-size: 14px;
-      color: #333;
-      // top: 5px;
       padding: 4px 0;
+    }
+    .delete-img {
+      top: 2px;
+      margin-right: 12px;
     }
   }
 }
