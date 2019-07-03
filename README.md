@@ -2,7 +2,7 @@
 
 > web editor
 
-## Build Setup
+### Build Setup
 
 ```bash
 # install dependencies
@@ -22,7 +22,8 @@ npm run build --report
 
 > 包括三个字段：type（必需）、scope（可选）和 subject（必需）。
 
-> 例如：\[fix\] 界面两侧板块无法拖拉的bug
+> 例如：\[fix\] 界面两侧板块无法拖拉的 bug
+
 1. type
 
 > type 用于说明 commit 的类别，只允许使用下面 7 个标识。
@@ -34,7 +35,7 @@ npm run build --report
 - refactor：重构（即不是新增功能，也不是修改 bug 的代码变动）
 - test：增加测试
 - chore：构建过程或辅助工具的变动
-> 如果 type 为 feat 和 fix，则该 commit 将肯定出现在 Change log 之中。其他情况（docs、chore、style、refactor、test）由你决定，要不要放入 Change log，建议是不要。
+  > 如果 type 为 feat 和 fix，则该 commit 将肯定出现在 Change log 之中。其他情况（docs、chore、style、refactor、test）由你决定，要不要放入 Change log，建议是不要。
 
 2. scope
 
@@ -45,5 +46,28 @@ npm run build --report
 - subject 是 commit 目的的简短描述，不超过 50 个字符。
 
 > 以动词开头，使用第一人称现在时，比如 change，而不是 changed 或 changes
-第一个字母小写
-结尾不加句号（.）
+> 第一个字母小写
+> 结尾不加句号（.）
+
+### Product Requirements
+
+1. 组件
+
+   - [ ] 容器组件, 可拖入其他组件
+   - [ ] 定义可拖拽元素, 拖拽过程中高亮
+   - [ ] 文本组件, 按钮组件, 布局容器组件等基础组件
+
+2. 控制器
+
+   - [ ] 颜色选择控制器
+   - [ ] 尺寸控制器
+   - [ ] 绝对定位坐标控制器
+   - [ ] 布局 (内外边距) 控制器
+   - [ ] 下拉选择控制器
+
+3. 编辑器
+   - [ ] 编辑时弹框通道, 由组件通知编辑者, 优化用户体验
+   - [ ] 组件树可生成对应树
+   - [ ] 组件搜索, 组件分类
+   - [ ] 可注入全局变量, 定义主题颜色
+   - [ ] 添加资源支持链接和文件上传

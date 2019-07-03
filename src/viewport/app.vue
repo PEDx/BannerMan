@@ -210,7 +210,7 @@ export default {
     _loadImage(e) {
       const img = e.target;
       console.log("imgLoad");
-      e.target.draggable = "false";
+      e.target.draggable = false;
       img.removeEventListener("load", this._loadImage, false);
       selector.resetHighlight();
     },
@@ -283,6 +283,9 @@ export default {
 
       this.$nextTick(() => {
         this.componentInstanceMap[_id] = document.getElementById(_id).__vue__;
+        [...document.getElementsByTagName("img")].forEach(val => {
+          val.draggable = false;
+        });
       });
     },
     _asyncLoadComponent(name) {

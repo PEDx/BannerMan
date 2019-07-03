@@ -10,10 +10,10 @@
           <div class="box">
             <span class="name">{{ name }}</span>
             <div class="btn f-fr">
-              <el-button type="text" title="还原" @click="handleResetClick">
+              <el-button type="text" title="还原" @click="handleResetClick" style="padding: 4px 8px;margin-left: 0;">
                 <i class="el-icon-refresh-left"></i>
               </el-button>
-              <el-button type="text" title="删除" @click="handleDeleteClick">
+              <el-button type="text" title="删除" @click="handleDeleteClick" style="padding: 4px 8px;margin-left: 0;">
                 <i class="el-icon-delete"></i>
               </el-button>
             </div>
@@ -194,7 +194,7 @@ export default {
       border-radius: 4px;
     }
     .btn {
-      margin-right: -12px;
+      margin-right: -8px;
     }
   }
 }

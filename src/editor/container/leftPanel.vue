@@ -181,7 +181,25 @@ export default {
             "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
         },
         {
-          name: "food2.jpeg",
+          name: "lizhi.png",
+          url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
+        },
+        {
+          name: "food.jpeg",
+          url:
+            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
+        },
+        {
+          name: "lizhi.png",
+          url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
+        },
+        {
+          name: "food.jpeg",
+          url:
+            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
+        },
+        {
+          name: "lizhi.png",
           url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
         }
       ],
@@ -270,17 +288,17 @@ $file-icon-color: #4ca2ab;
       user-select: none;
     }
     &:hover {
-      background-color: #fd9527;
-      color: #333;
+      background-color: #343438;
+      color: #fd9527;
     }
     &:focus {
-      background-color: #fd9527;
-      color: #333;
+      background-color: #343438;
+      color: #fd9527;
       outline: 0;
     }
     &:active {
-      background-color: #fd9527;
-      color: #333;
+      background-color: #343438;
+      color: #fd9527;
       outline: 0;
     }
   }
