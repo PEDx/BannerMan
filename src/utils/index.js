@@ -1,17 +1,4 @@
 import path from 'path';
-import { getInstanceOrVnodeRect } from '../viewport/selector/highlighter';
-
-function isPlainObject(obj) {
-  return Object.prototype.toString.call(obj) === '[object Object]';
-}
-
-function isPrimitive(data) {
-  if (data == null) {
-    return true;
-  }
-  const type = typeof data;
-  return type === 'string' || type === 'number' || type === 'boolean';
-}
 
 function toUpper(_, c) {
   return c ? c.toUpperCase() : '';
@@ -31,30 +18,15 @@ function cached(fn) {
   };
 }
 
-function findQualifiedChildren(instance) {
-  return isQualified(instance)
-    ? capture(instance)
-    : findQualifiedChildrenFromList(instance.$children).concat(
-      instance._vnode && instance._vnode.children
-        ? flatten(
-          instance._vnode.children
-            .filter(child => !child.componentInstance)
-            .map(captureChild)
-        )
-        // Filter qualified children.
-          .filter(instance => isQualified(instance))
-        : []
-    );
+function sanitize(data) {
+  if (!isPrimitive(data) && !Array.isArray(data) && !isPlainObject(data)) {
+    return Object.prototype.toString.call(data);
+  } else {
+    return data;
+  }
 }
 
-function isQualified(instance) {
-  const name = classify(
-    instance.name || getInstanceName(instance)
-  ).toLowerCase();
-  return name.indexOf(filter) > -1;
-}
-
-function flatten(items) {
+export function flatten(items) {
   return items.reduce((acc, item) => {
     if (item instanceof Array) acc.push(...flatten(item));
     else if (item) acc.push(item);
@@ -63,19 +35,7 @@ function flatten(items) {
   }, []);
 }
 
-function captureChild(child) {
-  if (child.fnContext && !child.componentInstance) {
-    return capture(child);
-  } else if (child.componentInstance) {
-    if (!child.componentInstance._isBeingDestroyed) {
-      return capture(child.componentInstance);
-    }
-  } else if (child.children) {
-    return flatten(child.children.map(captureChild));
-  }
-}
-
-function getRenderKey(value) {
+export function getRenderKey(value) {
   if (value == null) return;
   const type = typeof value;
   if (type === 'number') {
@@ -89,143 +49,16 @@ function getRenderKey(value) {
   }
 }
 
-const functionalVnodeMap = new Map();
-function markFunctional(id, vnode) {
-  const refId = vnode.fnContext._EDITER_TREE_UID__;
-  if (!functionalVnodeMap.has(refId)) {
-    functionalVnodeMap.set(refId, {});
-    vnode.fnContext.$on('hook:beforeDestroy', function() {
-      functionalVnodeMap.delete(refId);
-    });
-  }
-
-  functionalVnodeMap.get(refId)[id] = vnode;
-}
-const instanceMap = new Map();
-function mark(instance) {
-  if (!instanceMap.has(instance._EDITER_TREE_UID__)) {
-    instanceMap.set(instance._EDITER_TREE_UID__, instance);
-    instance.$on('hook:beforeDestroy', function() {
-      instanceMap.delete(instance._EDITER_TREE_UID__);
-    });
-  }
-}
-function getUniqueId(instance) {
-  const rootVueId = instance.$root._uid;
-  return `${rootVueId}:${instance._uid}`;
+export function isPlainObject(obj) {
+  return Object.prototype.toString.call(obj) === '[object Object]';
 }
 
-const functionalIds = new Map();
-const captureIds = new Map();
-
-function capture(instance, index, list) {
-  if (
-    instance.$options &&
-    instance.$options.abstract &&
-    instance._vnode &&
-    instance._vnode.componentInstance
-  ) {
-    instance = instance._vnode.componentInstance;
+export function isPrimitive(data) {
+  if (data == null) {
+    return true;
   }
-
-  // Functional component.
-  if (instance.fnContext && !instance.componentInstance) {
-    const contextUid = instance.fnContext._EDITER_TREE_UID__;
-    let id = functionalIds.get(contextUid);
-    if (id == null) {
-      id = 0;
-    } else {
-      id++;
-    }
-    functionalIds.set(contextUid, id);
-    const functionalId = contextUid + ':functional:' + id;
-    markFunctional(functionalId, instance);
-    return {
-      id: functionalId,
-      functional: true,
-      name: getInstanceName(instance),
-      renderKey: getRenderKey(instance.key),
-      children: (instance.children
-        ? instance.children.map(child =>
-          child.fnContext
-            ? captureChild(child)
-            : child.componentInstance
-              ? capture(child.componentInstance)
-              : undefined
-        )
-        : instance.componentInstance
-          ? [capture(instance.componentInstance)]
-          : []
-      ).filter(Boolean),
-      inactive: false,
-      isFragment: false // TODO: Check what is it for.
-    };
-  }
-  // instance._uid is not reliable in devtools as there
-  // may be 2 roots with same _uid which causes unexpected
-  // behaviour
-  instance._EDITER_TREE_UID__ = getUniqueId(instance);
-
-  // Dedupe
-  if (captureIds.has(instance._EDITER_TREE_UID__)) {
-    return;
-  } else {
-    captureIds.set(instance._EDITER_TREE_UID__, undefined);
-  }
-
-  mark(instance);
-  const name = getInstanceName(instance);
-  const ret = {
-    uid: instance._uid,
-    id: instance._EDITER_TREE_UID__,
-    name,
-    renderKey: getRenderKey(instance.$vnode ? instance.$vnode['key'] : null),
-    inactive: !!instance._inactive,
-    isFragment: !!instance._isFragment,
-    children: instance.$children
-      .filter(child => !child._isBeingDestroyed)
-      .map(capture)
-      .filter(Boolean)
-  };
-
-  if (instance._vnode && instance._vnode.children) {
-    ret.children = ret.children.concat(
-      flatten(instance._vnode.children.map(captureChild)).filter(Boolean)
-    );
-  }
-
-  // record screen position to ensure correct ordering
-  if ((!list || list.length > 1) && !instance._inactive) {
-    const rect = getInstanceOrVnodeRect(instance);
-    ret.top = rect ? rect.top : Infinity;
-  } else {
-    ret.top = Infinity;
-  }
-
-  // check router view
-  const isRouterView2 = instance.$vnode && instance.$vnode.data.routerView;
-  if (instance._routerView || isRouterView2) {
-    ret.isRouterView = true;
-    if (!instance._inactive && instance.$route) {
-      const matched = instance.$route.matched;
-      const depth = isRouterView2
-        ? instance.$vnode.data.routerViewDepth
-        : instance._routerView.depth;
-      ret.matchedRouteSegment =
-        matched &&
-        matched[depth] &&
-        (isRouterView2 ? matched[depth].path : matched[depth].handler.path);
-    }
-  }
-  return ret;
-}
-
-function sanitize(data) {
-  if (!isPrimitive(data) && !Array.isArray(data) && !isPlainObject(data)) {
-    return Object.prototype.toString.call(data);
-  } else {
-    return data;
-  }
+  const type = typeof data;
+  return type === 'string' || type === 'number' || type === 'boolean';
 }
 
 export function scrollIntoView(scrollParent, el, center = true) {
@@ -243,11 +76,6 @@ export function scrollIntoView(scrollParent, el, center = true) {
     scrollParent.scrollTop = top - parentHeight + height;
   }
 }
-export function generateInstanceBriefObj(rootInstances) {
-  functionalIds.clear();
-  captureIds.clear();
-  return findQualifiedChildrenFromList(rootInstances);
-}
 
 export function clamp(x, min, max) {
   if (x > max) return max;
@@ -263,13 +91,17 @@ export const getViewportVueInstance = (() => {
     return _ins;
   };
 })();
+
 var classifyRE = /(?:^|[-_/])(\w)/g;
 export const classify = cached(str => {
   return str && str.replace(classifyRE, toUpper);
 });
 
 export function getComponentName(options) {
-  const name = options._profile_.name || options.name || options._componentTag;
+  const name =
+    (options._profile_ && options._profile_.name) ||
+    options.name ||
+    options._componentTag;
   if (name) {
     return name;
   }
@@ -288,14 +120,6 @@ export function getInstanceName(instance) {
 export function focusInput(el) {
   el.focus();
   el.setSelectionRange(0, el.value.length);
-}
-
-const filter = '';
-export function findQualifiedChildrenFromList(instances) {
-  instances = instances.filter(child => !child._isBeingDestroyed);
-  return !filter
-    ? instances.map(capture)
-    : Array.prototype.concat.apply([], instances.map(findQualifiedChildren));
 }
 
 const restArguments = function(func, startIndex) {

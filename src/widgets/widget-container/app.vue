@@ -1,65 +1,73 @@
 <template>
-  <div class="widget-container">
-    <button class="el-button" @click="handleClick">el-button</button>
+  <div
+    class="widget-container"
+    @dragenter.prevent="handleDragenter"
+    @dragover.prevent="handleDragover"
+    @dragleave.prevent="handleDragleave"
+    @drop="handleDrop"
+  >
+    <slot />
+    <sortble-item
+      :element-mixin-index="value.length"
+      :element-mixin-is-placeholder="true"
+      style="position: absolute; top: 0px;left: 0;width: 100%;display: none;"
+    >
+      <div
+        style="width: 100%;height: 80px;line-height: 80px;text-align: center;box-sizing: border-box;background-color: rgba(166, 160, 183, 0.16);"
+      >
+        <i class="el-icon-plus" style="color: #bbb2a8;font-size: 34px;">+</i>
+      </div>
+    </sortble-item>
   </div>
 </template>
 <script>
-// this.$emit("change-prop", {
-//   width: 134
-// });
-// 注意：
-// 1. 编辑器监听此事件只是暴露 props 控制权给组件（正在编辑的）自己，使之更灵活，组件可以自我设置传入 props
-// 2. 此处设置的 props 将和右边 参数控制器 的数值同步
-// 3. 非编辑器环境没有此事件监听，请勿在业务逻辑中依赖
-
+import { ContainerMixin, SlickItem } from "../../viewport/sortble";
 export default {
-  props: {
-    width: {
-      default: 100,
-      type: Number
-    },
-    height: {
-      default: 40,
-      type: Number
-    }
+  components: {
+    "sortble-item": SlickItem
   },
+  mixins: [ContainerMixin],
   data() {
-    return {
-      value: ""
-    };
+    this.dragenter = false;
+    return {};
   },
-  mounted() {},
+  inject: ["rootContainer"],
+  mounted() {
+    this.$on("sort-start", () => {
+      console.log("sortstart");
+    });
+    this.$on("sort-end", () => {
+      console.log("sortend");
+    });
+  },
   methods: {
-    handleClick() {}
+    handleDragenter(e) {
+      if (this.dragenter) return;
+      if (this.rootContainer.dragingType === "drag_resource") return;
+      this.hackState(e);
+      this.dragenter = true;
+    },
+    handleDragover(e) {
+      if (this.rootContainer.dragingType === "drag_resource") return;
+      this.palceholderMove(e);
+    },
+    handleDragleave(e) {
+      if (e.relatedTarget === e.target) console.log(e);
+    },
+    handleDrop(e) {
+      console.log("handleDragleave");
+    },
+    onDropend() {
+      this.dragenter = false;
+    }
   }
 };
 </script>
 <style lang="scss" scoped>
 .widget-container {
   box-sizing: border-box;
-  padding: 0 10px;
-}
-.el-button {
-  display: inline-block;
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  background: #fff;
-  border: 1px solid #dcdfe6;
-  color: #606266;
-  -webkit-appearance: none;
-  text-align: center;
-  box-sizing: border-box;
-  outline: none;
-  margin: 0;
-  transition: 0.1s;
-  font-weight: 500;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  padding: 12px 20px;
-  font-size: 14px;
-  border-radius: 4px;
+  overflow: auto;
+  min-height: 200px;
 }
 </style>
 

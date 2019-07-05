@@ -25,7 +25,7 @@ export const ContainerMixin = {
   },
 
   props: {
-    value: { type: Array, required: true },
+    value: { type: Array, default: () => [] },
     axis: { type: String, default: 'y' }, // 'x', 'y', 'xy'
     distance: { type: Number, default: 0 },
     pressDelay: { type: Number, default: 0 },
@@ -38,7 +38,7 @@ export const ContainerMixin = {
     transitionDuration: { type: Number, default: 300 },
     appendTo: { type: String, default: 'body' },
     draggedSettlingDuration: { type: Number, default: null },
-    lockAxis: String,
+    lockAxis: { type: String, default: 'y' },
     helperClass: String,
     contentWindow: Object,
     shouldCancelStart: {
@@ -204,7 +204,7 @@ export const ContainerMixin = {
 
     handlePress(e) {
       const active = this.manager.getActive();
-
+      // debugger;
       if (active) {
         const {
           axis,
@@ -355,20 +355,23 @@ export const ContainerMixin = {
       this.clearHackState = this._clearHackState;
       this.palceholderMove = throttle(this._palceholderMove, 16);
     },
-    _hackState(e) {
+    _hackState(e, collection) {
+      console.log('hackState');
       this.manager.active = {
-        collection: 'default'
+        collection: collection || 'default'
       };
+      const offsetY = this.useWindowAsScrollContainer ? e.pageY : e.offsetY;
       this.manager.active.index = this.manager.getOrderedRefs().length - 1;
       const placeholder = this.manager.getPlaceholder();
-      placeholder.node.style.top = `${e.pageY - PLACEHOLDER_HEIGHT / 2}px`;
+      placeholder.node.style.top = `${offsetY - PLACEHOLDER_HEIGHT / 2}px`;
       placeholder.node.style.display = `block`;
       this.$el.style.height = `${this.$el.clientHeight + PLACEHOLDER_HEIGHT}px`;
       this.handlePress(e);
     },
     _palceholderMove(e) {
+      const offsetY = this.useWindowAsScrollContainer ? e.pageY : e.offsetY;
       this.mousePos = {
-        scrollTop: e.pageY,
+        scrollTop: offsetY,
         edgeTop: e.y
       };
       this.handleSortMove(e);
@@ -875,12 +878,14 @@ export const ContainerMixin = {
         // console.log(this.newIndex);
         // console.log(this.value);
 
-        this.$emit(
-          'input',
-          this.isPlaceholder
-            ? this.value
-            : arrayMove(this.value, this.index, this.newIndex)
-        );
+        if (this.index !== this.newIndex) {
+          this.$emit(
+            'input',
+            this.isPlaceholder
+              ? this.value
+              : arrayMove(this.value, this.index, this.newIndex)
+          );
+        }
         this._touched = false;
       };
 

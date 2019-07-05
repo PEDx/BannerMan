@@ -1,8 +1,8 @@
 <template>
-  <sortble-container
+  <widget-container
     class="viewport-content"
-    ref="viewportContent"
-    v-model="componentStack"
+    ref="rootContainer"
+    v-model="componentsModelTree"
     :lock-to-container-edges="false"
     :hide-sortable-ghost="true"
     :use-window-as-scroll-container="true"
@@ -12,28 +12,21 @@
     lock-axis="y"
     @sort-start="_handleSortStart"
     @sort-end="_handleSortEnd"
+    @input="_handleSortInput"
   >
-    <component
-      v-for="(val, idx) in componentStack"
+    <!-- <component
+      v-for="(val, idx) in componentsModelTree"
       :is="val.name"
-      :key="`${val.id}-${val.name}`"
+      :key="val.id"
       :id="val.id"
+      :class="WIDGET_CLASS_NAME"
       :element-mixin-index="idx"
       @change-prop="_childEmitEven(...arguments ,val.id)"
       v-bind="val.props"
-    ></component>
-    <sortble-item
-      :element-mixin-index="componentStack.length"
-      :element-mixin-is-placeholder="true"
-      style="position: absolute; top: 0px;left: 0;width: 100%;display: none;"
     >
-      <div
-        style="width: 100%;height: 80px;line-height: 80px;text-align: center;box-sizing: border-box;background-color: rgba(166, 160, 183, 0.16);"
-      >
-        <i class="el-icon-plus" style="color: #bbb2a8;font-size: 34px;">+</i>
-      </div>
-    </sortble-item>
-  </sortble-container>
+    </component>-->
+    <component-wrap :components="componentsModelTree"></component-wrap>
+  </widget-container>
 </template>
 
 <script>
@@ -41,15 +34,18 @@ import {
   debounce,
   throttle,
   // parse,
-  generateInstanceBriefObj,
+  // generateInstanceBriefObj,
   parseQueryString,
   getInstanceProfile,
   serialization,
   getRandomStr
 } from "../utils/index";
 import storage from "../storage";
+import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
-import { ElementMixin, SlickList, SlickItem } from "./sortble";
+import { ElementMixin } from "./sortble";
+import widgetContainer from "../widgets/widget-container";
+
 import widgets from "../widgets";
 import EventBus from "../bus";
 const selector = new ComponentSelector();
@@ -63,13 +59,12 @@ const sort_status = {
 
 export default {
   components: {
-    "sortble-container": SlickList,
-    "sortble-item": SlickItem
+    widgetContainer
   },
   data() {
-    this.children = [];
+    this.widgetTree = [];
     this.componentInstanceMap = {}; // id 对应实例
-    this.instancesMap = {};
+    this.componentModelMap = {}; // id 对应数据模型
     this.loadingCompleteStatusMap = {};
     this.pageId = null;
     this.dropEndComponentName = "";
@@ -77,7 +72,7 @@ export default {
     this.treeScrolling = false;
     this.resourceDraging = false;
     return {
-      componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
+      componentsModelTree: [], // 组件数据模型, 在此分发传入各个组件的 props
       draging: false
     };
   },
@@ -88,12 +83,12 @@ export default {
     selector.startSelecting();
 
     EventBus.$on("element-selected", instance => {
-      this._selectComponentAndHighlightById(this._findComponentId(instance));
+      this._selectComponentAndHighlightById(instance.$el.id);
     });
     EventBus.$on("element-mouseover", instance =>
       window.parent.postMessage({
         type: "element-mouseover",
-        id: instance._EDITER_TREE_UID__
+        id: instance.$el.id
       })
     );
     this.scrollEnd = debounce(() => {
@@ -102,6 +97,11 @@ export default {
     this._initDocumentEvent();
     this._observerGeometric();
     this._renderPageFromLocal(); // 加载保存的组件数据
+  },
+  provide() {
+    return {
+      rootContainer: this
+    };
   },
   methods: {
     getRandomStr,
@@ -123,18 +123,16 @@ export default {
         if (this.dragingType === "drag_resource") return;
         this.draging = true;
         this.dropEndComponentName = "";
-        this.$refs.viewportContent.hackState(e);
       });
       document.addEventListener("dragover", e => {
         if (this.dragingType === "drag_resource") return;
-        this.$refs.viewportContent.palceholderMove(e);
         e.preventDefault();
       });
       document.addEventListener("drop", e => {
         const msg = e.dataTransfer.getData("WIDGET_TYPE");
         console.log("drop");
         if (msg) {
-          this.dropEndComponentName = "widget-button";
+          this.dropEndComponentName = "widget-search";
           window.parent.postMessage({
             type: "drag-end",
             axis: {
@@ -165,45 +163,40 @@ export default {
       sort_status.sorting = true;
     },
     // 排序完成后所有的排序元素实例都会销毁重建
-    _handleSortEnd({ newIndex, oldIndex, isPlaceholder }) {
+    _handleSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
       selector.startSelecting();
       if (this.draging) return;
-      setTimeout(() => {
-        // 添加元素并排序
-        if (isPlaceholder) {
-          // console.log(newIndex, oldIndex);
-          if (!this.dropEndComponentName) return;
-          this._asyncAddComponent(this.dropEndComponentName, newIndex);
-          return;
-        } // 在指定位置添加新组件
-        // 正常排序
-        if (newIndex === oldIndex && !isPlaceholder) return; // 没有移动过
-        const id = this.componentStack[newIndex].id;
-        this._genComponentsTree();
+      // 添加元素并排序
+      this.newIndex = newIndex;
+      if (isPlaceholder) {
+        // console.log(newIndex, oldIndex);
+        if (!this.dropEndComponentName) return;
+        this._asyncAddComponent(this.dropEndComponentName, newIndex);
+        return;
+      } // 在指定位置添加新组件
+      // 正常排序
+      if (newIndex === oldIndex && !isPlaceholder) return; // 没有移动过
+    },
+    _handleSortInput() {
+      this.$nextTick(() => {
+        const id = this.componentsModelTree[this.newIndex].id;
+        this._drawWidgetsTree();
         this._selectComponentAndHighlightById(id);
         sort_status.sorting = false;
       });
-    },
-    _getRealDomInstanceTree(el) {
-      const ret = [];
-      for (let i = 0, len = el.children.length; i < len; i++) {
-        const _el = el.children[i];
-        _el.__vue__.$options._profile_ && ret.push(_el.__vue__);
-      }
-      return ret;
     },
     // 需要在生成组件树后再选中高亮
     _selectComponentAndHighlightById(id) {
       if (!id) return;
       this.selectedId = id;
       const instance = this.componentInstanceMap[id];
-      const component = this._findComponentObjById(id);
+      const profile = getInstanceProfile(instance) || {};
       selector.highlighitSelectedInstance(instance);
       window.parent.postMessage({
         type: "select-component",
-        profile: getInstanceProfile(instance) || {},
-        id: instance._EDITER_TREE_UID__,
-        name: component.name
+        profile,
+        id,
+        name: profile.name
       });
     },
     // 监听元素几何属性变化
@@ -241,13 +234,14 @@ export default {
           selector.resetHighlight();
         }
       });
-      mutationObserver.observe(this.$refs.viewportContent.$el, {
+      mutationObserver.observe(this.$refs.rootContainer.$el, {
         characterData: true,
         childList: true,
         attributes: true,
         subtree: true
       });
     },
+    // 查找实例的 ID
     _findComponentId(ins) {
       const map = this.componentInstanceMap;
       let ret = null;
@@ -256,11 +250,10 @@ export default {
       });
       return ret;
     },
-    _findComponentObjById(id) {
+    // 使用 ID 查找对应数据模型对象
+    _findComponentModelById(id) {
       let ret = null;
-      this.componentStack.forEach(val => {
-        if (val.id === id) ret = val;
-      });
+      ret = this.componentModelMap[id];
       return ret;
     },
     _childEmitEven(obj, id) {
@@ -269,36 +262,6 @@ export default {
       Object.keys(obj).forEach(key => (props[key] = obj[key]));
       window.parent.postMessage({
         type: "flush-controller-value"
-      });
-    },
-    _addComponent({ name, propsObj, id }, place) {
-      const _id = id || `${getRandomStr(6)}-${name}`;
-      const _len = this.componentStack.length;
-      this.componentStack.splice(place || _len, 0, {
-        name: name,
-        props: propsObj,
-        id: _id
-      });
-      // 插入组件
-
-      this.$nextTick(() => {
-        this.componentInstanceMap[_id] = document.getElementById(_id).__vue__;
-        [...document.getElementsByTagName("img")].forEach(val => {
-          val.draggable = false;
-        });
-      });
-    },
-    _asyncLoadComponent(name) {
-      const widget = widgets[name];
-      return new Promise((resolve, reject) => {
-        widget().then(ins => {
-          if (!this.loadingCompleteStatusMap[name]) {
-            // 防止并发加载多次添加 mixin 到同一组件上
-            ins.default.mixin(ElementMixin);
-            this.loadingCompleteStatusMap[name] = true;
-          }
-          resolve(ins);
-        });
       });
     },
     _test_() {
@@ -323,9 +286,9 @@ export default {
         });
         // console.log(place);
         this._addComponent({ name: widgetName, propsObj: _obj }, place);
-        setTimeout(() => {
-          const id = this.componentStack[place].id;
-          this._genComponentsTree();
+        this.$nextTick(() => {
+          const id = this.componentsModelTree[place].id;
+          this._drawWidgetsTree();
           this._selectComponentAndHighlightById(id);
         });
       });
@@ -344,40 +307,86 @@ export default {
           .catch(e => reject(e));
       });
     },
-    _renderPageFromLocal() {
-      if (!this.pageId) return;
-      const componentStack =
-        storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
-      const _promiseArr = componentStack.map(
-        this._asyncFormatComponentFromLocalData
-      );
-      serialization(_promiseArr).then(res => {
-        res.forEach(val => this._addComponent(val));
-        setTimeout(this._genComponentsTree);
+    _addComponent({ name, propsObj, id }, place) {
+      const _id = id || `${getRandomStr(6)}-${name}`;
+      const _len = this.componentsModelTree.length;
+      const _obj = {
+        name: name,
+        props: propsObj,
+        children: [],
+        id: _id
+      };
+      this.componentsModelTree.splice(place || _len, 0, _obj);
+      // 插入组件
+      this.$nextTick(() => {
+        this.componentInstanceMap[_id] = document.getElementById(_id).__vue__;
+        this.componentModelMap[_id] = _obj;
+        [...document.getElementsByTagName("img")].forEach(val => {
+          val.draggable = false;
+        });
       });
     },
-    _genComponentsTree() {
-      console.log("_genComponentsTree");
-      const instances = this._getRealDomInstanceTree(
-        this.$refs.viewportContent.$el
+    _asyncLoadComponent(name) {
+      const widget = widgets[name];
+      return new Promise((resolve, reject) => {
+        widget().then(ins => {
+          if (!this.loadingCompleteStatusMap[name]) {
+            // 防止并发加载多次添加 mixin 到同一组件上
+            ins.default.mixin(ElementMixin);
+            this.loadingCompleteStatusMap[name] = true;
+          }
+          resolve(ins);
+        });
+      });
+    },
+    _renderPageFromLocal() {
+      if (!this.pageId) return;
+      const componentsModelTree =
+        storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
+      const _promiseArr = componentsModelTree.map(
+        this._asyncFormatComponentFromLocalData
       );
-      // debugger;
-      const instancesTree = generateInstanceBriefObj(instances);
-      const map = {};
-      function walk(instance) {
-        map[instance._EDITER_TREE_UID__] = instance;
-        if (instance.children) {
-          instance.children.forEach(child => {
-            child.parent = instance;
-            walk(child);
+      // 缺陷: 线性添加
+      serialization(_promiseArr).then(res => {
+        res.forEach(val => this._addComponent(val));
+        setTimeout(this._drawWidgetsTree);
+      });
+    },
+    _generateWidgetsTree() {
+      // 根据数据模型生成树
+      // 生成真实树, 有正确的顺序,且只能是定义有 profile 的组件
+      // $children 不保证顺序 https://github.com/vuejs/vue/issues/2275
+      const _root = {
+        children: []
+      };
+      const walk = function(parent, componentObj) {
+        const element = document.getElementById(componentObj.id);
+        const instance = element.__vue__;
+        const rect = getInstanceOrVnodeRect(instance);
+        const top = rect ? rect.top : Infinity;
+        const _obj = {
+          children: [],
+          top,
+          name: getInstanceProfile(instance).name,
+          id: componentObj.id
+        };
+        parent.children.push(_obj);
+        componentObj.children &&
+          componentObj.children.forEach(val => {
+            walk(_obj, val);
           });
-        }
-      }
-      instances.forEach(walk);
-      this.instancesMap = map;
+      };
+      this.componentsModelTree.forEach(val => {
+        walk(_root, val);
+      });
+      return _root;
+    },
+    _drawWidgetsTree() {
+      console.log("_drawWidgetsTree");
+      const _tree = this._generateWidgetsTree();
       window.parent.postMessage({
         type: "flush-component-tree",
-        instancesTree
+        instancesTree: _tree.children
       });
     },
     _setMeta(baseWidth) {
@@ -400,15 +409,15 @@ export default {
       document.getElementsByTagName("head")[0].appendChild(meta);
     },
     deleteComponent() {
-      // const compObj = this._findComponentObjById(this.selectedId);
+      // const compObj = this._findComponentModelById(this.selectedId);
     },
     resetComponentPropData() {
-      const compObj = this._findComponentObjById(this.selectedId);
+      const compObj = this._findComponentModelById(this.selectedId);
       Object.keys(compObj.props).forEach(key => (compObj.props[key] = void 0));
     },
     updateWidgetProp(data) {
       data = JSON.parse(data);
-      const compObj = this._findComponentObjById(this.selectedId);
+      const compObj = this._findComponentModelById(this.selectedId);
       compObj.props[data.key] = data.value;
     },
     getWidgetDataValue(key) {
@@ -417,14 +426,14 @@ export default {
     },
     // 清空编辑页面
     clearPage() {
-      this.componentStack = [];
+      this.componentsModelTree = [];
       selector.clearHighlight();
     },
     // 保存编辑页面数据对象模型
     savePage() {
       storage.set(
         `${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`,
-        this.componentStack
+        this.componentsModelTree
       );
     },
     // 自动保存
@@ -432,18 +441,18 @@ export default {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
     onDragend(e) {
-      if (this.draging) this.$refs.viewportContent.clearHackState(e);
+      if (this.draging) this.$refs.rootContainer.clearHackState(e);
       this.draging = false;
+      this.$refs.rootContainer.onDropend();
       this.treeScrolling = false;
     },
     highlighitInstance(id) {
-      const instance = this.instancesMap[id];
+      const instance = this.componentInstanceMap[id];
       selector.highlighitMouseoverInstance(instance);
     },
     highlighitSelectedInstance(id) {
-      const instance = this.instancesMap[id];
       selector.clearHighlight();
-      this._selectComponentAndHighlightById(this._findComponentId(instance));
+      this._selectComponentAndHighlightById(id);
     },
     viewportScrollTo(percent) {
       if (sort_status.sorting) return;

@@ -17,6 +17,11 @@ export default {
       propName: 'image',
       controllerType: 'CTRL_RESOURCE_DROP',
       label: '图片资源'
+    },
+    {
+      propName: 'color',
+      controllerType: 'CTRL_COLOR_PICKER',
+      label: '颜色'
     }
   ]
 };

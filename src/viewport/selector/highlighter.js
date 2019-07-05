@@ -167,7 +167,7 @@ export function getInstanceOrVnodeRect(instance) {
   } else if (el.nodeType === 1) {
     const react = el.getBoundingClientRect();
     return {
-      width: react.width,
+      width: el.clientWidth,
       height: react.height,
       top: react.top,
       left: react.left,

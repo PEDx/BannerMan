@@ -77,11 +77,14 @@
                 width="auto"
                 trigger="click"
                 content
+                :popper-options="{
+                  removeOnDestroy: true
+                }"
                 transition
                 @after-enter="popoverShow(val)"
               >
                 <div class="content">
-                  <img :src="checkImgSrc" alt class="check-view-img">
+                  <img :src="checkImgSrc" alt class="check-view-img" />
                 </div>
 
                 <div slot="reference" class="f-fr">

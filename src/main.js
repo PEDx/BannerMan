@@ -9,6 +9,7 @@ import {
   Select,
   Option,
   InputNumber,
+  ColorPicker,
   Button,
   Upload,
   Tooltip,
@@ -27,6 +28,7 @@ Vue.use(Row)
   .use(InputNumber)
   .use(Slider)
   .use(Input)
+  .use(ColorPicker)
   .use(Tooltip)
   .use(Upload)
   .use(Popover)
