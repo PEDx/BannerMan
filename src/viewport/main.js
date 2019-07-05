@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import App from './app';
-import componentWrap from './component-wrap';
+import componentsWrap from './components/components-wrap';
 import '../style/cssrest.css';
 
-Vue.component('component-wrap', componentWrap);
+Vue.component('components-wrap', componentsWrap);
 
 /* eslint-disable no-new */
 new Vue({

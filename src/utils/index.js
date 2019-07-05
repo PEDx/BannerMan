@@ -225,7 +225,7 @@ export function throttle(func, wait, options) {
   return throttled;
 }
 
-const UNDEFINED = '_BM_UNDEFINED_'; // jason 可序列化值为 undefined
+export const UNDEFINED = '_BM_UNDEFINED_'; // jason 可序列化值为 undefined
 export function stringify(data) {
   return JSON.stringify(data, (key, val) => {
     // debugger;
@@ -235,10 +235,11 @@ export function stringify(data) {
   });
 }
 export function parse(data) {
-  return JSON.parse(data, (key, val) => {
-    if (val === UNDEFINED) return void 0;
-    return val;
-  });
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 export function parseQueryString(url) {
@@ -298,4 +299,12 @@ export function getRandomStr(len) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
+}
+
+export function traversal(root, callback) {
+  function walk(node) {
+    callback(node);
+    node.children && node.children.forEach(walk);
+  }
+  root.forEach(walk);
 }

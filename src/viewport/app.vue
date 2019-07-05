@@ -1,6 +1,5 @@
 <template>
-  <widget-container
-    class="viewport-content"
+  <root-container
     ref="rootContainer"
     v-model="componentsModelTree"
     :lock-to-container-edges="false"
@@ -14,37 +13,26 @@
     @sort-end="_handleSortEnd"
     @input="_handleSortInput"
   >
-    <!-- <component
-      v-for="(val, idx) in componentsModelTree"
-      :is="val.name"
-      :key="val.id"
-      :id="val.id"
-      :class="WIDGET_CLASS_NAME"
-      :element-mixin-index="idx"
-      @change-prop="_childEmitEven(...arguments ,val.id)"
-      v-bind="val.props"
-    >
-    </component>-->
-    <component-wrap :components="componentsModelTree"></component-wrap>
-  </widget-container>
+    <components-wrap :components="componentsModelTree"></components-wrap>
+  </root-container>
 </template>
 
 <script>
 import {
   debounce,
   throttle,
-  // parse,
-  // generateInstanceBriefObj,
   parseQueryString,
   getInstanceProfile,
   serialization,
-  getRandomStr
+  getRandomStr,
+  UNDEFINED,
+  traversal
 } from "../utils/index";
 import storage from "../storage";
 import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
 import { ElementMixin } from "./sortble";
-import widgetContainer from "../widgets/widget-container";
+import rootContainer from "./components/root-container";
 
 import widgets from "../widgets";
 import EventBus from "../bus";
@@ -59,7 +47,7 @@ const sort_status = {
 
 export default {
   components: {
-    widgetContainer
+    rootContainer
   },
   data() {
     this.widgetTree = [];
@@ -94,7 +82,7 @@ export default {
     this.scrollEnd = debounce(() => {
       this.treeScrolling = false;
     }, 500);
-    this._initDocumentEvent();
+    this._initDocumentListener();
     this._observerGeometric();
     this._renderPageFromLocal(); // 加载保存的组件数据
   },
@@ -105,7 +93,7 @@ export default {
   },
   methods: {
     getRandomStr,
-    _initDocumentEvent() {
+    _initDocumentListener() {
       document.addEventListener("mouseleave", () => {
         selector.clearHoverHighlight();
       });
@@ -122,17 +110,19 @@ export default {
         if (this.draging) return;
         if (this.dragingType === "drag_resource") return;
         this.draging = true;
+        this.$refs.rootContainer.hackState(e);
         this.dropEndComponentName = "";
       });
       document.addEventListener("dragover", e => {
         if (this.dragingType === "drag_resource") return;
+        this.$refs.rootContainer.palceholderMove(e);
         e.preventDefault();
       });
       document.addEventListener("drop", e => {
         const msg = e.dataTransfer.getData("WIDGET_TYPE");
         console.log("drop");
         if (msg) {
-          this.dropEndComponentName = "widget-search";
+          this.dropEndComponentName = "widget-container";
           window.parent.postMessage({
             type: "drag-end",
             axis: {
@@ -293,45 +283,41 @@ export default {
         });
       });
     },
-    _asyncFormatComponentFromLocalData(data) {
-      return new Promise((resolve, reject) => {
-        this._asyncLoadComponent(data.name)
-          .then(ins => {
-            const profile = ins.default.extendOptions._profile_;
-            const _obj = {};
-            profile.controllers.forEach(val => {
-              _obj[val.propName] = data.props[val.propName];
-            });
-            resolve({ name: data.name, propsObj: _obj, id: data.id });
-          })
-          .catch(e => reject(e));
-      });
-    },
     _addComponent({ name, propsObj, id }, place) {
       const _id = id || `${getRandomStr(6)}-${name}`;
       const _len = this.componentsModelTree.length;
       const _obj = {
         name: name,
         props: propsObj,
-        children: [],
+        children: [
+          {
+            children: [],
+            id: "b23SVc-widget-search",
+            name: "widget-search",
+            props: {
+              width: undefined,
+              height: undefined,
+              image: undefined,
+              color: undefined
+            }
+          }
+        ],
         id: _id
       };
       this.componentsModelTree.splice(place || _len, 0, _obj);
-      // 插入组件
-      this.$nextTick(() => {
-        this.componentInstanceMap[_id] = document.getElementById(_id).__vue__;
-        this.componentModelMap[_id] = _obj;
-        [...document.getElementsByTagName("img")].forEach(val => {
-          val.draggable = false;
-        });
+      this.$nextTick(this._setImageNodeUndraggable);
+    },
+    _setImageNodeUndraggable() {
+      [...document.getElementsByTagName("img")].forEach(val => {
+        val.draggable = false;
       });
     },
     _asyncLoadComponent(name) {
       const widget = widgets[name];
       return new Promise((resolve, reject) => {
         widget().then(ins => {
+          // 防止并发加载多次添加 mixin 到同一组件上
           if (!this.loadingCompleteStatusMap[name]) {
-            // 防止并发加载多次添加 mixin 到同一组件上
             ins.default.mixin(ElementMixin);
             this.loadingCompleteStatusMap[name] = true;
           }
@@ -343,13 +329,25 @@ export default {
       if (!this.pageId) return;
       const componentsModelTree =
         storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
-      const _promiseArr = componentsModelTree.map(
-        this._asyncFormatComponentFromLocalData
-      );
-      // 缺陷: 线性添加
+      // debugger;
+      const _promiseArr = [];
+      const _promiseMap = {};
+      traversal(componentsModelTree, node => {
+        Object.keys(node.props).forEach(key => {
+          const _val = node.props[key];
+          node.props[key] = _val === UNDEFINED ? undefined : _val;
+        });
+        if (_promiseMap[node.name]) return;
+        const promise = this._asyncLoadComponent(node.name);
+        _promiseMap[node.name] = true;
+        _promiseArr.push(promise);
+      });
       serialization(_promiseArr).then(res => {
-        res.forEach(val => this._addComponent(val));
-        setTimeout(this._drawWidgetsTree);
+        this.componentsModelTree = componentsModelTree;
+        this.$nextTick(() => {
+          this._setImageNodeUndraggable();
+          this._drawWidgetsTree();
+        });
       });
     },
     _generateWidgetsTree() {
@@ -359,8 +357,9 @@ export default {
       const _root = {
         children: []
       };
-      const walk = function(parent, componentObj) {
-        const element = document.getElementById(componentObj.id);
+      const walk = function(parent, componentModel) {
+        const _id = componentModel.id;
+        const element = document.getElementById(_id);
         const instance = element.__vue__;
         const rect = getInstanceOrVnodeRect(instance);
         const top = rect ? rect.top : Infinity;
@@ -368,21 +367,25 @@ export default {
           children: [],
           top,
           name: getInstanceProfile(instance).name,
-          id: componentObj.id
+          id: _id
         };
         parent.children.push(_obj);
-        componentObj.children &&
-          componentObj.children.forEach(val => {
+        componentModel.children &&
+          componentModel.children.forEach(val => {
             walk(_obj, val);
           });
-      };
+
+        this.componentInstanceMap[_id] = instance;
+        this.componentModelMap[_id] = componentModel;
+      }.bind(this);
+      // debugger;
       this.componentsModelTree.forEach(val => {
         walk(_root, val);
       });
       return _root;
     },
     _drawWidgetsTree() {
-      console.log("_drawWidgetsTree");
+      console.log("drawWidgetsTree");
       const _tree = this._generateWidgetsTree();
       window.parent.postMessage({
         type: "flush-component-tree",
@@ -443,7 +446,6 @@ export default {
     onDragend(e) {
       if (this.draging) this.$refs.rootContainer.clearHackState(e);
       this.draging = false;
-      this.$refs.rootContainer.onDropend();
       this.treeScrolling = false;
     },
     highlighitInstance(id) {

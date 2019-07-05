@@ -279,6 +279,7 @@ export const ContainerMixin = {
 
         // 是否隐藏 ghost 节点
         if (hideSortableGhost) {
+          // debugger;
           this.sortableGhost = node;
           node.style.visibility = 'hidden';
           node.style.opacity = 0;
@@ -518,6 +519,7 @@ export const ContainerMixin = {
         // If the node is the one we're currently animating, skip it
         if (index === this.index) {
           if (hideSortableGhost) {
+            // debugger;
             /*
              * With windowing libraries such as `react-virtualized`, the sortableGhost
              * node may change while scrolling down and then back up (or vice-versa),
