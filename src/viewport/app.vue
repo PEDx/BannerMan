@@ -23,6 +23,7 @@ import {
   throttle,
   parseQueryString,
   getProfileByInstance,
+  findRelatedContainerComponent,
   // serialization,
   getRandomStr,
   UNDEFINED,
@@ -56,6 +57,7 @@ export default {
     this.resourceDraging = false;
     this.draging = false;
     this.sorting = false;
+    this.dragingContainer = null;
     return {
       componentsModelTree: [] // 组件数据模型, 在此分发传入各个组件的 props
     };
@@ -102,24 +104,30 @@ export default {
         this._setMeta(document.body.clientWidth);
       }, 150);
       document.addEventListener("dragenter", e => {
-        // 找到需要添加元素的容器
-        e.preventDefault();
-        if (this.draging) return;
         if (this.dragingType === "drag_resource") return;
+        // 找到需要添加元素的容器
+        const container =
+          findRelatedContainerComponent(e.target) || this.$refs.rootContainer;
+        if (this.dragingContainer === container) return;
+        if (this.dragingContainer && this.dragingContainer.clearHackState) {
+          this.dragingContainer.clearHackState(e);
+        }
         this.draging = true;
-        this.$refs.rootContainer.hackState(e);
+        this.dragingContainer = container;
+        container.hackState(e);
         this.dropEndComponentName = "";
+        e.preventDefault();
       });
       document.addEventListener("dragover", e => {
-        // 找到需要添加元素的容器
         if (this.dragingType === "drag_resource") return;
-        this.$refs.rootContainer.palceholderMove(e);
+        this.dragingContainer.palceholderMove(e);
         e.preventDefault();
       });
       document.addEventListener("drop", e => {
         const msg = e.dataTransfer.getData("WIDGET_TYPE");
         console.log("drop");
         if (msg) {
+          // 此时比 sort end 事件早
           this.dropEndComponentName = "widget-search";
           window.parent.postMessage({
             type: "drag-end",
@@ -165,6 +173,7 @@ export default {
     },
     _handleSortInput() {
       // 此时数据模型排序完毕
+      if (this.draging) return;
       this.$nextTick(() => {
         const id = this.componentsModelTree[this.newIndex].id;
         this._drawWidgetsTree();
@@ -252,6 +261,7 @@ export default {
       });
     },
     _componentChildrenChanged(sortedArr, childId, id) {
+      if (this.draging) return;
       // 监听组件更新自己 child 事件
       // debugger
       this._findComponentModelById(id).children = sortedArr;
@@ -262,10 +272,12 @@ export default {
       });
     },
     _contianerSortStart() {
+      if (this.draging) return;
       selector.stopSelecting();
       this.sorting = true;
     },
     _contianerSortEnd() {
+      if (this.draging) return;
       selector.startSelecting();
     },
     _test_() {
@@ -480,7 +492,9 @@ export default {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
     onDragend(e) {
-      if (this.draging) this.$refs.rootContainer.clearHackState(e);
+      if (this.dragingContainer && this.dragingContainer.clearHackState) {
+        this.dragingContainer.clearHackState(e);
+      }
       this.draging = false;
       this.treeScrolling = false;
     },

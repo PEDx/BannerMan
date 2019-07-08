@@ -272,6 +272,12 @@ export function findRelatedComponent(el) {
   }
   return el.__vue__;
 }
+export function findRelatedContainerComponent(el) {
+  while (!el._BM_CONTAINER_ && el.parentElement) {
+    el = el.parentElement;
+  }
+  return el.__vue__;
+}
 
 export function serialization(promise_arr) {
   return new Promise((resolve, reject) => {

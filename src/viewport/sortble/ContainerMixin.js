@@ -76,8 +76,8 @@ export const ContainerMixin = {
     this._window = this.contentWindow || window;
     this.scrollContainer = this.useWindowAsScrollContainer
       ? this.document.scrollingElement
-      : this.container;
-
+      : this.container.parentNode;
+    // debugger;
     for (const key in this.events) {
       if (this.events.hasOwnProperty(key)) {
         events[key].forEach(eventName =>
@@ -361,7 +361,8 @@ export const ContainerMixin = {
       this.manager.active = {
         collection: collection || 'default'
       };
-      const offsetY = this.useWindowAsScrollContainer ? e.pageY : e.offsetY;
+      const offsetY = e.pageY;
+      // debugger
       this.manager.active.index = this.manager.getOrderedRefs().length - 1;
       const placeholder = this.manager.getPlaceholder();
       placeholder.node.style.top = `${offsetY - PLACEHOLDER_HEIGHT / 2}px`;
@@ -381,7 +382,7 @@ export const ContainerMixin = {
       const placeholder = this.manager.getPlaceholder();
       this.$el.style.height = `auto`;
       placeholder.node.style.display = `none`;
-      this.handleSortEnd(e);
+      this.handleSortEnd(e, true);
     },
 
     getEdgeOffset(node, offset = { top: 0, left: 0 }) {
@@ -391,11 +392,12 @@ export const ContainerMixin = {
           top: offset.top + node.offsetTop,
           left: offset.left + node.offsetLeft
         };
-        if (node.parentNode !== this.container) {
-          return this.getEdgeOffset(node.parentNode, nodeOffset);
-        } else {
-          return nodeOffset;
-        }
+        // if (node.parentNode !== this.container) {
+        //   return this.getEdgeOffset(node.parentNode, nodeOffset);
+        // } else {
+        //   return nodeOffset;
+        // }
+        return nodeOffset;
       }
     },
 
@@ -464,6 +466,7 @@ export const ContainerMixin = {
     animateNodes() {
       const { transitionDuration, hideSortableGhost } = this.$props;
       const nodes = this.manager.getOrderedRefs(); // 拿到排序好的真实 dom
+      if (!nodes) return;
       const deltaScroll = {
         left: this.scrollContainer.scrollLeft - this.initialScroll.left,
         top: this.scrollContainer.scrollTop - this.initialScroll.top
@@ -616,6 +619,12 @@ export const ContainerMixin = {
           // scrollDifference: {top: 0, left: 0} // 滚动的距离
           // sortingOffset: {left: 0, top: 78} 拖拉元素距离上边距距离
           // _height: 240 拖拉元素高度
+          // this.throttleLog({
+          //   deltaScroll,
+          //   edgeOffset,
+          //   sortingOffset,
+          //   height
+          // });
           if (
             index > this.index &&
             sortingOffset.top >= edgeOffset.top + height / 2 - this.height
@@ -698,7 +707,7 @@ export const ContainerMixin = {
       console.log('>>>>>>>>');
       console.log(arg);
       console.log('<<<<<<<<');
-    }, 203),
+    }, 207),
     autoscroll() {
       const translate = this.translate;
       const direction = {
@@ -823,7 +832,7 @@ export const ContainerMixin = {
         this.helper.addEventListener('transitionend', cleanup, false);
       });
     },
-    handleSortEnd(e) {
+    handleSortEnd(e, immediate) {
       const { collection } = this.manager.active;
 
       // Remove the event listeners if the node is still in the DOM
@@ -890,6 +899,11 @@ export const ContainerMixin = {
         }
         this._touched = false;
       };
+
+      if (immediate) {
+        onEnd();
+        return;
+      }
 
       if (
         this.$props.transitionDuration ||

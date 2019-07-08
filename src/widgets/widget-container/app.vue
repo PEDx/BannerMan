@@ -1,10 +1,11 @@
 <template>
   <div class="widget-container">
     <sortble-container
+      ref="sortbleContainer"
       v-model="dataModel"
       :lock-to-container-edges="false"
       :hide-sortable-ghost="true"
-      :use-window-as-scroll-container="false"
+      :use-window-as-scroll-container="true"
       :distance="10"
       axis="y"
       lock-axis="y"
@@ -44,6 +45,9 @@ export default {
       }
     }
   },
+  mounted() {
+    this.$el._BM_CONTAINER_ = true;
+  },
   methods: {
     _handleSortStart() {
       this.$emit("contianer-sort-start");
@@ -62,6 +66,15 @@ export default {
           this.dataModel[this.newIndex].id
         );
       });
+    },
+    hackState(e) {
+      this.$refs.sortbleContainer.hackState(e);
+    },
+    clearHackState(e) {
+      this.$refs.sortbleContainer.clearHackState(e);
+    },
+    palceholderMove(e) {
+      this.$refs.sortbleContainer.palceholderMove(e);
     }
   }
 };
@@ -70,7 +83,7 @@ export default {
 .widget-container {
   box-sizing: border-box;
   overflow: auto;
-  min-height: 200px;
+  // height: 300px;
   outline: 1px solid red;
 }
 </style>

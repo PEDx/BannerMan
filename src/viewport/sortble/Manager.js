@@ -39,7 +39,12 @@ export default class Manager {
     return this.refs[collection].indexOf(ref);
   }
 
-  getOrderedRefs(collection = this.active.collection) {
+  getOrderedRefs() {
+    if (!this.active) {
+      // debugger;
+      return null;
+    }
+    const collection = this.active.collection;
     return this.refs[collection].sort((a, b) => {
       return a.node.sortableInfo.index - b.node.sortableInfo.index;
     });

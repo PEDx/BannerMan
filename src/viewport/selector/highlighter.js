@@ -2,6 +2,7 @@ import {
   classify,
   getComponentName,
   getInstanceName,
+  findRelatedContainerComponent,
   getProfileByInstance
 } from '../../utils/index';
 const isBrowser = true;
@@ -166,13 +167,19 @@ export function getInstanceOrVnodeRect(instance) {
     return getFragmentRect(instance);
   } else if (el.nodeType === 1) {
     const react = el.getBoundingClientRect();
+    const scrollComponent = findRelatedContainerComponent(el) || {};
+    const scrollElement = scrollComponent.$el || {
+      scrollTop: 0,
+      scrollLeft: 0
+    };
+    // if (scrollElement.scrollTop > 30) debugger;
     return {
       width: el.clientWidth,
       height: react.height,
       top: react.top,
       left: react.left,
-      offsetTop: el.offsetTop,
-      offsetLeft: el.offsetLeft
+      offsetTop: el.offsetTop - scrollElement.scrollTop,
+      offsetLeft: el.offsetLeft - scrollElement.scrollLeft
     };
   }
 }
