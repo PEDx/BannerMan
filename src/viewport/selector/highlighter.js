@@ -2,7 +2,7 @@ import {
   classify,
   getComponentName,
   getInstanceName,
-  getInstanceProfile
+  getProfileByInstance
 } from '../../utils/index';
 const isBrowser = true;
 const classifyComponents = false;
@@ -95,7 +95,7 @@ export function highlight(instance) {
       ? getComponentName(instance.fnOptions)
       : getInstanceName(instance);
     if (classifyComponents) compName = classify(name);
-    const name = getInstanceProfile(instance).name || compName;
+    const name = getProfileByInstance(instance).name || compName;
     if (name) {
       const pre = document.createElement('span');
       pre.style.opacity = '0.6';
@@ -147,7 +147,7 @@ export function unHighlightSelected() {
 
 function isBannerManWidget(instance) {
   if (!instance) return false;
-  if (!getInstanceProfile(instance)) return false;
+  if (!getProfileByInstance(instance)) return false;
   return true;
 }
 

@@ -15,7 +15,7 @@
   </div>
 </template>
 <script>
-import { ContainerMixin, SlickItem } from "./sortble";
+import { ContainerMixin, SlickItem } from "../sortble";
 export default {
   components: {
     "sortble-item": SlickItem

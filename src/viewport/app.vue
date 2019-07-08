@@ -22,8 +22,8 @@ import {
   debounce,
   throttle,
   parseQueryString,
-  getInstanceProfile,
-  serialization,
+  getProfileByInstance,
+  // serialization,
   getRandomStr,
   UNDEFINED,
   traversal
@@ -40,11 +40,6 @@ const selector = new ComponentSelector();
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
 
-const sort_status = {
-  sorting: false,
-  moving: false
-};
-
 export default {
   components: {
     rootContainer
@@ -59,9 +54,10 @@ export default {
     this.selectedId = "";
     this.treeScrolling = false;
     this.resourceDraging = false;
+    this.draging = false;
+    this.sorting = false;
     return {
-      componentsModelTree: [], // 组件数据模型, 在此分发传入各个组件的 props
-      draging: false
+      componentsModelTree: [] // 组件数据模型, 在此分发传入各个组件的 props
     };
   },
   mounted() {
@@ -106,6 +102,7 @@ export default {
         this._setMeta(document.body.clientWidth);
       }, 150);
       document.addEventListener("dragenter", e => {
+        // 找到需要添加元素的容器
         e.preventDefault();
         if (this.draging) return;
         if (this.dragingType === "drag_resource") return;
@@ -114,6 +111,7 @@ export default {
         this.dropEndComponentName = "";
       });
       document.addEventListener("dragover", e => {
+        // 找到需要添加元素的容器
         if (this.dragingType === "drag_resource") return;
         this.$refs.rootContainer.palceholderMove(e);
         e.preventDefault();
@@ -122,7 +120,7 @@ export default {
         const msg = e.dataTransfer.getData("WIDGET_TYPE");
         console.log("drop");
         if (msg) {
-          this.dropEndComponentName = "widget-container";
+          this.dropEndComponentName = "widget-search";
           window.parent.postMessage({
             type: "drag-end",
             axis: {
@@ -150,16 +148,14 @@ export default {
     },
     _handleSortStart({ index }) {
       selector.stopSelecting();
-      sort_status.sorting = true;
+      this.sorting = true;
     },
     // 排序完成后所有的排序元素实例都会销毁重建
     _handleSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
       selector.startSelecting();
       if (this.draging) return;
-      // 添加元素并排序
       this.newIndex = newIndex;
       if (isPlaceholder) {
-        // console.log(newIndex, oldIndex);
         if (!this.dropEndComponentName) return;
         this._asyncAddComponent(this.dropEndComponentName, newIndex);
         return;
@@ -168,11 +164,12 @@ export default {
       if (newIndex === oldIndex && !isPlaceholder) return; // 没有移动过
     },
     _handleSortInput() {
+      // 此时数据模型排序完毕
       this.$nextTick(() => {
         const id = this.componentsModelTree[this.newIndex].id;
         this._drawWidgetsTree();
         this._selectComponentAndHighlightById(id);
-        sort_status.sorting = false;
+        this.sorting = false;
       });
     },
     // 需要在生成组件树后再选中高亮
@@ -180,7 +177,7 @@ export default {
       if (!id) return;
       this.selectedId = id;
       const instance = this.componentInstanceMap[id];
-      const profile = getInstanceProfile(instance) || {};
+      const profile = getProfileByInstance(instance) || {};
       selector.highlighitSelectedInstance(instance);
       window.parent.postMessage({
         type: "select-component",
@@ -219,7 +216,7 @@ export default {
             default:
           }
         });
-        if (!sort_status.sorting) {
+        if (!this.sorting) {
           console.log("MutationObserver");
           selector.resetHighlight();
         }
@@ -246,13 +243,30 @@ export default {
       ret = this.componentModelMap[id];
       return ret;
     },
-    _childEmitEven(obj, id) {
+    _componentPropsChanged(obj, id) {
       // 监听组件更新自己 props 事件
-      const props = this.componentInstanceMap[id].props;
+      const props = this._findComponentModelById[id].props;
       Object.keys(obj).forEach(key => (props[key] = obj[key]));
       window.parent.postMessage({
         type: "flush-controller-value"
       });
+    },
+    _componentChildrenChanged(sortedArr, childId, id) {
+      // 监听组件更新自己 child 事件
+      // debugger
+      this._findComponentModelById(id).children = sortedArr;
+      this.$nextTick(() => {
+        this._drawWidgetsTree();
+        this._selectComponentAndHighlightById(childId);
+        this.sorting = false;
+      });
+    },
+    _contianerSortStart() {
+      selector.stopSelecting();
+      this.sorting = true;
+    },
+    _contianerSortEnd() {
+      selector.startSelecting();
     },
     _test_() {
       const promiseArr = [
@@ -264,7 +278,7 @@ export default {
         "widget-search",
         "widget-search"
       ].map(this._asyncLoadComponent);
-      serialization(promiseArr).then(res => {});
+      return promiseArr;
     },
     // 第一次添加组件会是异步加载
     _asyncAddComponent(widgetName, place) {
@@ -289,19 +303,41 @@ export default {
       const _obj = {
         name: name,
         props: propsObj,
-        children: [
-          {
-            children: [],
-            id: "b23SVc-widget-search",
-            name: "widget-search",
-            props: {
-              width: undefined,
-              height: undefined,
-              image: undefined,
-              color: undefined
-            }
-          }
-        ],
+        // children: [
+        //   {
+        //     children: [],
+        //     id: "b23SVi-widget-search",
+        //     name: "widget-search",
+        //     props: {
+        //       width: undefined,
+        //       height: undefined,
+        //       image: undefined,
+        //       color: undefined
+        //     }
+        //   },
+        //   {
+        //     children: [],
+        //     id: "b232Vc-widget-button",
+        //     name: "widget-button",
+        //     props: {
+        //       width: undefined,
+        //       height: undefined,
+        //       image: undefined,
+        //       color: undefined
+        //     }
+        //   },
+        //   {
+        //     children: [],
+        //     id: "b232Vc-widget-search",
+        //     name: "widget-search",
+        //     props: {
+        //       width: undefined,
+        //       height: undefined,
+        //       image: undefined,
+        //       color: undefined
+        //     }
+        //   }
+        // ],
         id: _id
       };
       this.componentsModelTree.splice(place || _len, 0, _obj);
@@ -342,7 +378,7 @@ export default {
         _promiseMap[node.name] = true;
         _promiseArr.push(promise);
       });
-      serialization(_promiseArr).then(res => {
+      Promise.all(_promiseArr).then(res => {
         this.componentsModelTree = componentsModelTree;
         this.$nextTick(() => {
           this._setImageNodeUndraggable();
@@ -366,7 +402,7 @@ export default {
         const _obj = {
           children: [],
           top,
-          name: getInstanceProfile(instance).name,
+          name: getProfileByInstance(instance).name,
           id: _id
         };
         parent.children.push(_obj);
@@ -457,7 +493,7 @@ export default {
       this._selectComponentAndHighlightById(id);
     },
     viewportScrollTo(percent) {
-      if (sort_status.sorting) return;
+      if (this.sorting) return;
       this.treeScrolling = true;
       const scroll_height = document.documentElement.scrollHeight;
       const window_height = document.documentElement.clientHeight;

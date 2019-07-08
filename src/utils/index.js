@@ -262,7 +262,7 @@ export function parseQueryString(url) {
   return res;
 }
 
-export function getInstanceProfile(instance) {
+export function getProfileByInstance(instance) {
   if (!instance) return null;
   return instance.$options._profile_ || null;
 }
