@@ -9,6 +9,11 @@ export default {
       label: '宽度'
     },
     {
+      propName: 'size',
+      controllerType: 'CTRL_SIZE_INPUT',
+      label: '尺寸'
+    },
+    {
       propName: 'height',
       controllerType: 'CTRL_NUMBER_INPUT',
       label: '高度'
@@ -22,6 +27,31 @@ export default {
       propName: 'color',
       controllerType: 'CTRL_COLOR_PICKER',
       label: '颜色'
+    },
+    {
+      propName: 'colorG',
+      controllerType: 'CTRL_COLOR_GRADIENTS',
+      label: '颜色渐变'
+    },
+    {
+      propName: 'richText',
+      controllerType: 'CTRL_RICH_TEXT',
+      label: '富文本'
+    },
+    {
+      propName: 'switch',
+      controllerType: 'CTRL_SWITCH',
+      label: '开关'
+    },
+    {
+      propName: 'select',
+      controllerType: 'CTRL_SELECT',
+      label: '选择'
+    },
+    {
+      propName: 'text',
+      controllerType: 'CTRL_TEXT_INPUT',
+      label: '文本输入'
     }
   ]
 };
