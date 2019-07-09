@@ -173,7 +173,10 @@ export default {
         })
       );
     },
-    handleDeleteClick() {}
+    handleDeleteClick() {
+      const ins = getViewportVueInstance();
+      ins.deleteComponentFromModel();
+    }
   }
 };
 </script>

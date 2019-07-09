@@ -308,6 +308,7 @@ export function getRandomStr(len) {
 }
 
 export function traversal(root, callback) {
+  if (!Array.isArray(root)) return;
   function walk(node) {
     callback(node);
     node.children && node.children.forEach(walk);

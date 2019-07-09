@@ -1,5 +1,5 @@
 <template>
-  <root-container
+  <sortble-container
     ref="rootContainer"
     v-model="componentsModelTree"
     :lock-to-container-edges="false"
@@ -14,7 +14,7 @@
     @input="_handleSortInput"
   >
     <components-wrap :components="componentsModelTree"></components-wrap>
-  </root-container>
+  </sortble-container>
 </template>
 
 <script>
@@ -24,7 +24,6 @@ import {
   parseQueryString,
   getProfileByInstance,
   findRelatedContainerComponent,
-  // serialization,
   getRandomStr,
   UNDEFINED,
   traversal
@@ -33,7 +32,7 @@ import storage from "../storage";
 import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
 import { ElementMixin } from "./sortble";
-import rootContainer from "./components/root-container";
+import sortbleContainer from "./components/sortble-container";
 
 import widgets from "../widgets";
 import EventBus from "../bus";
@@ -43,7 +42,7 @@ const AUTO_SAVE_TIME = 5 * 60 * 1000;
 
 export default {
   components: {
-    rootContainer
+    sortbleContainer
   },
   data() {
     this.widgetTree = [];
@@ -227,7 +226,7 @@ export default {
         });
         if (!this.sorting) {
           console.log("MutationObserver");
-          selector.resetHighlight();
+          // selector.resetHighlight();
         }
       });
       mutationObserver.observe(this.$refs.rootContainer.$el, {
@@ -459,17 +458,39 @@ export default {
       meta.setAttribute("content", metaContent);
       document.getElementsByTagName("head")[0].appendChild(meta);
     },
-    deleteComponent() {
+    deleteComponentFromModel() {
       // const compObj = this._findComponentModelById(this.selectedId);
+      let index = NaN;
+      traversal([{ children: this.componentsModelTree }], node => {
+        const list = node.children || [];
+        list.forEach((val, idx) => {
+          if (val.id === this.selectedId) {
+            index = idx;
+          }
+        });
+        if (index >= 0) {
+          list.splice(index, 1);
+          return;
+        }
+      });
+      if (index >= 0) {
+        console.log("deleted");
+        this.$nextTick(this._drawWidgetsTree);
+        selector.clearHighlight();
+      }
     },
     resetComponentPropData() {
       const compObj = this._findComponentModelById(this.selectedId);
       Object.keys(compObj.props).forEach(key => (compObj.props[key] = void 0));
     },
     updateWidgetProp(data) {
+      console.log("updateWidgetProp");
       data = JSON.parse(data);
       const compObj = this._findComponentModelById(this.selectedId);
       compObj.props[data.key] = data.value;
+      this.$nextTick(() => {
+        selector.resetHighlight();
+      });
     },
     getWidgetDataValue(key) {
       const vm = this.componentInstanceMap[this.selectedId];

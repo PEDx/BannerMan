@@ -1,5 +1,5 @@
-<template >
-  <div class="sortble-container">
+<template>
+  <div id="sortble-container">
     <slot />
     <sortble-item
       :element-mixin-index="value.length"
@@ -15,7 +15,7 @@
   </div>
 </template>
 <script>
-import { ContainerMixin, SlickItem } from "../../viewport/sortble";
+import { ContainerMixin, SlickItem } from "../sortble";
 export default {
   components: {
     "sortble-item": SlickItem
