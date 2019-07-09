@@ -39,7 +39,10 @@ import EventBus from "../bus";
 const selector = new ComponentSelector();
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
-
+const SORT_TYPE = {
+  SORT: 0, // 正常排序
+  ADD: 1 // 添加
+};
 export default {
   components: {
     sortbleContainer
@@ -56,6 +59,7 @@ export default {
     this.resourceDraging = false;
     this.draging = false;
     this.sorting = false;
+    this.sortingType = SORT_TYPE.SORT;
     this.dragingContainer = null;
     return {
       componentsModelTree: [] // 组件数据模型, 在此分发传入各个组件的 props
@@ -165,15 +169,18 @@ export default {
       this.newIndex = newIndex;
       if (isPlaceholder) {
         if (!this.dropEndComponentName) return;
+        this.sortingType = SORT_TYPE.ADD;
         this._asyncAddComponent(this.dropEndComponentName, newIndex);
         return;
       } // 在指定位置添加新组件
+      this.sortingType = SORT_TYPE.SORT;
       // 正常排序
       if (newIndex === oldIndex && !isPlaceholder) return; // 没有移动过
     },
     _handleSortInput() {
       // 此时数据模型排序完毕
       if (this.draging) return;
+      if (this.sortingType === SORT_TYPE.ADD) return;
       this.$nextTick(() => {
         const id = this.componentsModelTree[this.newIndex].id;
         this._drawWidgetsTree();
@@ -260,25 +267,32 @@ export default {
         type: "flush-controller-value"
       });
     },
-    _componentChildrenChanged(sortedArr, childId, id) {
+    _componentChildrenChanged(sortedArr, id) {
       if (this.draging) return;
       // 监听组件更新自己 child 事件
-      // debugger
       this._findComponentModelById(id).children = sortedArr;
+      if (this.sortingType === SORT_TYPE.ADD) return;
       this.$nextTick(() => {
+        const _id = this._findComponentModelById(id).children[this.newIndex].id;
         this._drawWidgetsTree();
-        this._selectComponentAndHighlightById(childId);
+        this._selectComponentAndHighlightById(_id);
         this.sorting = false;
       });
     },
     _contianerSortStart() {
-      // if (this.draging) return;
       selector.stopSelecting();
       this.sorting = true;
     },
-    _contianerSortEnd() {
-      if (this.draging) return;
+    _contianerSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
       selector.startSelecting();
+      this.newIndex = newIndex;
+      if (isPlaceholder) {
+        if (!this.dropEndComponentName) return;
+        this.sortingType = SORT_TYPE.ADD;
+        this._asyncAddComponent(this.dropEndComponentName, newIndex);
+        return;
+      } // 在指定位置添加新组件
+      this.sortingType = SORT_TYPE.SORT;
     },
     _test_() {
       const promiseArr = [
@@ -300,10 +314,12 @@ export default {
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
         });
-        // console.log(place);
-        this._addComponent({ name: widgetName, propsObj: _obj }, place);
+        const containerModel = this._addComponent(
+          { name: widgetName, propsObj: _obj },
+          place
+        );
         this.$nextTick(() => {
-          const id = this.componentsModelTree[place].id;
+          const id = containerModel.children[place].id;
           this._drawWidgetsTree();
           this._selectComponentAndHighlightById(id);
         });
@@ -314,15 +330,15 @@ export default {
       const _containerModel = this._findComponentModelById(
         this.dragingContainerId
       ) || { children: this.componentsModelTree };
-      const _len = _containerModel.children.length;
       const _obj = {
         name: name,
         props: propsObj,
         children: [],
         id: _id
       };
-      _containerModel.children.splice(place || _len, 0, _obj);
+      _containerModel.children.splice(place, 0, _obj);
       this.$nextTick(this._setImageNodeUndraggable);
+      return _containerModel;
     },
     _setImageNodeUndraggable() {
       [...document.getElementsByTagName("img")].forEach(val => {
@@ -459,7 +475,7 @@ export default {
       const compObj = this._findComponentModelById(this.selectedId);
       compObj.props[data.key] = data.value;
       this.$nextTick(() => {
-        selector.resetHighlight();
+        // selector.resetHighlight();
       });
     },
     getWidgetDataValue(key) {
@@ -483,11 +499,12 @@ export default {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
     onDragend(e) {
-      if (this.dragingContainer && this.dragingContainer.clearHackState) {
-        this.dragingContainer.clearHackState(e);
-      }
       this.draging = false;
       this.treeScrolling = false;
+      if (this.dragingContainer && this.dragingContainer.clearHackState) {
+        this.dragingContainer.clearHackState(e);
+        this.dragingContainer = null;
+      }
     },
     highlighitInstance(id) {
       const instance = this.componentInstanceMap[id];

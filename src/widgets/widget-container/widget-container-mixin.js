@@ -34,17 +34,18 @@ export const WidgetContainerMixin = {
     },
     _handleSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
       this.wcm_newIndex = newIndex;
+      this.$emit('contianer-sort-end', {
+        newIndex,
+        oldIndex,
+        isPlaceholder,
+        collection
+      });
       if (newIndex === oldIndex && !isPlaceholder) return; // 没有移动过
-      this.$emit('contianer-sort-end');
     },
     _handleSortInput() {
       // 此时数据模型排序完毕
       this.$nextTick(() => {
-        this.$emit(
-          'children-changed',
-          clonedeep(this.dataModel),
-          this.dataModel[this.wcm_newIndex].id
-        );
+        this.$emit('children-changed', clonedeep(this.dataModel));
       });
     },
     hackState(e) {
