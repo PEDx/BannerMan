@@ -128,19 +128,18 @@ export default {
         e.preventDefault();
       });
       document.addEventListener("drop", e => {
-        const msg = e.dataTransfer.getData("WIDGET_TYPE");
+        const widgetName = e.dataTransfer.getData("WIDGET_NAME");
         console.log("drop");
-        if (msg) {
-          // 此时比 sort end 事件早
-          this.dropEndComponentName = "widget-search";
-          window.parent.postMessage({
-            type: "drag-end",
-            axis: {
-              x: e.x,
-              y: e.y
-            }
-          });
-        }
+        if (!widgetName) return;
+        // debugger
+        this.dropEndComponentName = widgetName;
+        window.parent.postMessage({
+          type: "drag-end",
+          axis: {
+            x: e.x,
+            y: e.y
+          }
+        });
       });
       document.addEventListener(
         "scroll",
@@ -234,7 +233,7 @@ export default {
         });
         if (!this.sorting) {
           console.log("MutationObserver");
-          // selector.resetHighlight();
+          selector.resetHighlight();
         }
       });
       mutationObserver.observe(this.$refs.rootContainer.$el, {
@@ -524,8 +523,8 @@ export default {
       });
       this.scrollEnd();
     },
-    setDragType(tyoe) {
-      this.dragingType = tyoe;
+    setDragType(type) {
+      this.dragingType = type;
     }
   }
 };

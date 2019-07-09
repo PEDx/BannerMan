@@ -33,7 +33,7 @@
             class="widget"
             style="overflow: hidden"
             :tabindex="-1"
-            @dragstart="handleWidgetDragstart"
+            @dragstart="handleWidgetDragstart(...arguments, item)"
             @dragend="handleDragend"
           >
             <i :class="item.icon"></i>
@@ -117,25 +117,25 @@ const widgets = [
     items: [
       {
         name: "容器",
-        widgetName: "List",
+        widgetName: "widget-container",
         widget: "",
         icon: "el-icon-c-scale-to-original"
       },
       {
-        name: "图片",
-        widgetName: "List",
+        name: "搜索",
+        widgetName: "widget-search",
         widget: "",
         icon: "el-icon-picture"
       },
       {
         name: "倒计时",
-        widgetName: "List",
+        widgetName: "widget-search",
         widget: "",
         icon: "el-icon-timer"
       },
       {
         name: "按钮",
-        widgetName: "List",
+        widgetName: "widget-button",
         widget: "",
         icon: "el-icon-aim"
       }
@@ -147,13 +147,13 @@ const widgets = [
     items: [
       {
         name: "倒计时",
-        widgetName: "List",
+        widgetName: "widget-search",
         widget: "",
         icon: "el-icon-timer"
       },
       {
         name: "进度条",
-        widgetName: "List",
+        widgetName: "widget-search",
         widget: "",
         icon: "el-icon-more-outline"
       }
@@ -213,9 +213,9 @@ export default {
   },
   mounted() {},
   methods: {
-    handleWidgetDragstart(e) {
+    handleWidgetDragstart(e, widget) {
       getViewportVueInstance().setDragType("drag_widget");
-      e.dataTransfer.setData("WIDGET_TYPE", "hello");
+      e.dataTransfer.setData("WIDGET_NAME", widget.widgetName);
     },
     handleResDragstart(e, file) {
       getViewportVueInstance().setDragType("drag_resource");

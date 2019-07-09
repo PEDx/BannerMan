@@ -110,9 +110,9 @@ export default {
     }
   },
   created() {
-    if (this.depth === 0) {
-      this.expand = false;
-    }
+    // if (this.depth === 0) {
+    // }
+    this.expand = false;
     this.toggleWithValue(this.expand);
   },
 

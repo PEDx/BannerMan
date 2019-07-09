@@ -380,8 +380,8 @@ export const ContainerMixin = {
     },
     _clearHackState(e) {
       const placeholder = this.manager.getPlaceholder();
-      this.$el.style.height = `auto`;
       placeholder.node.style.display = `none`;
+      this.$el.style.height = `auto`;
       this.handleSortEnd(e, true);
     },
 
