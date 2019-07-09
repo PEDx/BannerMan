@@ -16,7 +16,7 @@
       <span class="content">
         <!-- arrow wrapper for better hit box -->
         <span v-if="instance.children.length" class="arrow-wrapper" @click.stop="toggle">
-          <span :class="{ rotated: expanded }" class="arrow right"/>
+          <span :class="{ rotated: expanded }" class="arrow right" />
         </span>
 
         <!-- <span class="angle-bracket">&lt;</span> -->
@@ -43,7 +43,7 @@
       <span v-if="instance.functional" class="info functional">functional</span>
       <span v-if="instance.inactive" class="info inactive">inactive</span>
 
-      <span class="spacer"/>
+      <span class="spacer" />
     </div>
 
     <div v-if="expanded">
@@ -157,7 +157,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "./color.scss";
 .instance {
   font-family: dejavu sans mono, monospace;
   transition: all 0.3s;
@@ -260,8 +259,8 @@ export default {
     color: rgba(#333, 0.5);
 
     .vue-ui-dark-mode & {
-      background-color: rgba($md-white, 0.06);
-      color: rgba($md-white, 0.5);
+      background-color: rgba(#fff, 0.06);
+      color: rgba(#fff, 0.5);
     }
   }
 
@@ -291,7 +290,7 @@ export default {
 }
 
 .angle-bracket {
-  color: $darkGrey;
+  color: #ccc;
 }
 
 .item-name {

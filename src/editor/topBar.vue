@@ -2,7 +2,7 @@
   <div class="top-bar">
     <div class="logo">
       <div class="temporary">
-        <logo/>
+        <logo />
         <h1 class="txt">Banner Man</h1>
       </div>
     </div>
@@ -24,13 +24,20 @@
           <el-button type="primary" icon="el-icon-edit" style="margin-left: 10px;">页面信息配置</el-button>
         </el-col>
         <el-col :span="8" style="text-align: right;">
-          <el-button
-            type="primary"
-            icon="el-icon-delete-solid"
-            style="margin-left: 10px;"
-            class="danger"
-            @click="clearViewportPage"
-          >清空</el-button>
+          <el-popover placement="top" width="160" v-model="clearConfirmVisible">
+            <p>确认清空全部组件？</p>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="clearConfirmVisible = false">取消</el-button>
+              <el-button type="primary" size="mini" @click="clearViewportPage">确定</el-button>
+            </div>
+            <el-button
+              slot="reference"
+              type="primary"
+              icon="el-icon-delete-solid"
+              style="margin-left: 10px;"
+            >清空</el-button>
+          </el-popover>
+
           <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">预览</el-button>
           <el-button type="primary" icon="el-icon-document-checked" @click="saveViewportPage">保存</el-button>
         </el-col>
@@ -47,6 +54,7 @@ export default {
   components: { logo },
   data() {
     return {
+      clearConfirmVisible: false,
       options: deviceModelList,
       value: this.$store.state.editor.setting.deviceType || "iphone6"
     };
@@ -60,8 +68,9 @@ export default {
       EventBus.$emit("reload-viewport");
     },
     clearViewportPage() {
+      this.clearConfirmVisible = false;
       getViewportVueInstance().clearPage();
-      EventBus.$emit("clear-viewport")
+      EventBus.$emit("clear-viewport");
     },
     saveViewportPage() {
       getViewportVueInstance().savePage();

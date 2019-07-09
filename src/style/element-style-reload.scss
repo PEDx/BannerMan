@@ -122,7 +122,7 @@
 
 }
 
-.el-popover {
+.resource-preview-popover {
   background-image: linear-gradient(45deg,
       #666 25%,
       transparent 0,
@@ -164,11 +164,57 @@
   }
 }
 
+.el-popover {
+  background-color: #343438;
+  border: 0;
 
+  p {
+    padding: 10px 0;
+    color: #eee;
+    font-size: 12px;
+  }
+
+  .content {
+    border-radius: 0 0 4px 4px;
+    border: 1px solid #7f7c87;
+    padding: 5px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .el-popover__title {
+    overflow: hidden;
+    border-radius: 4px 4px 0 0;
+    height: 24px;
+    line-height: 24px;
+    font-size: 12px;
+    color: #eee;
+    background-color: #252525;
+    box-sizing: border-box;
+    padding: 0 8px;
+    margin-bottom: 0;
+  }
+
+
+}
+
+.el-popper[x-placement^="bottom"] .popper__arrow::after {
+  border-bottom-color: #fd9527;
+}
+.el-popper[x-placement^="bottom"] .popper__arrow{
+  border-bottom-color: #343438;
+}
+.el-popper[x-placement^="right"] .popper__arrow::after {
+  border-right-color: #fd9527;
+}
+.el-popper[x-placement^="right"] .popper__arrow {
+  border-right-color: #343438;
+}
 .el-color-picker--mini .el-color-picker__trigger {
   border-color: #898989;
 }
-.el-color-picker__panel{
+
+.el-color-picker__panel {
   background-color: #383838;
   border-color: #898989;
 }

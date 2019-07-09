@@ -100,14 +100,13 @@ const getAllInstances = list =>
 </script>
 
 <style lang="scss">
-@import "./color.scss";
 .tree {
   padding: 5px;
 }
 
 .select-component {
   &.active {
-    color: $active-color;
+    color: #3ba776;
 
     .vue-ui-icon {
       animation: pulse 2s infinite linear;

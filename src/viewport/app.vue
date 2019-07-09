@@ -113,6 +113,7 @@ export default {
         }
         this.draging = true;
         this.dragingContainer = container;
+        this.dragingContainerId = container.$el.id;
         container.hackState(e);
         this.dropEndComponentName = "";
         e.preventDefault();
@@ -271,7 +272,7 @@ export default {
       });
     },
     _contianerSortStart() {
-      if (this.draging) return;
+      // if (this.draging) return;
       selector.stopSelecting();
       this.sorting = true;
     },
@@ -310,48 +311,17 @@ export default {
     },
     _addComponent({ name, propsObj, id }, place) {
       const _id = id || `${getRandomStr(6)}-${name}`;
-      const _len = this.componentsModelTree.length;
+      const _containerModel = this._findComponentModelById(
+        this.dragingContainerId
+      ) || { children: this.componentsModelTree };
+      const _len = _containerModel.children.length;
       const _obj = {
         name: name,
         props: propsObj,
-        // children: [
-        //   {
-        //     children: [],
-        //     id: "b23SVi-widget-search",
-        //     name: "widget-search",
-        //     props: {
-        //       width: undefined,
-        //       height: undefined,
-        //       image: undefined,
-        //       color: undefined
-        //     }
-        //   },
-        //   {
-        //     children: [],
-        //     id: "b232Vc-widget-button",
-        //     name: "widget-button",
-        //     props: {
-        //       width: undefined,
-        //       height: undefined,
-        //       image: undefined,
-        //       color: undefined
-        //     }
-        //   },
-        //   {
-        //     children: [],
-        //     id: "b232Vc-widget-search",
-        //     name: "widget-search",
-        //     props: {
-        //       width: undefined,
-        //       height: undefined,
-        //       image: undefined,
-        //       color: undefined
-        //     }
-        //   }
-        // ],
+        children: [],
         id: _id
       };
-      this.componentsModelTree.splice(place || _len, 0, _obj);
+      _containerModel.children.splice(place || _len, 0, _obj);
       this.$nextTick(this._setImageNodeUndraggable);
     },
     _setImageNodeUndraggable() {

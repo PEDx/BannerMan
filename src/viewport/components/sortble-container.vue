@@ -1,7 +1,8 @@
 <template>
-  <div id="sortble-container">
+  <div class="sortble-container">
     <slot />
     <sortble-item
+      class="sortble-placeholder"
       :element-mixin-index="value.length"
       :element-mixin-is-placeholder="true"
       style="position: absolute; top: 0px;left: 0;width: 100%;display: none;"

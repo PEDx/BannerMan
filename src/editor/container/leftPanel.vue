@@ -76,6 +76,7 @@
                 :title="`预览 ${checkImgName} ${checkImgResolution}`"
                 width="auto"
                 trigger="click"
+                popper-class="resource-preview-popover"
                 content
                 :popper-options="{
                   removeOnDestroy: true
@@ -171,6 +172,7 @@ export default {
       searchValue: "",
       checkImgSrc: "",
       checkImgResolution: "",
+      deleteConfirmVisible: false,
       checkImgName: "",
       splitPercent: +editorSetting.leftPanelSplit || 70,
       splitStatus: editorSetting.leftPanelStatus || {
@@ -230,6 +232,7 @@ export default {
       this.currentPickResItemIdx = idx;
     },
     handleDelete(idx) {
+      this.deleteConfirmVisible = false;
       this.fileList.splice(idx, 1);
     },
     handleUploadSuccess() {},
@@ -338,7 +341,7 @@ $file-icon-color: #4ca2ab;
     }
     .delete-img {
       top: 2px;
-      margin-right: 12px;
+      margin-right: 16px;
     }
   }
 }

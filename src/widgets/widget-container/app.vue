@@ -27,7 +27,7 @@ export default {
 .widget-container {
   box-sizing: border-box;
   overflow: auto;
-  // height: 300px;
+  min-height: 300px;
   outline: 1px solid red;
 }
 </style>

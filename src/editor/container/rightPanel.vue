@@ -10,12 +10,35 @@
           <div class="box">
             <span class="name">{{ name }}</span>
             <div class="btn f-fr">
-              <el-button type="text" title="还原" @click="handleResetClick" style="padding: 4px 8px;margin-left: 0;">
+              <el-button type="text" title="数值复制" style="padding: 4px 8px;margin-left: 0;">
+                <i class="el-icon-document-copy"></i>
+              </el-button>
+              <el-button type="text" title="数值粘贴" style="padding: 4px 8px;margin-left: 0;">
+                <i class="el-icon-brush"></i>
+              </el-button>
+              <el-button
+                type="text"
+                title="还原"
+                @click="handleResetClick"
+                style="padding: 4px 8px;margin-left: 0;"
+              >
                 <i class="el-icon-refresh-left"></i>
               </el-button>
-              <el-button type="text" title="删除" @click="handleDeleteClick" style="padding: 4px 8px;margin-left: 0;">
-                <i class="el-icon-delete"></i>
-              </el-button>
+              <el-popover placement="top" width="160" v-model="deleteConfirmVisible">
+                <p>确认删除此组件？</p>
+                <div style="text-align: right; margin: 0">
+                  <el-button size="mini" type="text" @click="deleteConfirmVisible = false">取消</el-button>
+                  <el-button type="primary" size="mini" @click="handleDeleteClick">确定</el-button>
+                </div>
+                <el-button
+                  slot="reference"
+                  type="text"
+                  title="删除"
+                  style="padding: 4px 8px;margin-left: 0;"
+                >
+                  <i class="el-icon-delete"></i>
+                </el-button>
+              </el-popover>
             </div>
           </div>
         </div>
@@ -31,7 +54,7 @@
         </controller-item>
       </fold-bar>
       <fold-bar
-        title="组件树"
+        title="组件导航"
         slot="right"
         pos="bottom"
         ref="tree"
@@ -74,8 +97,8 @@ export default {
       controllerTypeMap,
       controllerList: [],
       instancesTree: [],
-      name: "",
-      currentUid: null
+      deleteConfirmVisible: false,
+      name: ""
     };
   },
   mounted() {
@@ -174,6 +197,7 @@ export default {
       );
     },
     handleDeleteClick() {
+      this.deleteConfirmVisible = false;
       const ins = getViewportVueInstance();
       ins.deleteComponentFromModel();
     }

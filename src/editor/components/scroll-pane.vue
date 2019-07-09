@@ -50,7 +50,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "./tree/color.scss";
 .scroll-pane {
   display: flex;
   flex-direction: column;
@@ -90,10 +89,10 @@ export default {
 }
 
 .footer {
-  border-top: 1px solid $border-color;
+  border-top: 1px solid #eeeeee;
 
   .vue-ui-dark-mode & {
-    border-top-color: $dark-border-color;
+    border-top-color: #1d2935;
   }
 }
 </style>

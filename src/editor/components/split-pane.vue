@@ -126,7 +126,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "./tree/color.scss";
 .split-pane {
   display: flex;
   height: 100%;
@@ -160,20 +159,20 @@ export default {
 .horizontal {
   .bottom {
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    border-top: 1px solid $border-color;
+    border-top: 1px solid #eee;
 
     .vue-ui-dark-mode & {
-      border-top: 1px solid $dark-border-color;
+      border-top: 1px solid #1d2935;
     }
   }
 }
 
 .vertical {
   .left {
-    border-right: 1px solid $border-color;
+    border-right: 1px solid #eee;
 
     .vue-ui-dark-mode & {
-      border-right: 1px solid $dark-border-color;
+      border-right: 1px solid #1d2935;
     }
   }
 }
