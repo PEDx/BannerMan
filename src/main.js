@@ -16,6 +16,8 @@ import {
   Upload,
   Dialog,
   Tooltip,
+  Form,
+  FormItem,
   Switch,
   Slider,
   Input,
@@ -33,6 +35,8 @@ Vue.use(Row)
   .use(Slider)
   .use(Input)
   .use(Dialog)
+  .use(Form)
+  .use(FormItem)
   .use(Switch)
   .use(ColorPicker)
   .use(Tooltip)

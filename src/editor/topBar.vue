@@ -39,7 +39,7 @@
           </el-popover>
 
           <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">预览</el-button>
-          <el-button type="primary" icon="el-icon-document-checked" @click="saveViewportPage">保存</el-button>
+          <el-button type="primary" icon="el-icon-document-checked" style="margin-left: 10px;" @click="saveViewportPage">保存</el-button>
         </el-col>
       </el-row>
     </div>

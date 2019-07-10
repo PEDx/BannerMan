@@ -1,6 +1,6 @@
 <template>
   <div class="ctrl-rich-text">
-    <el-input v-model="input" placeholder="请输入内容" @change="handleChange"></el-input>
+    <el-button type="primary" icon="el-icon-edit-outline" circle></el-button>
   </div>
 </template>
 <script>

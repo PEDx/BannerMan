@@ -43,9 +43,40 @@
       </fold-bar>
       <fold-bar title="资源" slot="right" pos="bottom">
         <template slot="custom-right">
+          <el-popover
+            placement="bottom"
+            width="300"
+            trigger="click"
+            :offset="-50"
+            title="资源链接"
+            v-model="addLinkPopovervisible"
+          >
+            <el-form ref="form" v-model="linkRes" label-width="40px">
+              <el-form-item label="名称:">
+                <el-input v-model="linkRes.name" placeholder="请输入资源名称"></el-input>
+              </el-form-item>
+              <el-form-item label="地址:">
+                <el-input placeholder="请输入资源链接地址" v-model="linkRes.url"></el-input>
+              </el-form-item>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="addLinkPopovervisible = false">取消</el-button>
+                <el-button type="primary" size="mini" @click="handleAddLinkRes">添加</el-button>
+              </div>
+            </el-form>
+            <el-button
+              slot="reference"
+              type="text"
+              icon="el-icon-link"
+              style="padding: 4px 5px;"
+              title="资源链接"
+              @click.native.stop
+            ></el-button>
+          </el-popover>
+
           <el-upload
             @click.native.stop
-            class="upload-demo"
+            class="upload-btn"
+            style="display: inline-block;"
             action="https://jsonplaceholder.typicode.com/posts/"
             multiple
             :limit="3"
@@ -55,14 +86,14 @@
             @on-success="handleUploadSuccess"
             @on-error="handleUploadError"
           >
-            <el-button type="text" icon="el-icon-plus" style="padding: 4px 5px;"></el-button>
+            <el-button type="text" icon="el-icon-upload2" title="上传资源" style="padding: 4px 5px;"></el-button>
           </el-upload>
         </template>
         <div class="file-list" style="padding: 8px 0;">
           <div
             :class="{'file-list-item': true, active: currentPickResItemIdx == idx}"
             v-for="(val, idx) in fileList"
-            :key="idx"
+            :key="`${val.name }-${idx}`"
             :draggable="true"
             @dragstart="handleResDragstart(...arguments, val)"
             @dragend="handleResDragend"
@@ -110,6 +141,7 @@ import foldBar from "../components/split-pane/fold-bar";
 import splitPane from "../components/split-pane/split-pane";
 import { getViewportVueInstance } from "../../utils/index";
 import EventBus from "../../bus";
+const URL_REG = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/gi;
 const widgets = [
   {
     group: "BASICS",
@@ -173,11 +205,16 @@ export default {
       checkImgSrc: "",
       checkImgResolution: "",
       deleteConfirmVisible: false,
+      addLinkPopovervisible: false,
       checkImgName: "",
       splitPercent: +editorSetting.leftPanelSplit || 70,
       splitStatus: editorSetting.leftPanelStatus || {
         top: true,
         bottom: true
+      },
+      linkRes: {
+        name: "",
+        url: ""
       },
       fileList: [
         {
@@ -258,6 +295,22 @@ export default {
         this.checkImgResolution = `( ${image.naturalWidth ||
           naturalWidth} x ${image.naturalHeight || naturalHeight} )`;
       };
+    },
+    handleAddLinkRes() {
+      const url = this.linkRes.url.trim();
+      const name = this.linkRes.name.trim();
+      if (!URL_REG.test(url)) {
+        this.$message.error("请添加正确的资源 URl 地址");
+        return;
+      }
+      this.addLinkPopovervisible = false;
+      const pos = this.linkRes.url.lastIndexOf("/");
+      const fileName = url.substring(pos + 1, url.length);
+      this.fileList.push({
+        name: name || fileName,
+        url
+      });
+      this.linkRes = {};
     }
   }
 };

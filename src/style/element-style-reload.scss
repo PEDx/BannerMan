@@ -38,6 +38,10 @@
   padding: 4px 12px;
 }
 
+.el-button+.el-button {
+  margin-left: 4px;
+}
+
 .el-select-dropdown__item {
   font-size: 12px;
   height: 28px;
@@ -188,16 +192,9 @@
   }
 
   .el-popover__title {
-    overflow: hidden;
-    border-radius: 4px 4px 0 0;
-    height: 24px;
-    line-height: 24px;
-    font-size: 12px;
     color: #eee;
-    background-color: #252525;
-    box-sizing: border-box;
-    padding: 0 8px;
-    margin-bottom: 0;
+    font-size: 14px;
+    text-align: center;
   }
 
 
@@ -212,6 +209,10 @@
 }
 
 .el-popper[x-placement^="right"] .popper__arrow::after {
+  border-right-color: #fd9527;
+}
+
+.el-popper[x-placement^="top"] .popper__arrow::after {
   border-right-color: #fd9527;
 }
 
@@ -257,9 +258,24 @@
   }
 }
 
-.el-switch__core{
-  border-color: #252525!important;
+.el-switch__core {
+  border-color: #252525 !important;
 }
-.el-dialog__title{
+
+.el-dialog__title {
   font-size: 16px;
+}
+
+.el-form-item__label {
+  font-size: 12px;
+  color: #eee;
+}
+
+.el-input-group__append,
+.el-input-group__prepend {
+  padding: 0 10px;
+}
+
+.el-form-item--mini.el-form-item {
+  margin-bottom: 10px;
 }
