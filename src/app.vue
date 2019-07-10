@@ -1,24 +1,22 @@
 <template>
   <div id="app">
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
 <script>
-// import { findQualifiedChildrenFromList } from "./backend/index";
 export default {
-  name: "App",
-  mounted() {
-    // const instence = findQualifiedChildrenFromList([this]);
-    // console.log(instence);
-    // console.log(this);
-  }
+  name: "App"
 };
 </script>
 
 <style lang="scss">
 html,
 body {
+  height: 100%;
+}
+#app {
+  height: 100%;
   -ms-overflow-style: none;
   overflow: -moz-scrollbars-none;
   &::-webkit-scrollbar {

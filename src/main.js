@@ -12,6 +12,7 @@ import {
   ColorPicker,
   Button,
   Upload,
+  Dialog,
   Tooltip,
   Switch,
   Slider,
@@ -29,6 +30,7 @@ Vue.use(Row)
   .use(InputNumber)
   .use(Slider)
   .use(Input)
+  .use(Dialog)
   .use(Switch)
   .use(ColorPicker)
   .use(Tooltip)

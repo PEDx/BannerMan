@@ -1,5 +1,5 @@
 export default {
-  name: '搜索框',
+  name: '列表',
   icon: '',
   description: '描述',
   controllers: [

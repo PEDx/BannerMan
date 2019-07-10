@@ -48,6 +48,7 @@
             :is="controllerTypeMap[val.controllerType]"
             slot="ctrl"
             :value="val.value"
+            :setting="val.setting"
             ref="ctrls"
             @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
           ></component>
@@ -114,6 +115,7 @@ export default {
           });
           const profile = e.data.profile;
           this.controllerList = profile.controllers;
+          // debugger;
           this.name = profile.name;
           this.controllerList.forEach(val => {
             val.value = ins.getWidgetDataValue(val.propName);
