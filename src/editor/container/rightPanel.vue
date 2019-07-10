@@ -67,9 +67,9 @@
   </div>
 </template>
 <script>
-import foldBar from "../components/fold-bar";
+import foldBar from "../components/split-pane/fold-bar";
 import controllerItem from "../components/controller-item";
-import splitPane from "../components/split-pane";
+import splitPane from "../components/split-pane/split-pane";
 import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
 import clonedeep from "lodash.clonedeep";

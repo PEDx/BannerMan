@@ -3,6 +3,8 @@ import App from './app';
 import router from './router';
 import './style/cssrest.css';
 import './style/element-style-reload.scss';
+import VueDraggableResizable from 'vue-draggable-resizable';
+import 'vue-draggable-resizable/dist/VueDraggableResizable.css';
 import {
   Row,
   Col,
@@ -40,6 +42,8 @@ Vue.use(Row)
   .use(Button)
   .use(Select)
   .use(Option);
+
+Vue.component('vue-draggable-resizable', VueDraggableResizable);
 Vue.prototype.$notify = Notification;
 Vue.prototype.$message = Message;
 Vue.prototype.$ELEMENT = { size: 'mini' };

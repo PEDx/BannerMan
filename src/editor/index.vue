@@ -9,6 +9,7 @@
     <div class="bottom">
       <bottom-bar />
     </div>
+    <float-window></float-window>
     <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
       <span>这是一段信息</span>
       <span slot="footer" class="dialog-footer">
@@ -22,10 +23,12 @@
 import container from "./container/index";
 import topBar from "./topBar";
 import bottomBar from "./bottomBar";
+import floatWindow from "./components/float-window";
 export default {
   components: {
     container,
     bottomBar,
+    floatWindow,
     topBar
   },
   data() {
@@ -33,7 +36,8 @@ export default {
       dialogVisible: false
     };
   },
-  mounted() {}
+  mounted() {},
+  methods: {}
 };
 </script>
 <style lang="scss" scoped>
@@ -53,6 +57,7 @@ export default {
     box-sizing: border-box;
   }
   .content {
+    position: relative;
     height: 100%;
   }
   .bottom {
@@ -66,3 +71,4 @@ export default {
   }
 }
 </style>
+

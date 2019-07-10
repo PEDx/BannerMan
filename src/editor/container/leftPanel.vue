@@ -106,8 +106,8 @@
   </div>
 </template>
 <script>
-import foldBar from "../components/fold-bar";
-import splitPane from "../components/split-pane";
+import foldBar from "../components/split-pane/fold-bar";
+import splitPane from "../components/split-pane/split-pane";
 import { getViewportVueInstance } from "../../utils/index";
 import EventBus from "../../bus";
 const widgets = [

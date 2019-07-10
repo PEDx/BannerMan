@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { throttle } from "../../utils/index";
+import { throttle } from "../../../utils/index";
 export default {
   props: {
     percent: {
