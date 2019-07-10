@@ -75,10 +75,13 @@ export default {
       this._selectComponentAndHighlightById(instance.$el.id);
     });
     EventBus.$on("element-mouseover", instance =>
-      window.parent.postMessage({
-        type: "element-mouseover",
-        id: instance.$el.id
-      })
+      window.parent.postMessage(
+        {
+          type: "element-mouseover",
+          id: instance.$el.id
+        },
+        "*"
+      )
     );
     this.scrollEnd = debounce(() => {
       this.treeScrolling = false;
@@ -133,13 +136,16 @@ export default {
         if (!widgetName) return;
         // debugger
         this.dropEndComponentName = widgetName;
-        window.parent.postMessage({
-          type: "drag-end",
-          axis: {
-            x: e.x,
-            y: e.y
-          }
-        });
+        window.parent.postMessage(
+          {
+            type: "drag-end",
+            axis: {
+              x: e.x,
+              y: e.y
+            }
+          },
+          "*"
+        );
       });
       document.addEventListener(
         "scroll",
@@ -150,10 +156,13 @@ export default {
           const scroll_height = document.documentElement.scrollHeight;
           const window_height = document.documentElement.clientHeight;
           const percent = scroll_top / (scroll_height - window_height);
-          window.parent.postMessage({
-            type: "viewport-scroll-percent",
-            percent: percent.toFixed(2)
-          });
+          window.parent.postMessage(
+            {
+              type: "viewport-scroll-percent",
+              percent: percent.toFixed(2)
+            },
+            "*"
+          );
         }, 20)
       );
     },
@@ -194,12 +203,15 @@ export default {
       const instance = this.componentInstanceMap[id];
       const profile = getProfileByInstance(instance) || {};
       selector.highlighitSelectedInstance(instance);
-      window.parent.postMessage({
-        type: "select-component",
-        profile,
-        id,
-        name: profile.name
-      });
+      window.parent.postMessage(
+        {
+          type: "select-component",
+          profile,
+          id,
+          name: profile.name
+        },
+        "*"
+      );
     },
     // 监听元素几何属性变化
     _loadImage(e) {
@@ -262,9 +274,12 @@ export default {
       // 监听组件更新自己 props 事件
       const props = this._findComponentModelById[id].props;
       Object.keys(obj).forEach(key => (props[key] = obj[key]));
-      window.parent.postMessage({
-        type: "flush-controller-value"
-      });
+      window.parent.postMessage(
+        {
+          type: "flush-controller-value"
+        },
+        "*"
+      );
     },
     _componentChildrenChanged(sortedArr, id) {
       if (this.draging) return;
@@ -419,10 +434,13 @@ export default {
     _drawWidgetsTree() {
       console.log("drawWidgetsTree");
       const _tree = this._generateWidgetsTree();
-      window.parent.postMessage({
-        type: "flush-component-tree",
-        instancesTree: _tree.children
-      });
+      window.parent.postMessage(
+        {
+          type: "flush-component-tree",
+          instancesTree: _tree.children
+        },
+        "*"
+      );
     },
     _setMeta(baseWidth) {
       const scale = 1;
