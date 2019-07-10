@@ -13,6 +13,7 @@ import {
   Button,
   Upload,
   Tooltip,
+  Switch,
   Slider,
   Input,
   Popover,
@@ -28,6 +29,7 @@ Vue.use(Row)
   .use(InputNumber)
   .use(Slider)
   .use(Input)
+  .use(Switch)
   .use(ColorPicker)
   .use(Tooltip)
   .use(Upload)

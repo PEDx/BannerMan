@@ -71,6 +71,7 @@ import controllerItem from "../components/controller-item";
 import splitPane from "../components/split-pane";
 import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
+import clonedeep from "lodash.clonedeep";
 import {
   getViewportVueInstance,
   debounce,
@@ -178,7 +179,7 @@ export default {
     },
     handleSubmitUpdate(key, value) {
       const ins = getViewportVueInstance();
-      ins.updateWidgetProp(JSON.stringify({ key, value }));
+      ins.updateWidgetProp(clonedeep({ key, value }));
     },
     handleContentScroll(percent) {
       // 此处会相互触发 srcoll 事件, 需要防止

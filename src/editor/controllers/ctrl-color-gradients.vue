@@ -37,6 +37,7 @@ export default {
   height: 100%;
   display: flex;
   .color-gradients {
+    position: relative;
     flex: 1;
     display: inline-block;
     height: 28px;
@@ -47,9 +48,15 @@ export default {
     padding: 4px;
     box-sizing: border-box;
     .color-view {
+      position: relative;
       border-radius: 2px;
       display: inline-block;
       height: 18px;
+      width: 100%;
+    }
+    .handle {
+      position: absolute;
+      left: 0px;
       width: 100%;
     }
   }

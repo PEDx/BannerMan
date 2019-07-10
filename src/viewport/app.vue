@@ -470,12 +470,8 @@ export default {
     },
     updateWidgetProp(data) {
       console.log("updateWidgetProp");
-      data = JSON.parse(data);
       const compObj = this._findComponentModelById(this.selectedId);
       compObj.props[data.key] = data.value;
-      this.$nextTick(() => {
-        // selector.resetHighlight();
-      });
     },
     getWidgetDataValue(key) {
       const vm = this.componentInstanceMap[this.selectedId];

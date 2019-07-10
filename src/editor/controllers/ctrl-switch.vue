@@ -1,6 +1,6 @@
 <template>
   <div class="ctrl-switch">
-    <el-input v-model="input" placeholder="请输入内容" @change="handleChange"></el-input>
+    <el-switch v-model="input" active-color="#fd9527" inactive-color="#898989"></el-switch>
   </div>
 </template>
 <script>
