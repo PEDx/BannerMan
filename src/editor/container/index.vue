@@ -314,57 +314,5 @@ export default {
     }
   }
 }
-
-@keyframes spin {
-  50%,
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes fill {
-  50%,
-  75% {
-    transform: scaleY(1);
-  }
-  100% {
-    transform: scaleY(0);
-  }
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-
-@keyframes zoomIn {
-  from {
-    opacity: 0;
-    -webkit-transform: scale3d(0.1, 0.1, 0.1);
-    transform: scale3d(0.1, 0.1, 0.1);
-  }
-  40% {
-    opacity: 1;
-    -webkit-transform: scale3d(0.12, 0.12, 0.12);
-    transform: scale3d(0.12, 0.12, 0.12);
-  }
-}
-
-.zoomIn {
-  -webkit-animation-name: zoomIn;
-  animation-name: zoomIn;
-}
-
-.scale-enter-active,
-.scale-leave-active {
-  animation: zoomIn 0.5s;
-}
-.scale-enter,
-.scale-leave-to {
-  opacity: 0;
-}
 </style>
 

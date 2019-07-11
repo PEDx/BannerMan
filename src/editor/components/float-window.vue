@@ -1,34 +1,37 @@
 <template>
-  <vue-draggable-resizable
-    class="draggable-resizable"
-    :resizable="resizable"
-    :drag-handle="'.draggable-resizable-handle'"
-    @dragging="onDrag"
-    @resizing="onResize"
-    class-name-handle="handle"
-    :z-index="999"
-    :parent="true"
-    v-show="show"
-    @activated="onActivated"
-    @deactivated="onDeactivated"
-    @dragstop="onDragStop"
-    :w="300"
-    :h="500"
-  >
-    <div class="title-bar draggable-resizable-handle">
-      <span class="title">{{ title }}</span>
-      <span class="custom-right">
-        <el-button type="text" class="btn" icon="el-icon-crop" @click.stop="handleResizable"></el-button>
-        <el-button type="text" class="btn" icon="el-icon-minus" @click.stop="handleMinimize"></el-button>
-        <el-button type="text" class="btn" icon="el-icon-close" @click.stop="handleClose"></el-button>
-      </span>
-    </div>
-    <div class="content">
-      <div class="box">
-        <slot />
+  <transition name="scale">
+    <vue-draggable-resizable
+      class="draggable-resizable"
+      :resizable="resizable"
+      :drag-handle="'.draggable-resizable-handle'"
+      @dragging="onDrag"
+      @resizing="onResize"
+      class-name-handle="handle"
+      :z-index="999"
+      @activated="onActivated"
+      @deactivated="onDeactivated"
+      @dragstop="onDragStop"
+      :w="300"
+      :h="500"
+      :x="position.x"
+      :y="position.y"
+      v-show="show"
+    >
+      <div class="title-bar draggable-resizable-handle">
+        <span class="title">{{ title }}</span>
+        <span class="custom-right">
+          <el-button type="text" class="btn" icon="el-icon-crop" @click.stop="handleResizable"></el-button>
+          <el-button type="text" class="btn" icon="el-icon-minus" @click.stop="handleMinimize"></el-button>
+          <el-button type="text" class="btn" icon="el-icon-close" @click.stop="handleClose"></el-button>
+        </span>
       </div>
-    </div>
-  </vue-draggable-resizable>
+      <div class="content">
+        <div class="box">
+          <slot />
+        </div>
+      </div>
+    </vue-draggable-resizable>
+  </transition>
 </template>
 <script>
 export default {
@@ -36,13 +39,24 @@ export default {
     title: {
       default: "浮动窗体",
       type: String
+    },
+    show: {
+      default: false,
+      type: Boolean
+    },
+    position: {
+      default: () => ({ x: 0, y: 0 }),
+      type: Object
     }
   },
   data() {
     return {
-      show: true,
       resizable: false
     };
+  },
+  created() {
+    var component = this.$mount();
+    this.$root.$el.appendChild(component.$el);
   },
   methods: {
     onResize(x, y, width, height) {},
@@ -55,7 +69,7 @@ export default {
       this.resizable = false;
     },
     handleClose(x, y) {
-      this.show = false;
+      this.$emit("update:show", false);
     },
     handleMinimize() {},
     handleResizable() {
