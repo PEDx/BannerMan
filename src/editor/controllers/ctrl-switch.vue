@@ -6,7 +6,7 @@
 <script>
 export default {
   props: {
-    value: String
+    value: Boolean
   },
   data() {
     return {

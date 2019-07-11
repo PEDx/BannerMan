@@ -1,7 +1,7 @@
 <template>
   <div class="ctrl-size-input">
     <div class="item">
-      <span class="taxt">宽 :</span><el-input-number
+      <span class="text">宽</span><el-input-number
         v-model="width"
         @change="handleChange"
         controls-position="right"
@@ -10,7 +10,7 @@
       ></el-input-number>
     </div>
     <div class="item">
-      <span class="taxt">高 :</span><el-input-number
+      <span class="text">高</span><el-input-number
         v-model="height"
         @change="handleChange"
         controls-position="right"
@@ -47,7 +47,7 @@ export default {
   .item {
     display: inline-block;
   }
-  .taxt {
+  .text {
     padding: 0 4px;
   }
 }

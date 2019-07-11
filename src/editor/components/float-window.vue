@@ -11,9 +11,9 @@
       @activated="onActivated"
       @deactivated="onDeactivated"
       @dragstop="onDragStop"
-      :w="300"
-      :h="500"
-      :x="position.x"
+      :w="size.width"
+      :h="size.height"
+      :x="position.x "
       :y="position.y"
       v-show="show"
     >
@@ -43,6 +43,10 @@ export default {
     show: {
       default: false,
       type: Boolean
+    },
+    size: {
+      default: () => ({ width: 300, height: 500 }),
+      type: Object
     },
     position: {
       default: () => ({ x: 0, y: 0 }),

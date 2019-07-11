@@ -1,7 +1,7 @@
 <template>
   <div class="ctrl-rich-text">
     <el-button type="primary" icon="el-icon-edit-outline" circle @click="handleShow"></el-button>
-    <float-window :show.sync="showWindow" :position="nodePos" title="富文本编辑器">
+    <float-window :show.sync="showWindow" :position="nodePos" :size="nodeSize" title="富文本编辑器">
       <div class="rich-text-editor">
         <quill-editor :content="value" :options="editorOption" @change="onEditorChange($event)"></quill-editor>
       </div>
@@ -52,6 +52,10 @@ export default {
       nodePos: {
         x: 0,
         y: 0
+      },
+      nodeSize: {
+        width: 600,
+        height: 400
       }
     };
   },
@@ -63,8 +67,8 @@ export default {
   mounted() {
     const rect = this.$el.getBoundingClientRect();
     this.nodePos = {
-      x: rect.x - 440,
-      y: rect.y - 250
+      x: rect.x - this.nodeSize.width - 140,
+      y: rect.y - this.nodeSize.height / 2
     };
   },
   methods: {
