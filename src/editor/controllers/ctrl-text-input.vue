@@ -10,7 +10,7 @@ export default {
   },
   data() {
     return {
-      input: ""
+      input: this.value
     };
   },
   watch: {

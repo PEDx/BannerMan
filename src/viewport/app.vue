@@ -487,7 +487,9 @@ export default {
       Object.keys(compObj.props).forEach(key => (compObj.props[key] = void 0));
     },
     updateWidgetProp(data) {
-      console.log("updateWidgetProp");
+      // 注意: 此时更新 props 必须是组件声明过的 props 才能得到更新,
+      // 动态添加的 props 无法更新
+      // 譬如读取历史生成的组件, 开发过程中再更改组件的 props 会出现此 bug
       const compObj = this._findComponentModelById(this.selectedId);
       compObj.props[data.key] = data.value;
     },

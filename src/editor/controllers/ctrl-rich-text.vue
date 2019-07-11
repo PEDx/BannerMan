@@ -1,22 +1,53 @@
 <template>
   <div class="ctrl-rich-text">
     <el-button type="primary" icon="el-icon-edit-outline" circle @click="handleShow"></el-button>
-    <float-window :show.sync="showWindow" :position="nodePos"></float-window>
+    <float-window :show.sync="showWindow" :position="nodePos" title="富文本编辑器">
+      <div class="rich-text-editor">
+        <quill-editor :content="value" :options="editorOption" @change="onEditorChange($event)"></quill-editor>
+      </div>
+    </float-window>
   </div>
 </template>
 <script>
 import floatWindow from "../components/float-window";
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
+
+import { quillEditor } from "vue-quill-editor";
+
+const toolbarOptions = [
+  ["bold", "italic", "underline", "strike"], // toggled buttons
+  ["blockquote", "code-block"],
+  [{ header: 1 }, { header: 2 }], // custom button values
+  [{ list: "ordered" }, { list: "bullet" }],
+  [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+  [{ direction: "rtl" }], // text direction
+  [{ size: ["small", false, "large", "huge"] }], // custom dropdown
+  [{ header: [1, 2, 3, 4, 5, 6, false] }],
+  [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+  [{ font: [] }],
+  [{ align: [] }],
+  ["image", "video", "clean"] // remove formatting button
+];
+
 export default {
   components: {
-    floatWindow
+    floatWindow,
+    quillEditor
   },
   props: {
     value: String
   },
 
   data() {
+    this.editorOption = {
+      placeholder: "写点什么...",
+      modules: {
+        toolbar: toolbarOptions
+      }
+    };
     return {
-      input: "",
       showWindow: false,
       nodePos: {
         x: 0,
@@ -40,7 +71,11 @@ export default {
     handleShow() {
       this.showWindow = !this.showWindow;
     },
-    handleChange() {}
+    handleChange() {},
+    onEditorChange(e) {
+      // console.log(e.html);
+      this.$emit("submit-update", e.html);
+    }
   }
 };
 </script>
@@ -49,4 +84,18 @@ export default {
   height: 100%;
 }
 </style>
-
+<style lang="scss">
+.rich-text-editor {
+  height: 100%;
+  background-color: #fff;
+  color: #000;
+  overflow: auto;
+  .ql-toolbar.ql-snow {
+    border: 0;
+    border-bottom: 1px solid #252525;
+  }
+  .ql-container.ql-snow {
+    border: 0;
+  }
+}
+</style>

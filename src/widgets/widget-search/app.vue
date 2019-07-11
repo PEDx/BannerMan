@@ -5,8 +5,9 @@
       type="text"
       :style="{width: `${width}px`, height: `${height}px`}"
       @click="handleClick"
-    >
-    <img :src="image && image.url" alt>
+    />
+    <img :src="image && image.url" alt />
+    <p v-html="richText"></p>
   </div>
 </template>
 <script>
@@ -27,6 +28,14 @@ export default {
     height: {
       default: 40,
       type: Number
+    },
+    richText: {
+      default: "54",
+      type: String
+    },
+    text: {
+      default: "54",
+      type: String
     },
     image: {
       default: () => {},
