@@ -76,6 +76,11 @@ export default {
       propName: 'text',
       controllerType: 'CTRL_TEXT_INPUT',
       label: '文本输入'
+    },
+    {
+      propName: 'textarea',
+      controllerType: 'CTRL_TEXTAREA',
+      label: '文本输入'
     }
   ]
 };

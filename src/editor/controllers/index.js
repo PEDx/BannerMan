@@ -1,5 +1,6 @@
 import CtrlNumberInput from './ctrl-number-input';
 import CtrlTextInput from './ctrl-text-input';
+import CtrlTextarea from './ctrl-textarea';
 import CtrlColorPicker from './ctrl-color-picker';
 import CtrlResourceDrop from './ctrl-resource-drop';
 import CtrlSelect from './ctrl-select';
@@ -13,6 +14,7 @@ export const controllers = {
   'ctrl-resource-drop': CtrlResourceDrop,
   'ctrl-color-picker': CtrlColorPicker,
   'ctrl-rich-text': CtrlRichText,
+  'ctrl-textarea': CtrlTextarea,
   'ctrl-size-input': CtrlSizeInput,
   'ctrl-color-gradients': CtrlColorGradients,
   'ctrl-select': CtrlSelect,
@@ -28,6 +30,7 @@ export const controllerTypeMap = {
   CTRL_SELECT: 'ctrl-select',
   CTRL_COLOR_GRADIENTS: 'ctrl-color-gradients',
   CTRL_SIZE_INPUT: 'ctrl-size-input',
+  CTRL_TEXTAREA: 'ctrl-textarea',
   CTRL_SWITCH: 'ctrl-switch',
   CTRL_TEXT_INPUT: 'ctrl-text-input'
 };
