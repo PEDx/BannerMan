@@ -187,13 +187,13 @@ export default {
     },
     _handleSortInput() {
       // 此时数据模型排序完毕
+      this.sorting = false;
       if (this.draging) return;
       if (this.sortingType === SORT_TYPE.ADD) return;
       this.$nextTick(() => {
         const id = this.componentsModelTree[this.newIndex].id;
         this._drawWidgetsTree();
         this._selectComponentAndHighlightById(id);
-        this.sorting = false;
       });
     },
     // 需要在生成组件树后再选中高亮
@@ -243,8 +243,10 @@ export default {
             default:
           }
         });
+        if (mutations[0].attributeName !== "style") return;
+        // 非样式更改不重置 selecter
         if (!this.sorting) {
-          console.log("MutationObserver");
+          console.log("mutations");
           selector.resetHighlight();
         }
       });
@@ -282,6 +284,7 @@ export default {
       );
     },
     _componentChildrenChanged(sortedArr, id) {
+      this.sorting = false;
       if (this.draging) return;
       // 监听组件更新自己 child 事件
       this._findComponentModelById(id).children = sortedArr;
@@ -290,7 +293,6 @@ export default {
         const _id = this._findComponentModelById(id).children[this.newIndex].id;
         this._drawWidgetsTree();
         this._selectComponentAndHighlightById(_id);
-        this.sorting = false;
       });
     },
     _contianerSortStart() {
@@ -328,15 +330,7 @@ export default {
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
         });
-        const containerModel = this._addComponent(
-          { name: widgetName, propsObj: _obj },
-          place
-        );
-        this.$nextTick(() => {
-          const id = containerModel.children[place].id;
-          this._drawWidgetsTree();
-          this._selectComponentAndHighlightById(id);
-        });
+        this._addComponent({ name: widgetName, propsObj: _obj }, place);
       });
     },
     _addComponent({ name, propsObj, id }, place) {
@@ -351,8 +345,13 @@ export default {
         id: _id
       };
       _containerModel.children.splice(place, 0, _obj);
-      this.$nextTick(this._setImageNodeUndraggable);
-      return _containerModel;
+      this.$nextTick(() => {
+        const id = _containerModel.children[place].id;
+        this._drawWidgetsTree();
+        this._setImageNodeUndraggable();
+        this._selectComponentAndHighlightById(id);
+      });
+      // return _containerModel;
     },
     _setImageNodeUndraggable() {
       [...document.getElementsByTagName("img")].forEach(val => {
@@ -407,6 +406,7 @@ export default {
       const walk = function(parent, componentModel) {
         const _id = componentModel.id;
         const element = document.getElementById(_id);
+        if (!element) return;
         const instance = element.__vue__;
         const rect = getInstanceOrVnodeRect(instance);
         const top = rect ? rect.top : Infinity;
@@ -515,6 +515,7 @@ export default {
     },
     onDragend(e) {
       this.draging = false;
+      this.sorting = false;
       this.treeScrolling = false;
       if (this.dragingContainer && this.dragingContainer.clearHackState) {
         this.dragingContainer.clearHackState(e);

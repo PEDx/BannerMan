@@ -1,5 +1,5 @@
 <template>
-  <div class="widget-search">
+  <div class="widget-search" v-show="select === '0'">
     <input
       v-model="value"
       type="text"
@@ -29,12 +29,16 @@ export default {
       default: 40,
       type: Number
     },
+    select: {
+      default: '0',
+      type: String
+    },
     richText: {
-      default: "54",
+      default: "",
       type: String
     },
     text: {
-      default: "54",
+      default: "",
       type: String
     },
     image: {

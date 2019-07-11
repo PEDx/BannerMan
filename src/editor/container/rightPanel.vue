@@ -10,10 +10,20 @@
           <div class="box">
             <span class="name">{{ name }}</span>
             <div class="btn f-fr">
-              <el-button type="text" title="数值复制" style="padding: 4px 8px;margin-left: 0;">
+              <el-button
+                type="text"
+                title="数值复制"
+                style="padding: 4px 8px;margin-left: 0;"
+                @click="handleCopy"
+              >
                 <i class="el-icon-document-copy"></i>
               </el-button>
-              <el-button type="text" title="数值粘贴" style="padding: 4px 8px;margin-left: 0;">
+              <el-button
+                type="text"
+                title="数值粘贴"
+                style="padding: 4px 8px;margin-left: 0;"
+                @click="handlePaste"
+              >
                 <i class="el-icon-brush"></i>
               </el-button>
               <el-button
@@ -76,9 +86,11 @@ import clonedeep from "lodash.clonedeep";
 import {
   getViewportVueInstance,
   debounce,
-  getRandomStr
+  getRandomStr,
+  UNDEFINED
 } from "../../utils/index";
 import EventBus from "../../bus";
+import storage from "../../storage";
 
 export default {
   components: {
@@ -90,6 +102,7 @@ export default {
   },
   data() {
     const editorSetting = this.$store.state.editor.setting;
+    this.controllerMap = {};
     return {
       splitPercent: +editorSetting.rightPanelSplit || 70,
       splitStatus: editorSetting.rightPanelStatus || {
@@ -109,6 +122,7 @@ export default {
       e => {
         // 选定一个元素
         if (e.data.type === "select-component") {
+          if (!e.data.profile.controllers) return;
           const ins = getViewportVueInstance();
           e.data.profile.controllers.forEach(val => {
             val.value = undefined;
@@ -119,6 +133,7 @@ export default {
           this.name = profile.name;
           this.controllerList.forEach(val => {
             val.value = ins.getWidgetDataValue(val.propName);
+            this.controllerMap[val.propName] = val;
             val.id = getRandomStr(6);
           });
         }
@@ -182,6 +197,7 @@ export default {
     handleSubmitUpdate(key, value) {
       const ins = getViewportVueInstance();
       ins.updateWidgetProp(clonedeep({ key, value }));
+      this.controllerMap[key].value = clonedeep(value);
     },
     handleContentScroll(percent) {
       // 此处会相互触发 srcoll 事件, 需要防止
@@ -203,6 +219,24 @@ export default {
       this.deleteConfirmVisible = false;
       const ins = getViewportVueInstance();
       ins.deleteComponentFromModel();
+    },
+    handleCopy() {
+      storage.set("local_clipboard", {
+        name: this.name,
+        controllers: this.controllerList
+      });
+    },
+    handlePaste() {
+      const obj = storage.get("local_clipboard") || {};
+      if (obj.name !== this.name) return; // 只能同种组件数值复制
+      const ins = getViewportVueInstance();
+      obj.controllers.forEach(val => {
+        const _value = val.value;
+        val.value = _value === UNDEFINED ? undefined : _value;
+        val.id = getRandomStr(6); // 更新控制器
+        ins.updateWidgetProp(clonedeep({ key: val.propName, value: _value })); // 更新组件 props
+      });
+      this.controllerList = obj.controllers;
     }
   }
 };

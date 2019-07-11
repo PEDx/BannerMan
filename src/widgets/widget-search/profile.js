@@ -50,23 +50,23 @@ export default {
       setting: {
         options: [
           {
-            value: '选项1',
+            value: '0',
             label: '黄金糕'
           },
           {
-            value: '选项2',
+            value: '1',
             label: '双皮奶'
           },
           {
-            value: '选项3',
+            value: '2',
             label: '蚵仔煎'
           },
           {
-            value: '选项4',
+            value: '3',
             label: '龙须面'
           },
           {
-            value: '选项5',
+            value: '4',
             label: '北京烤鸭'
           }
         ]
