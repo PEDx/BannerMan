@@ -1,3 +1,5 @@
+import controller from './controller';
+
 export default {
   name: '搜索框',
   icon: '',
@@ -71,6 +73,11 @@ export default {
           }
         ]
       }
+    },
+    {
+      propName: 'custom',
+      controllerType: 'CTRL_CUSTOM',
+      customController: controller
     },
     {
       propName: 'text',

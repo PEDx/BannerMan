@@ -19,6 +19,7 @@ export const controllers = {
   'ctrl-color-gradients': CtrlColorGradients,
   'ctrl-select': CtrlSelect,
   'ctrl-switch': CtrlSwitch,
+  'ctrl-custom': {},
   'ctrl-text-input': CtrlTextInput
 };
 
@@ -32,5 +33,6 @@ export const controllerTypeMap = {
   CTRL_SIZE_INPUT: 'ctrl-size-input',
   CTRL_TEXTAREA: 'ctrl-textarea',
   CTRL_SWITCH: 'ctrl-switch',
+  CTRL_CUSTOM: 'ctrl-custom',
   CTRL_TEXT_INPUT: 'ctrl-text-input'
 };

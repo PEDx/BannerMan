@@ -52,17 +52,25 @@
             </div>
           </div>
         </div>
-        <controller-item v-for="(val) in controllerList" :key="`${val.id}`">
-          <span slot="label">{{ val.label }}</span>
-          <component
-            :is="controllerTypeMap[val.controllerType]"
-            slot="ctrl"
-            :value="val.value"
-            :setting="val.setting"
-            ref="ctrls"
-            @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
-          ></component>
-        </controller-item>
+        <template v-for="(val) in controllerList">
+          <controller-item
+            :key="`${val.id}`"
+            v-if="val.controllerType !== custom_component_type_name"
+          >
+            <span slot="label">{{ val.label }}</span>
+            <component
+              :is="controllerTypeMap[val.controllerType]"
+              slot="ctrl"
+              :value="val.value"
+              :setting="val.setting"
+              ref="ctrls"
+              @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
+            ></component>
+          </controller-item>
+          <div v-else :key="`${val.id}`" class="custom-controller controller-item">
+            <component :is="val.customController"></component>
+          </div>
+        </template>
       </fold-bar>
       <fold-bar
         title="组件导航"
@@ -91,6 +99,7 @@ import {
 } from "../../utils/index";
 import EventBus from "../../bus";
 import storage from "../../storage";
+const custom_component_type_name = "CTRL_CUSTOM";
 
 export default {
   components: {
@@ -104,6 +113,7 @@ export default {
     const editorSetting = this.$store.state.editor.setting;
     this.controllerMap = {};
     return {
+      custom_component_type_name,
       splitPercent: +editorSetting.rightPanelSplit || 70,
       splitStatus: editorSetting.rightPanelStatus || {
         top: true,
@@ -122,14 +132,13 @@ export default {
       e => {
         // 选定一个元素
         if (e.data.type === "select-component") {
-          if (!e.data.profile.controllers) return;
           const ins = getViewportVueInstance();
-          e.data.profile.controllers.forEach(val => {
+          const profile = ins.getSelectWidgetProfile();
+          if (!profile.controllers) return;
+          profile.controllers.forEach(val => {
             val.value = undefined;
           });
-          const profile = e.data.profile;
           this.controllerList = profile.controllers;
-          // debugger;
           this.name = profile.name;
           this.controllerList.forEach(val => {
             val.value = ins.getWidgetDataValue(val.propName);

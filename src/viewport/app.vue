@@ -48,7 +48,6 @@ export default {
     sortbleContainer
   },
   data() {
-    this.widgetTree = [];
     this.componentInstanceMap = {}; // id 对应实例
     this.componentModelMap = {}; // id 对应数据模型
     this.loadingCompleteStatusMap = {};
@@ -201,14 +200,10 @@ export default {
       if (!id) return;
       this.selectedId = id;
       const instance = this.componentInstanceMap[id];
-      const profile = getProfileByInstance(instance) || {};
       selector.highlighitSelectedInstance(instance);
       window.parent.postMessage(
         {
-          type: "select-component",
-          profile,
-          id,
-          name: profile.name
+          type: "select-component"
         },
         "*"
       );
@@ -496,6 +491,11 @@ export default {
     getWidgetDataValue(key) {
       const vm = this.componentInstanceMap[this.selectedId];
       return vm[key];
+    },
+    getSelectWidgetProfile() {
+      if (!this.selectedId) return;
+      const instance = this.componentInstanceMap[this.selectedId];
+      return getProfileByInstance(instance) || {};
     },
     // 清空编辑页面
     clearPage() {
