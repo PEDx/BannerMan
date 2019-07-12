@@ -88,6 +88,10 @@ export const getViewportVueInstance = (() => {
   return () => {
     if (_ins) return _ins;
     _ins = window.frames.viewport._CURRENT_VIEWPORT_VUE_INSTANCE_;
+    if (!_ins) {
+      console.error('错误: 拿不到 iframe 中 vue 实例, 请检查服务器路由配置');
+      return {};
+    }
     return _ins;
   };
 })();

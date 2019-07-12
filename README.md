@@ -18,7 +18,31 @@ npm run build
 npm run build --report
 ```
 
-### commit message 规范
+### Nginx Config
+
+```bash
+server {
+    listen       8008 default_server;
+    server_name  BannerMan;
+    charset      utf-8;
+    root         /path/to/BannerMan/dist;
+
+    location /editor {
+        try_files $uri $uri/ /index.html;
+    }
+    location /viewport {
+        try_files $uri $uri/ /viewport.html;
+    }
+    location /render {
+        try_files $uri $uri/ /render.html;
+    }
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+### commit message
 
 > 包括三个字段：type（必需）、scope（可选）和 subject（必需）。
 
