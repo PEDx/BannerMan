@@ -36,6 +36,10 @@ import sortbleContainer from "./components/sortble-container";
 
 import widgets from "../widgets";
 import EventBus from "../bus";
+const MutationObserver =
+  window.MutationObserver ||
+  window.WebKitMutationObserver ||
+  window.MozMutationObserver;
 const selector = new ComponentSelector();
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
@@ -87,6 +91,7 @@ export default {
     }, 500);
     this._initDocumentListener();
     this._observerGeometric();
+    this._observerStyle();
     this._renderPageFromLocal(); // 加载保存的组件数据
   },
   provide() {
@@ -217,10 +222,6 @@ export default {
       selector.resetHighlight();
     },
     _observerGeometric() {
-      const MutationObserver =
-        window.MutationObserver ||
-        window.WebKitMutationObserver ||
-        window.MozMutationObserver;
       // IE 11 及以上兼容
       const mutationObserver = new MutationObserver((mutations, observer) => {
         // 重置高亮
@@ -246,6 +247,35 @@ export default {
         }
       });
       mutationObserver.observe(this.$refs.rootContainer.$el, {
+        characterData: true,
+        childList: true,
+        attributes: true,
+        subtree: true
+      });
+    },
+    _observerStyle() {
+      let list = [];
+      // 一次性添加完
+      const addStyle = debounce(function() {
+        console.time('addStyleToTopWindow')
+        const docFragWrap = document.createDocumentFragment();
+        list.forEach(val => {
+          docFragWrap.appendChild(val.cloneNode(true));
+        });
+        window.parent.document.head.appendChild(docFragWrap);
+        console.timeEnd('addStyleToTopWindow')
+        list = [];
+      }, 30);
+      // 为实现自定义控制器, 传递 iframe 样式给顶层 window
+      const mutationObserver = new MutationObserver(mutations => {
+        mutations.forEach(val => {
+          if (val.target.tagName === "STYLE") {
+            list.push(val.target);
+            addStyle();
+          }
+        });
+      });
+      mutationObserver.observe(document.head, {
         characterData: true,
         childList: true,
         attributes: true,
@@ -427,8 +457,9 @@ export default {
       return _root;
     },
     _drawWidgetsTree() {
-      console.log("drawWidgetsTree");
+      console.time("drawWidgetsTree");
       const _tree = this._generateWidgetsTree();
+      console.timeEnd("drawWidgetsTree");
       window.parent.postMessage(
         {
           type: "flush-component-tree",

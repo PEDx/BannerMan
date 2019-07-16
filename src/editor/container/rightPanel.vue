@@ -63,12 +63,16 @@
               slot="ctrl"
               :value="val.value"
               :setting="val.setting"
-              ref="ctrls"
               @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
             ></component>
           </controller-item>
           <div v-else :key="`${val.id}`" class="custom-controller controller-item">
-            <component :is="val.customController"></component>
+            <component
+              :is="val.customController"
+              :value="val.value"
+              :setting="val.setting"
+              @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
+            ></component>
           </div>
         </template>
       </fold-bar>

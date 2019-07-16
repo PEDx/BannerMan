@@ -8,6 +8,7 @@
     />
     <img :src="image && image.url" alt />
     <p v-html="richText"></p>
+    <p>{{ custom }}</p>
   </div>
 </template>
 <script>
@@ -30,7 +31,7 @@ export default {
       type: Number
     },
     select: {
-      default: '0',
+      default: "0",
       type: String
     },
     richText: {
@@ -40,6 +41,10 @@ export default {
     text: {
       default: "",
       type: String
+    },
+    custom: {
+      default: 0,
+      type: Number
     },
     image: {
       default: () => {},
