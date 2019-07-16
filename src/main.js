@@ -5,6 +5,7 @@ import './style/cssrest.css';
 import './style/element-style-reload.scss';
 import VueDraggableResizable from 'vue-draggable-resizable';
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css';
+import 'es6-promise/auto';
 import {
   Row,
   Col,

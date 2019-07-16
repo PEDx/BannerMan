@@ -240,7 +240,7 @@ export const ContainerMixin = {
           y: axis.indexOf('y') >= 0
         };
         this.offsetEdge = this.getEdgeOffset(node);
-        this.initialOffset = this.getOffset(e);
+        this.initialOffset = this.getOffset(e) || {};
         this.initialScroll = {
           top: this.scrollContainer.scrollTop,
           left: this.scrollContainer.scrollLeft
