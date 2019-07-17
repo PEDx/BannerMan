@@ -2,6 +2,9 @@
 
 > web editor
 
+### Preview
+![img](https://img3.doubanio.com/view/photo/l/public/p2562804471.webp)
+
 ### Build Setup
 
 ```bash
@@ -42,7 +45,7 @@ server {
 }
 ```
 
-### commit message
+### Commit Message
 
 > 包括三个字段：type（必需）、scope（可选）和 subject（必需）。
 
