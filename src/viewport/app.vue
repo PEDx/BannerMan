@@ -33,6 +33,7 @@ import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
 import { ElementMixin } from "./sortble";
 import sortbleContainer from "./components/sortble-container";
+import { WidgetContainerMixin } from "./components/widget-container-mixin";
 
 import widgets from "../widgets";
 import EventBus from "../bus";
@@ -47,6 +48,10 @@ const SORT_TYPE = {
   SORT: 0, // 正常排序
   ADD: 1 // 添加
 };
+const _BM_EDIT_RUNTIME_ = true; // 全局变量, 告诉各个容器控件此时在编辑器内
+window._BM_EDIT_RUNTIME_ = _BM_EDIT_RUNTIME_;
+window._BM_WIDGET_CONTAINER_MIXIN_ = WidgetContainerMixin; // 由编辑器提供容器的可拖拽功能
+
 export default {
   components: {
     sortbleContainer
@@ -257,13 +262,13 @@ export default {
       let list = [];
       // 一次性添加完
       const addStyle = debounce(function() {
-        console.time('addStyleToTopWindow')
+        console.time("addStyleToTopWindow");
         const docFragWrap = document.createDocumentFragment();
         list.forEach(val => {
           docFragWrap.appendChild(val.cloneNode(true));
         });
         window.parent.document.head.appendChild(docFragWrap);
-        console.timeEnd('addStyleToTopWindow')
+        console.timeEnd("addStyleToTopWindow");
         list = [];
       }, 30);
       // 为实现自定义控制器, 传递 iframe 样式给顶层 window
@@ -388,7 +393,10 @@ export default {
       return new Promise((resolve, reject) => {
         widget().then(ins => {
           // 防止并发加载多次添加 mixin 到同一组件上
-          if (!this.loadingCompleteStatusMap[name]) {
+          if (
+            !this.loadingCompleteStatusMap[name] &&
+            !!_BM_EDIT_RUNTIME_
+          ) {
             ins.default.mixin(ElementMixin);
             this.loadingCompleteStatusMap[name] = true;
           }

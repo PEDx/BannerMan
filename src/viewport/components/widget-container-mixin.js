@@ -1,5 +1,5 @@
 import clonedeep from 'lodash.clonedeep';
-import sortbleContainer from '../../viewport/components/sortble-container';
+import sortbleContainer from '../components/sortble-container';
 export const WidgetContainerMixin = {
   components: {
     sortbleContainer
