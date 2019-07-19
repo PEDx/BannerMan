@@ -3,6 +3,8 @@ import {
   highlight,
   unHighlight,
   unHighlightSelected,
+  highlightContainer,
+  unHighlightContainer,
   highlightSelected
 } from './highlighter';
 import { findRelatedComponent } from '../../utils/index';
@@ -99,6 +101,10 @@ export default class ComponentSelector {
     this.mouseOverInstance = null;
     unHighlight();
   }
+  clearContainerHighlight() {
+    this.containerInstance = null;
+    unHighlightContainer();
+  }
   highlighitMouseoverInstance(instance) {
     this.mouseOverInstance = instance;
     highlight(instance);
@@ -106,6 +112,10 @@ export default class ComponentSelector {
   highlighitSelectedInstance(instance) {
     this.selectedInstance = instance;
     highlightSelected(instance);
+  }
+  highlighitContainerInstance(instance) {
+    this.containerInstance = instance;
+    highlightContainer(instance);
   }
   /**
    * Bind class methods to the class scope to avoid rebind for event listeners

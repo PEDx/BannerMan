@@ -38,7 +38,6 @@ export default {
   box-sizing: border-box;
   overflow: auto;
   min-height: 300px;
-  outline: 1px solid red;
 }
 </style>
 

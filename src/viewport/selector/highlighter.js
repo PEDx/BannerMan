@@ -59,8 +59,8 @@ function initOverlay() {
 
 let selectedOverlay;
 function initSelectedOverlay() {
-  if (selectedOverlay || !isBrowser) {
-    selectedOverlay.style.display = 'flex';
+  if (selectedOverlay) {
+    selectedOverlay.style.display = 'block';
     return;
   }
   selectedOverlay = document.createElement('div');
@@ -69,10 +69,30 @@ function initSelectedOverlay() {
   selectedOverlay.style.boxSizing = 'border-box';
   selectedOverlay.style.border = '1px dashed #ff5500';
   selectedOverlay.style.pointerEvents = 'none';
-  selectedOverlay.style.display = 'flex';
+  selectedOverlay.style.display = 'block';
   selectedOverlay.style.alignItems = 'center';
   selectedOverlay.style.justifyContent = 'center';
   selectedOverlay.style.borderRadius = '3px';
+}
+let containerOverlay;
+function initContainerOverlay(level) {
+  if (containerOverlay) {
+    containerOverlay.style.display = 'block';
+    containerOverlay.style.backgroundColor = `rgba(0, 255, 20, ${0.2 +
+      level / 20})`;
+    return;
+  }
+  containerOverlay = document.createElement('div');
+  containerOverlay.style.position = 'absolute';
+  containerOverlay.className = 'containerOverlay';
+  containerOverlay.style.zIndex = '9997';
+  containerOverlay.style.boxSizing = 'border-box';
+  containerOverlay.style.backgroundColor = 'rgba(0, 255, 20, 0.2)';
+  containerOverlay.style.pointerEvents = 'none';
+  containerOverlay.style.display = 'flex';
+  containerOverlay.style.alignItems = 'center';
+  containerOverlay.style.justifyContent = 'center';
+  containerOverlay.style.borderRadius = '3px';
 }
 
 /**
@@ -85,10 +105,6 @@ export function highlight(instance) {
   if (!instance) return;
   const rect = getInstanceOrVnodeRect(instance);
 
-  if (!isBrowser) {
-    // TODO: Highlight rect area.
-    return;
-  }
   initOverlay();
   if (rect) {
     const content = [];
@@ -124,6 +140,13 @@ export function highlightSelected(instance) {
     showOverlay(selectedOverlay, rect);
   }
 }
+export function highlightContainer(instance) {
+  if (!instance) return;
+  const rect = getInstanceOrVnodeRect(instance);
+  if (!rect) return;
+  initContainerOverlay(instance.childDeepLevel || 0);
+  showOverlay(containerOverlay, rect);
+}
 /**
  * Remove highlight overlay.
  */
@@ -136,6 +159,11 @@ export function unHighlight() {
 export function unHighlightSelected() {
   if (selectedOverlay && selectedOverlay.parentNode) {
     selectedOverlay.style.display = 'none';
+  }
+}
+export function unHighlightContainer() {
+  if (containerOverlay && containerOverlay.parentNode) {
+    containerOverlay.style.display = 'none';
   }
 }
 

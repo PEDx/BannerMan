@@ -129,6 +129,8 @@ export default {
         }
         this.draging = true;
         this.dragingContainer = container;
+        selector.clearContainerHighlight();
+        selector.highlighitContainerInstance(container);
         this.dragingContainerId = container.$el.id;
         container.hackState(e);
         this.dropEndComponentName = "";
@@ -196,7 +198,6 @@ export default {
     },
     _handleSortInput() {
       // 此时数据模型排序完毕
-      this.sorting = false;
       if (this.draging) return;
       if (this.sortingType === SORT_TYPE.ADD) return;
       this.$nextTick(() => {
@@ -213,7 +214,8 @@ export default {
       selector.highlighitSelectedInstance(instance);
       window.parent.postMessage(
         {
-          type: "select-component"
+          type: "select-component",
+          id
         },
         "*"
       );
@@ -229,6 +231,7 @@ export default {
     _observerGeometric() {
       // IE 11 及以上兼容
       const mutationObserver = new MutationObserver((mutations, observer) => {
+        if (this.sorting) return;
         // 重置高亮
         mutations.forEach(mutation => {
           switch (mutation.type) {
@@ -314,24 +317,27 @@ export default {
       );
     },
     _componentChildrenChanged(sortedArr, id) {
-      this.sorting = false;
       if (this.draging) return;
       // 监听组件更新自己 child 事件
       this._findComponentModelById(id).children = sortedArr;
       if (this.sortingType === SORT_TYPE.ADD) return;
+      selector.clearContainerHighlight();
       this.$nextTick(() => {
         const _id = this._findComponentModelById(id).children[this.newIndex].id;
         this._drawWidgetsTree();
         this._selectComponentAndHighlightById(_id);
       });
     },
-    _contianerSortStart() {
+    _contianerSortStart(container) {
       selector.stopSelecting();
       this.sorting = true;
+      selector.clearContainerHighlight();
+      selector.highlighitContainerInstance(container);
     },
     _contianerSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
       selector.startSelecting();
       this.newIndex = newIndex;
+      selector.clearContainerHighlight();
       if (isPlaceholder) {
         if (!this.dropEndComponentName) return;
         this.sortingType = SORT_TYPE.ADD;
@@ -393,10 +399,7 @@ export default {
       return new Promise((resolve, reject) => {
         widget().then(ins => {
           // 防止并发加载多次添加 mixin 到同一组件上
-          if (
-            !this.loadingCompleteStatusMap[name] &&
-            !!_BM_EDIT_RUNTIME_
-          ) {
+          if (!this.loadingCompleteStatusMap[name] && !!_BM_EDIT_RUNTIME_) {
             ins.default.mixin(ElementMixin);
             this.loadingCompleteStatusMap[name] = true;
           }
@@ -559,6 +562,7 @@ export default {
       if (this.dragingContainer && this.dragingContainer.clearHackState) {
         this.dragingContainer.clearHackState(e);
         this.dragingContainer = null;
+        selector.clearContainerHighlight();
       }
     },
     highlighitInstance(id) {

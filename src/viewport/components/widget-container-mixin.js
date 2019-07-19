@@ -8,6 +8,10 @@ export const WidgetContainerMixin = {
     childComponentsModel: {
       type: Array,
       default: () => []
+    },
+    childDeepLevel: {
+      type: Number,
+      default: 1
     }
   },
   data() {
@@ -30,7 +34,7 @@ export const WidgetContainerMixin = {
   },
   methods: {
     _handleSortStart() {
-      this.$emit('contianer-sort-start');
+      this.$emit('contianer-sort-start', this);
     },
     _handleSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
       this.wcm_newIndex = newIndex;

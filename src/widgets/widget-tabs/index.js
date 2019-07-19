@@ -4,4 +4,4 @@ import profile from './profile';
 
 component._profile_ = profile;
 
-export default Vue.component('widget-list', component);
+export default Vue.component('widget-tabs', component);
