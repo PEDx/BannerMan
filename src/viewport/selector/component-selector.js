@@ -56,7 +56,9 @@ export default class ComponentSelector {
 
     const el = e.target;
     if (el) {
-      this.mouseOverInstance = findRelatedComponent(el);
+      const mouseOverInstance = findRelatedComponent(el);
+      if (mouseOverInstance === this.mouseOverInstance) return;
+      this.mouseOverInstance = mouseOverInstance;
     }
     if (this.mouseOverInstance) {
       EventBus.$emit('element-mouseover', this.mouseOverInstance);
@@ -70,10 +72,9 @@ export default class ComponentSelector {
    */
   // 不在 selector 中做元素选择
   elementClicked(e) {
-    this.cancelEvent(e);
+    // this.cancelEvent(e);
     if (!this.mouseOverInstance) return;
     // 选中编辑元素
-
     unHighlight();
     this.selectedInstance = this.mouseOverInstance;
     EventBus.$emit('element-selected', this.selectedInstance);

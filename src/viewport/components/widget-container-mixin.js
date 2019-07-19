@@ -29,9 +29,6 @@ export const WidgetContainerMixin = {
       }
     }
   },
-  mounted() {
-    this.$el._BM_CONTAINER_ = true;
-  },
   methods: {
     _handleSortStart() {
       this.$emit('contianer-sort-start', this);
