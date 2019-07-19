@@ -14,7 +14,19 @@
       @contianer-sort-end="rootContainer._contianerSortEnd"
       v-bind="item.props"
     >
-      <components-wrap v-if="item.children" :components="item.children" :level="deep_index"></components-wrap>
+      <template v-if="item.multChildren">
+        <components-wrap
+          v-for="(val, idx) in item.children"
+          :key="idx"
+          :slot="`slot_${idx}`"
+          :components="val"
+          :level="deep_index"
+          :id="`slot_${idx}`"
+        ></components-wrap>
+      </template>
+      <template v-else>
+        <components-wrap v-if="item.children" :components="item.children" :level="deep_index"></components-wrap>
+      </template>
     </component>
   </div>
 </template>
@@ -35,6 +47,9 @@ export default {
       deep_index: this.level + 1
     };
   },
-  inject: ["rootContainer"]
+  inject: ["rootContainer"],
+  mounted() {
+    console.log(this);
+  }
 };
 </script>

@@ -271,7 +271,7 @@ export function getProfileByInstance(instance) {
   return instance.$options._profile_ || null;
 }
 export function findRelatedComponent(el) {
-  while (!el.__vue__ && el.parentElement) {
+  while (!getProfileByInstance(el.__vue__) && el.parentElement) {
     el = el.parentElement;
   }
   return el.__vue__;
@@ -314,6 +314,13 @@ export function getRandomStr(len) {
 export function traversal(root, callback) {
   if (!Array.isArray(root)) return;
   function walk(node) {
+    if (Array.isArray(node)) {
+      node.forEach(val => {
+        callback(val);
+        val.children && val.children.forEach(walk);
+      });
+      return;
+    }
     callback(node);
     node.children && node.children.forEach(walk);
   }

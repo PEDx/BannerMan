@@ -2,12 +2,11 @@ import {
   classify,
   getComponentName,
   getInstanceName,
-  findRelatedContainerComponent,
   getProfileByInstance
 } from '../../utils/index';
 const isBrowser = true;
 const classifyComponents = false;
-
+const scrollingElement = document.scrollingElement;
 function inDoc(node) {
   if (!node) return false;
   var doc = node.ownerDocument.documentElement;
@@ -27,6 +26,11 @@ function mapNodeRange(node, end, op) {
     node = next;
   }
   op(end);
+}
+
+function isDisplayNone(node) {
+  var style = window.getComputedStyle(node);
+  return style.display === 'none';
 }
 
 let overlay;
@@ -103,8 +107,11 @@ function initContainerOverlay(level) {
 
 export function highlight(instance) {
   if (!instance) return;
+  if (isDisplayNone(instance.$el)) {
+    overlay.style.display = 'none';
+    return;
+  }
   const rect = getInstanceOrVnodeRect(instance);
-
   initOverlay();
   if (rect) {
     const content = [];
@@ -129,8 +136,11 @@ export function highlight(instance) {
 
 export function highlightSelected(instance) {
   if (!instance) return;
+  if (isDisplayNone(instance.$el)) {
+    selectedOverlay.style.display = 'none';
+    return;
+  }
   const rect = getInstanceOrVnodeRect(instance);
-
   if (!isBrowser) {
     return;
   }
@@ -142,6 +152,10 @@ export function highlightSelected(instance) {
 }
 export function highlightContainer(instance) {
   if (!instance) return;
+  if (isDisplayNone(instance.$el)) {
+    containerOverlay.style.display = 'none';
+    return;
+  }
   const rect = getInstanceOrVnodeRect(instance);
   if (!rect) return;
   initContainerOverlay(instance.childDeepLevel || 0);
@@ -195,19 +209,12 @@ export function getInstanceOrVnodeRect(instance) {
     return getFragmentRect(instance);
   } else if (el.nodeType === 1) {
     const react = el.getBoundingClientRect();
-    const scrollComponent = findRelatedContainerComponent(el) || {};
-    const scrollElement = scrollComponent.$el || {
-      scrollTop: 0,
-      scrollLeft: 0
-    };
     // if (scrollElement.scrollTop > 30) debugger;
     return {
       width: el.clientWidth,
       height: react.height,
       top: react.top,
-      left: react.left,
-      offsetTop: el.offsetTop - scrollElement.scrollTop,
-      offsetLeft: el.offsetLeft - scrollElement.scrollLeft
+      left: react.left
     };
   }
 }
@@ -285,8 +292,8 @@ function showOverlay(
   overlay.style.width = ~~width + 'px';
   overlay.style.height = ~~height + 'px';
   if (!overlayContent) {
-    overlay.style.top = ~~offsetTop + 'px';
-    overlay.style.left = ~~offsetLeft + 'px';
+    overlay.style.top = ~~top + scrollingElement.scrollTop + 'px';
+    overlay.style.left = ~~left + scrollingElement.scrollLeft + 'px';
   } else {
     overlay.style.top = ~~top + 'px';
     overlay.style.left = ~~left + 'px';

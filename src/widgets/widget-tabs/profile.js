@@ -4,9 +4,9 @@ export default {
   description: '描述',
   controllers: [
     {
-      propName: 'width',
+      propName: 'tabsCount',
       controllerType: 'CTRL_NUMBER_INPUT',
-      label: '宽度'
+      label: '标签数量'
     }
   ]
 };

@@ -184,8 +184,8 @@ const widgets = [
         icon: "el-icon-timer"
       },
       {
-        name: "进度条",
-        widgetName: "widget-search",
+        name: "tabs容器",
+        widgetName: "widget-tabs",
         widget: "",
         icon: "el-icon-more-outline"
       }

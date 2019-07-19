@@ -1,5 +1,5 @@
 <template>
-  <div class="widget-container">
+  <div class="common-container">
     <template v-if="inEditor">
       <sortble-container
         ref="sortbleContainer"
@@ -30,14 +30,11 @@ export default {
     return {
       inEditor: _BM_EDIT_RUNTIME_
     };
-  },
-  mounted() {
-    this.$el._BM_CONTAINER_ = true;
   }
 };
 </script>
 <style lang="scss" scoped>
-.widget-container {
+.common-container {
   box-sizing: border-box;
   overflow: auto;
   min-height: 300px;
