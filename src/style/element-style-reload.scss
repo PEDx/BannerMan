@@ -286,3 +286,19 @@
 .el-form-item--mini.el-form-item {
   margin-bottom: 10px;
 }
+
+.el-dropdown-menu--mini .el-dropdown-menu__item {
+  // background-color: #252525;
+  color: #eee;
+}
+
+.el-dropdown-menu__item:not(.is-disabled):hover,
+.el-dropdown-menu__item:focus {
+  background-color: #252525;
+  color: #fd9527;
+}
+
+.el-popper[x-placement^="bottom"] {
+  background-color: #343438;
+  border-color: #4e4e4e;
+}

@@ -7,7 +7,6 @@
       @dragging="onDrag"
       @resizing="onResize"
       class-name-handle="handle"
-      :z-index="999"
       @activated="onActivated"
       @deactivated="onDeactivated"
       @dragstop="onDragStop"
@@ -60,7 +59,7 @@ export default {
   },
   created() {
     var component = this.$mount();
-    this.$root.$el.appendChild(component.$el);
+    document.body.appendChild(component.$el);
   },
   methods: {
     onResize(x, y, width, height) {},
@@ -95,56 +94,56 @@ export default {
   z-index: 999 !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
   border: 1px solid #313134;
-}
-
-.draggable-resizable-handle {
-  cursor: move;
-}
-.title-bar {
-  position: relative;
-  height: 20px;
-  width: 100%;
-  line-height: 20px;
-  background-color: #414146;
-  border-bottom: 1px solid #313134;
-  box-sizing: border-box;
-  overflow: hidden;
-  z-index: 2;
-  .title {
-    float: left;
-    user-select: none;
-    margin-left: 4px;
+  .draggable-resizable-handle {
+    cursor: move;
   }
-  .custom-right {
-    float: right;
-    height: 20px;
-    line-height: 20px;
-  }
-
-  .btn {
+  .title-bar {
     position: relative;
-    float: left;
-    padding-right: 4px;
-    padding-left: 5px;
-    .icon {
-      transition: all 0.2s;
-      transform: rotate(0deg);
+    height: 20px;
+    width: 100%;
+    line-height: 20px;
+    font-size: 12px;
+    background-color: #414146;
+    border-bottom: 1px solid #313134;
+    box-sizing: border-box;
+    overflow: hidden;
+    z-index: 2;
+    .title {
+      float: left;
+      user-select: none;
+      margin-left: 4px;
     }
-    .icon-rotate {
-      transition: all 0.2s;
-      transform: rotate(180deg);
+    .custom-right {
+      float: right;
+      height: 20px;
+      line-height: 20px;
+    }
+
+    .btn {
+      position: relative;
+      float: left;
+      padding-right: 4px;
+      padding-left: 5px;
+      .icon {
+        transition: all 0.2s;
+        transform: rotate(0deg);
+      }
+      .icon-rotate {
+        transition: all 0.2s;
+        transform: rotate(180deg);
+      }
     }
   }
-}
-.content {
-  position: relative;
-  height: 100%;
-  margin-top: -20px;
-  padding-top: 20px;
-  box-sizing: border-box;
-  z-index: 1;
-  .box {
+  .content {
+    position: relative;
     height: 100%;
+    margin-top: -20px;
+    padding-top: 20px;
+    box-sizing: border-box;
+    z-index: 1;
+    .box {
+      height: 100%;
+    }
   }
 }
 </style>

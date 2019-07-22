@@ -169,12 +169,6 @@ const widgets = [
         icon: "el-icon-search"
       },
       {
-        name: "倒计时",
-        widgetName: "widget-search",
-        widget: "",
-        icon: "el-icon-timer"
-      },
-      {
         name: "按钮",
         widgetName: "widget-button",
         widget: "",

@@ -234,6 +234,7 @@ export default {
       const mutationObserver = new MutationObserver((mutations, observer) => {
         if (this.sorting) return;
         // 重置高亮
+        let haveStyleLoad = false;
         mutations.forEach(mutation => {
           switch (mutation.type) {
             case "attributes":
@@ -244,11 +245,15 @@ export default {
                   false
                 );
               }
+              if (mutation.attributeName === "style") {
+                haveStyleLoad = true;
+              }
+
               break;
             default:
           }
         });
-        if (mutations[0].attributeName !== "style") return;
+        if (!haveStyleLoad) return;
         // 非样式更改不重置 selecter
         if (!this.sorting) {
           console.log("mutations");
@@ -427,6 +432,7 @@ export default {
     },
     _renderPageFromLocal() {
       if (!this.pageId) return;
+      console.time("renderPageFromLocal");
       const componentsModelTree =
         storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
       const _promiseArr = [];
@@ -445,6 +451,7 @@ export default {
         this.componentsModelTree = componentsModelTree;
         this._generateComponentModelMap();
         this.$nextTick(() => {
+          console.timeEnd("renderPageFromLocal");
           this._setImageNodeUndraggable();
           this._drawWidgetsTree();
         });
@@ -560,7 +567,7 @@ export default {
       const compObj = this._findComponentModelById(this.selectedId);
       if (!compObj) return;
       compObj.props[data.key] = data.value;
-      selector.resetHighlight();
+      // selector.resetHighlight();
     },
     getWidgetDataValue(key) {
       const vm = this.componentInstanceMap[this.selectedId];

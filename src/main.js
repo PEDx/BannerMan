@@ -18,6 +18,9 @@ import {
   Button,
   Upload,
   Dialog,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
   Tooltip,
   Form,
   FormItem,
@@ -37,6 +40,9 @@ Vue.use(Row)
   .use(InputNumber)
   .use(Slider)
   .use(Input)
+  .use(Dropdown)
+  .use(DropdownItem)
+  .use(DropdownMenu)
   .use(Dialog)
   .use(Form)
   .use(FormItem)

@@ -21,7 +21,6 @@
               :value="key"
             ></el-option>
           </el-select>
-          <el-button type="primary" icon="el-icon-edit" style="margin-left: 10px;">页面信息配置</el-button>
         </el-col>
         <el-col :span="8" style="text-align: right;">
           <el-popover placement="top" width="160" v-model="clearConfirmVisible">
@@ -39,33 +38,75 @@
           </el-popover>
 
           <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">预览</el-button>
-          <el-button type="primary" icon="el-icon-document-checked" style="margin-left: 10px;" @click="saveViewportPage">保存</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-document-checked"
+            style="margin-left: 10px;"
+            @click="saveViewportPage"
+          >保存</el-button>
+          <el-dropdown trigger="click">
+            <el-button type="primary" style="margin-left: 10px;">
+              更多
+              <i class="el-icon-caret-bottom el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item
+                icon="el-icon-coffee-cup"
+                @click.native="handleShowThemeWindow"
+              >主题调色板</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-cpu">燃烧 GPU</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-user-solid">用户设置</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </el-col>
       </el-row>
     </div>
+    <float-window :show.sync="showThemeWindow" :position="nodePos" :size="nodeSize" title="主题调色板">
+      <them-picker></them-picker>
+    </float-window>
   </div>
 </template>
 <script>
+import floatWindow from "./components/float-window";
+import themPicker from "./components/them-picker";
 import deviceModelList from "./device";
 import EventBus from "../bus";
 import logo from "./logo";
 import { getViewportVueInstance } from "../utils/index";
+
 export default {
-  components: { logo },
+  components: { logo, floatWindow, themPicker },
   data() {
     return {
       clearConfirmVisible: false,
+      showThemeWindow: true,
       options: deviceModelList,
-      value: this.$store.state.editor.setting.deviceType || "iphone6"
+      value: this.$store.state.editor.setting.deviceType || "iphone6",
+      nodePos: {
+        x: 0,
+        y: 0
+      },
+      nodeSize: {
+        width: 800,
+        height: 400
+      }
     };
   },
   mounted() {
     this.handleChange();
+    const rect = this.$el.getBoundingClientRect();
+    this.nodePos = {
+      x: rect.width / 2 - this.nodeSize.width / 2,
+      y: 150
+    };
   },
   methods: {
     handleChange() {
       this.value && this.$store.dispatch("update_device_type", this.value);
       EventBus.$emit("reload-viewport");
+    },
+    handleShowThemeWindow() {
+      this.showThemeWindow = !this.showThemeWindow;
     },
     clearViewportPage() {
       this.clearConfirmVisible = false;
@@ -113,9 +154,6 @@ export default {
     float: right;
     width: 100%;
     height: 100%;
-  }
-  .el-row {
-    // margin-left: 100px;
   }
   .el-col {
     height: 100%;
