@@ -28,11 +28,7 @@
   </div>
 </template>
 <script>
-import widgetContainer from "../widget-container/index";
 export default {
-  components: {
-    widgetContainer
-  },
   props: {
     tabsCount: {
       default: 1,
