@@ -29,9 +29,6 @@
 </template>
 <script>
 export default {
-  components: {
-    commonContainer
-  },
   props: {
     tabsCount: {
       default: 1,
