@@ -6,6 +6,8 @@ import './style/element-style-reload.scss';
 import VueDraggableResizable from 'vue-draggable-resizable';
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css';
 import 'es6-promise/auto';
+import './icons';
+import SvgIcon from './editor/components/svg-icon.vue';
 import {
   Row,
   Col,
@@ -46,9 +48,11 @@ Vue.use(Row)
   .use(Card)
   .use(Button)
   .use(Select)
+  .use(SvgIcon)
   .use(Option);
 
 Vue.component('vue-draggable-resizable', VueDraggableResizable);
+Vue.component('svg-icon', SvgIcon);
 Vue.prototype.$notify = Notification;
 Vue.prototype.$message = Message;
 Vue.prototype.$ELEMENT = { size: 'mini' };

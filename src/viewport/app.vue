@@ -324,9 +324,9 @@ export default {
       if (this.sortingType === SORT_TYPE.ADD) return;
       selector.clearContainerHighlight();
       this.$nextTick(() => {
-        // const _id = this._findComponentModelById(id).children[this.newIndex].id;
-        // this._drawWidgetsTree();
-        // this._selectComponentAndHighlightById(_id);
+        const _id = this._findComponentModelById(id).children[this.newIndex].id;
+        this._drawWidgetsTree();
+        this._selectComponentAndHighlightById(_id);
       });
     },
     // tab 容器专用 api
@@ -399,12 +399,10 @@ export default {
       _containerModel.children.splice(place, 0, _obj);
       this.componentModelMap[_id] = _obj;
       this.$nextTick(() => {
-        // debugger
-        console.log(this);
-        // const id = _containerModel.children[place].id;
-        // this._drawWidgetsTree();
-        // this._setImageNodeUndraggable();
-        // this._selectComponentAndHighlightById(id);
+        const id = _containerModel.children[place].id;
+        this._drawWidgetsTree();
+        this._setImageNodeUndraggable();
+        this._selectComponentAndHighlightById(id);
       });
       this.dragingContainerId = null;
     },
@@ -528,19 +526,22 @@ export default {
       document.getElementsByTagName("head")[0].appendChild(meta);
     },
     deleteComponentFromModel() {
-      let index = NaN;
+      let index = -1;
+      let list = null;
       traversal([{ children: this.componentsModelTree }], node => {
-        const list = node.children || [];
-        list.forEach((val, idx) => {
+        const _list = node.children || [];
+        _list.forEach((val, idx) => {
           if (val.id === this.selectedId) {
             index = idx;
+            list = _list;
           }
         });
-        if (index >= 0) {
-          list.splice(index, 1);
-          return;
-        }
       });
+      if (index >= 0) {
+        if (list[index]) delete this.componentModelMap[list[index].id];
+        list.splice(index, 1);
+        return;
+      }
       if (index >= 0) {
         console.log("deleted");
         this.$nextTick(this._drawWidgetsTree);
@@ -556,6 +557,7 @@ export default {
       // 动态添加的 props 无法更新
       // 譬如读取历史生成的组件, 开发过程中再更改组件的 props 会出现此 bug
       const compObj = this._findComponentModelById(this.selectedId);
+      if (!compObj) return;
       compObj.props[data.key] = data.value;
       selector.resetHighlight();
     },

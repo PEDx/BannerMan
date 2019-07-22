@@ -36,7 +36,8 @@
             @dragstart="handleWidgetDragstart(...arguments, item)"
             @dragend="handleDragend"
           >
-            <i :class="item.icon"></i>
+            <i :class="item.icon" v-if="!item.svg"></i>
+            <svg-icon :icon="item.svg" v-else />
             <p>{{ item.name }}</p>
           </div>
         </div>
@@ -151,13 +152,21 @@ const widgets = [
         name: "容器",
         widgetName: "widget-container",
         widget: "",
-        icon: "el-icon-c-scale-to-original"
+        icon: "el-icon-c-scale-to-original",
+        svg: "builder"
+      },
+      {
+        name: "标签容器",
+        widgetName: "widget-tabs",
+        widget: "",
+        icon: "el-icon-more-outline",
+        svg: "tab"
       },
       {
         name: "搜索",
         widgetName: "widget-search",
         widget: "",
-        icon: "el-icon-picture"
+        icon: "el-icon-search"
       },
       {
         name: "倒计时",
@@ -169,7 +178,8 @@ const widgets = [
         name: "按钮",
         widgetName: "widget-button",
         widget: "",
-        icon: "el-icon-aim"
+        icon: "el-icon-aim",
+        svg: "button"
       }
     ]
   },
@@ -182,12 +192,6 @@ const widgets = [
         widgetName: "widget-search",
         widget: "",
         icon: "el-icon-timer"
-      },
-      {
-        name: "tabs容器",
-        widgetName: "widget-tabs",
-        widget: "",
-        icon: "el-icon-more-outline"
       }
     ]
   }
@@ -349,16 +353,25 @@ $file-icon-color: #4ca2ab;
     &:hover {
       background-color: #343438;
       color: #fd9527;
+      i {
+        color: #eee;
+      }
     }
     &:focus {
       background-color: #343438;
       color: #fd9527;
       outline: 0;
+      i {
+        color: #eee;
+      }
     }
     &:active {
       background-color: #343438;
       color: #fd9527;
       outline: 0;
+      i {
+        color: #eee;
+      }
     }
   }
   .file-list {

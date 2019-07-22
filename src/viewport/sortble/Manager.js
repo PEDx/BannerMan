@@ -24,9 +24,10 @@ export default class Manager {
   }
 
   getActive() {
-    return this.refs[this.active.collection].find(
-      ({ node }) => node.sortableInfo.index === this.active.index
-    );
+    return this.refs[this.active.collection].find(({ node }) => {
+      // debugger;
+      return node.sortableInfo.index === this.active.index;
+    });
   }
 
   getPlaceholder() {

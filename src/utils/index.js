@@ -314,13 +314,6 @@ export function getRandomStr(len) {
 export function traversal(root, callback) {
   if (!Array.isArray(root)) return;
   function walk(node) {
-    if (Array.isArray(node)) {
-      node.forEach(val => {
-        callback(val);
-        val.children && val.children.forEach(walk);
-      });
-      return;
-    }
     callback(node);
     node.children && node.children.forEach(walk);
   }

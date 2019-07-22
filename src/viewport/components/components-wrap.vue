@@ -5,7 +5,9 @@
       :is="item.name"
       :key="item.id"
       :id="item.id"
+      :bm-id="idx"
       :element-mixin-index="idx"
+      :element-mixin-disabled="isTabs"
       :child-components-model="item.children"
       :child-deep-level="level"
       @change-prop="rootContainer._componentPropsChanged(...arguments ,item.id)"
@@ -23,6 +25,7 @@
           :components="[val]"
           :level="deep_index"
           :id="`slot_${idx}`"
+          :is-tabs="true"
         ></components-wrap>
       </template>
       <template v-else>
@@ -41,6 +44,10 @@ export default {
     level: {
       type: Number,
       default: 0
+    },
+    isTabs: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

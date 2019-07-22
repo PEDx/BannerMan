@@ -241,6 +241,7 @@ export const ContainerMixin = {
         };
         this.offsetEdge = this.getEdgeOffset(node);
         this.initialOffset = this.getOffset(e) || {};
+        // debugger
         this.initialScroll = {
           top: this.scrollContainer.scrollTop,
           left: this.scrollContainer.scrollLeft
