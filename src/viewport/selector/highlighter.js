@@ -106,6 +106,10 @@ function initContainerOverlay(level) {
 
 export function highlight(instance) {
   if (!instance) return;
+  if (isDisplayNone(instance.$el)) {
+    overlay.style.display = 'none';
+    return;
+  }
   const rect = getInstanceOrVnodeRect(instance);
   if (isInvisible(rect)) {
     overlay.style.display = 'none';
@@ -135,6 +139,10 @@ export function highlight(instance) {
 
 export function highlightSelected(instance) {
   if (!instance) return;
+  if (isDisplayNone(instance.$el)) {
+    selectedOverlay.style.display = 'none';
+    return;
+  }
   const rect = getInstanceOrVnodeRect(instance);
   if (isInvisible(rect)) {
     overlay.style.display = 'none';
@@ -151,6 +159,10 @@ export function highlightSelected(instance) {
 }
 export function highlightContainer(instance) {
   if (!instance) return;
+  if (isDisplayNone(instance.$el)) {
+    containerOverlay.style.display = 'none';
+    return;
+  }
   const rect = getInstanceOrVnodeRect(instance);
   if (!rect) return;
   if (isInvisible(rect)) {

@@ -29,10 +29,21 @@
 </template>
 <script>
 export default {
+  components: {
+    commonContainer
+  },
   props: {
     tabsCount: {
       default: 1,
       type: Number
+    },
+    childComponentsModel: {
+      type: Array,
+      default: () => []
+    },
+    childDeepLevel: {
+      type: Number,
+      default: 1
     }
   },
   data() {

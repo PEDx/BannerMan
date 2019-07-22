@@ -1,5 +1,5 @@
 <template>
-  <div class="instance">
+  <div class="instance" :id="instance.id">
     <div
       ref="self"
       :class="{mouseover,selected}"
@@ -93,7 +93,7 @@ export default {
     },
 
     sortedChildren() {
-      return this.instance.children;
+      return this.instance.children
     },
 
     displayName() {

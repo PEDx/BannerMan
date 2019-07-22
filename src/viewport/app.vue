@@ -324,9 +324,9 @@ export default {
       if (this.sortingType === SORT_TYPE.ADD) return;
       selector.clearContainerHighlight();
       this.$nextTick(() => {
-        const _id = this._findComponentModelById(id).children[this.newIndex].id;
-        this._drawWidgetsTree();
-        this._selectComponentAndHighlightById(_id);
+        // const _id = this._findComponentModelById(id).children[this.newIndex].id;
+        // this._drawWidgetsTree();
+        // this._selectComponentAndHighlightById(_id);
       });
     },
     // tab 容器专用 api
@@ -399,10 +399,12 @@ export default {
       _containerModel.children.splice(place, 0, _obj);
       this.componentModelMap[_id] = _obj;
       this.$nextTick(() => {
-        const id = _containerModel.children[place].id;
-        this._drawWidgetsTree();
-        this._setImageNodeUndraggable();
-        this._selectComponentAndHighlightById(id);
+        // debugger
+        console.log(this);
+        // const id = _containerModel.children[place].id;
+        // this._drawWidgetsTree();
+        // this._setImageNodeUndraggable();
+        // this._selectComponentAndHighlightById(id);
       });
       this.dragingContainerId = null;
     },
@@ -462,6 +464,12 @@ export default {
         children: []
       };
       const walk = function(parent, componentModel) {
+        if (Array.isArray(componentModel)) {
+          componentModel.forEach(val => {
+            walk(parent, val);
+          });
+          return;
+        }
         const _id = componentModel.id;
         const element = document.getElementById(_id);
         if (!element) return;
