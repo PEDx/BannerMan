@@ -1,10 +1,20 @@
 <template>
-  <svg aria-hidden="true" class="svg-icon">
+  <svg
+    aria-hidden="true"
+    class="svg-icon"
+    :style="{
+      width: `${width}px`,
+      height: `${height}px`
+    }"
+  >
     <use
       :xlink:href="iconName"
       :style="{
-        fill: color
-    }" />
+        fill: color,
+        width: `${width}px`,
+        height: `${height}px`
+      }"
+    />
   </svg>
 </template>
 <script>
@@ -17,11 +27,11 @@ export default {
     },
     width: {
       type: Number,
-      default: 24
+      default: 28
     },
     height: {
       type: Number,
-      default: 24
+      default: 29
     },
     color: {
       type: String,

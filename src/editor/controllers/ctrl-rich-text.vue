@@ -1,6 +1,8 @@
 <template>
   <div class="ctrl-rich-text">
-    <el-button type="primary" icon="el-icon-edit-outline" circle @click="handleShow"></el-button>
+    <el-button type="primary" @click="handleShow">
+      <svg-icon icon="layers" :width="12" :height="12"/>
+    </el-button>
     <float-window :show.sync="showWindow" :position="nodePos" :size="nodeSize" title="富文本编辑器">
       <div class="rich-text-editor">
         <quill-editor :content="value" :options="editorOption" @change="onEditorChange($event)"></quill-editor>

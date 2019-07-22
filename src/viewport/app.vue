@@ -278,7 +278,8 @@ export default {
       // 为实现自定义控制器, 传递 iframe 样式给顶层 window
       const mutationObserver = new MutationObserver(mutations => {
         mutations.forEach(val => {
-          if (val.target.tagName === "STYLE") {
+          const tag = val.target.tagName;
+          if (tag === "STYLE" || tag === "LINK") {
             list.push(val.target);
             addStyle();
           }
