@@ -329,6 +329,20 @@ export default {
         // this._selectComponentAndHighlightById(_id);
       });
     },
+    // tab 容器专用 api
+    _tabsCountChanged(count, id) {
+      this.dragingContainerId = id;
+      const containersArr = this._findComponentModelById(id).children;
+      // debugger
+      if (containersArr.length > count) {
+        // decrese tab container
+        containersArr.pop();
+        this.$nextTick(this._drawWidgetsTree);
+      } else if (containersArr.length < count) {
+        // increase
+        this._asyncAddComponent("widget-container", containersArr.length);
+      }
+    },
     _contianerSortStart(container) {
       selector.stopSelecting();
       this.sorting = true;
@@ -379,11 +393,11 @@ export default {
         name: name,
         props: propsObj,
         children: [],
-        multChildren: name === "widget-tabs",
+        multContainer: name === "widget-tabs",
         id: _id
       };
-      _containerModel.children[0] = [];
-      _containerModel.children[0].splice(place, 0, _obj);
+      _containerModel.children.splice(place, 0, _obj);
+      this.componentModelMap[_id] = _obj;
       this.$nextTick(() => {
         // debugger
         console.log(this);
@@ -392,7 +406,7 @@ export default {
         // this._setImageNodeUndraggable();
         // this._selectComponentAndHighlightById(id);
       });
-      // return _containerModel;
+      this.dragingContainerId = null;
     },
     _setImageNodeUndraggable() {
       [...document.getElementsByTagName("img")].forEach(val => {
@@ -416,7 +430,6 @@ export default {
       if (!this.pageId) return;
       const componentsModelTree =
         storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
-      // debugger;
       const _promiseArr = [];
       const _promiseMap = {};
       traversal(componentsModelTree, node => {
@@ -431,10 +444,16 @@ export default {
       });
       Promise.all(_promiseArr).then(res => {
         this.componentsModelTree = componentsModelTree;
+        this._generateComponentModelMap();
         this.$nextTick(() => {
           this._setImageNodeUndraggable();
           this._drawWidgetsTree();
         });
+      });
+    },
+    _generateComponentModelMap() {
+      traversal(this.componentsModelTree, node => {
+        this.componentModelMap[node.id] = node;
       });
     },
     _generateWidgetsTree() {
@@ -470,7 +489,6 @@ export default {
           });
 
         this.componentInstanceMap[_id] = instance;
-        this.componentModelMap[_id] = componentModel;
       }.bind(this);
       // debugger;
       this.componentsModelTree.forEach(val => {
@@ -510,7 +528,6 @@ export default {
       document.getElementsByTagName("head")[0].appendChild(meta);
     },
     deleteComponentFromModel() {
-      // const compObj = this._findComponentModelById(this.selectedId);
       let index = NaN;
       traversal([{ children: this.componentsModelTree }], node => {
         const list = node.children || [];

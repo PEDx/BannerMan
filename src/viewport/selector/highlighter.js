@@ -28,9 +28,8 @@ function mapNodeRange(node, end, op) {
   op(end);
 }
 
-function isDisplayNone(node) {
-  var style = window.getComputedStyle(node);
-  return style.display === 'none';
+function isInvisible(rect) {
+  return rect.width === 0 && rect.height === 0;
 }
 
 let overlay;
@@ -112,6 +111,10 @@ export function highlight(instance) {
     return;
   }
   const rect = getInstanceOrVnodeRect(instance);
+  if (isInvisible(rect)) {
+    overlay.style.display = 'none';
+    return;
+  }
   initOverlay();
   if (rect) {
     const content = [];
@@ -141,6 +144,10 @@ export function highlightSelected(instance) {
     return;
   }
   const rect = getInstanceOrVnodeRect(instance);
+  if (isInvisible(rect)) {
+    overlay.style.display = 'none';
+    return;
+  }
   if (!isBrowser) {
     return;
   }
@@ -158,6 +165,10 @@ export function highlightContainer(instance) {
   }
   const rect = getInstanceOrVnodeRect(instance);
   if (!rect) return;
+  if (isInvisible(rect)) {
+    overlay.style.display = 'none';
+    return;
+  }
   initContainerOverlay(instance.childDeepLevel || 0);
   showOverlay(containerOverlay, rect);
 }

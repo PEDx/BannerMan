@@ -12,14 +12,15 @@
       @children-changed="rootContainer._componentChildrenChanged(...arguments, item.id)"
       @contianer-sort-start="rootContainer._contianerSortStart"
       @contianer-sort-end="rootContainer._contianerSortEnd"
+      @tabs-count-changed="rootContainer._tabsCountChanged(...arguments ,item.id)"
       v-bind="item.props"
     >
-      <template v-if="item.multChildren">
+      <template v-if="item.multContainer">
         <components-wrap
           v-for="(val, idx) in item.children"
           :key="idx"
           :slot="`slot_${idx}`"
-          :components="val"
+          :components="[val]"
           :level="deep_index"
           :id="`slot_${idx}`"
         ></components-wrap>
@@ -48,8 +49,6 @@ export default {
     };
   },
   inject: ["rootContainer"],
-  mounted() {
-    console.log(this);
-  }
+  mounted() {}
 };
 </script>
