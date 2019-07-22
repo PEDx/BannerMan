@@ -22,82 +22,40 @@
     </div>
     <div class="widget-tabs-content">
       <div class="container" v-for="(num, idx) in tabsCount" :key="num" v-show="selectIdx === num">
-        <common-container
-          ref="container"
-          :element-mixin-disabled="true"
-          :element-mixin-index="0"
-          :child-components-model="childComponentsModel[idx]"
-          :child-deep-level="childDeepLevel"
-          @children-changed="_handleSortInput"
-          @contianer-sort-start="_handleSortStart"
-          @contianer-sort-end=" _handleSortEnd"
-        >
-          <slot :name="`slot_${idx}`" />
-        </common-container>
+        <slot :name="`slot_${idx}`" />
       </div>
     </div>
   </div>
 </template>
 <script>
-const _BM_EDIT_RUNTIME_ = !!window._BM_EDIT_RUNTIME_;
-import commonContainer from "../common-container/index";
+import widgetContainer from "../widget-container/index";
 export default {
   components: {
-    commonContainer
+    widgetContainer
   },
   props: {
     tabsCount: {
       default: 1,
       type: Number
-    },
-    childComponentsModel: {
-      type: Array,
-      default: () => []
-    },
-    childDeepLevel: {
-      type: Number,
-      default: 1
     }
   },
   data() {
     return {
       value: "",
-      selectIdx: 1,
-      inEditor: _BM_EDIT_RUNTIME_
+      selectIdx: 1
     };
   },
-  mounted() {
-    this.$el._BM_CONTAINER_ = true;
+  watch: {
+    tabsCount(value) {
+      this.$emit("tabs-count-changed", value);
+    }
+  },
+  created() {
+    this.$emit("tabs-count-changed", this.tabsCount);
   },
   methods: {
     handleClick(idx) {
       this.selectIdx = idx;
-    },
-    _handleSortStart() {
-      // debugger;
-      this.$emit("contianer-sort-start", this);
-    },
-    _handleSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
-      // debugger;
-      this.$emit("contianer-sort-end", {
-        newIndex,
-        oldIndex,
-        isPlaceholder,
-        collection
-      });
-    },
-    _handleSortInput(dataModel) {
-      // debugger;
-      this.$emit("children-changed", dataModel);
-    },
-    hackState(e) {
-      this.$refs.container[this.selectIdx - 1].hackState(e);
-    },
-    clearHackState(e) {
-      this.$refs.container[this.selectIdx - 1].clearHackState(e);
-    },
-    palceholderMove(e) {
-      this.$refs.container[this.selectIdx - 1].palceholderMove(e);
     }
   }
 };
