@@ -33,18 +33,51 @@
             class="widget"
             style="overflow: hidden"
             :tabindex="-1"
-            @dragstart="handleDragstart"
+            @dragstart="handleWidgetDragstart(...arguments, item)"
+            @dragend="handleDragend"
           >
-            <i :class="item.icon"></i>
+            <i :class="item.icon" v-if="!item.svg"></i>
+            <svg-icon :icon="item.svg" v-else />
             <p>{{ item.name }}</p>
           </div>
         </div>
       </fold-bar>
       <fold-bar title="资源" slot="right" pos="bottom">
         <template slot="custom-right">
+          <el-popover
+            placement="bottom"
+            width="300"
+            trigger="click"
+            :offset="-50"
+            title="资源链接"
+            v-model="addLinkPopovervisible"
+          >
+            <el-form ref="form" v-model="linkRes" label-width="40px">
+              <el-form-item label="名称:">
+                <el-input v-model="linkRes.name" placeholder="请输入资源名称"></el-input>
+              </el-form-item>
+              <el-form-item label="地址:">
+                <el-input placeholder="请输入资源链接地址" v-model="linkRes.url"></el-input>
+              </el-form-item>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="addLinkPopovervisible = false">取消</el-button>
+                <el-button type="primary" size="mini" @click="handleAddLinkRes">添加</el-button>
+              </div>
+            </el-form>
+            <el-button
+              slot="reference"
+              type="text"
+              icon="el-icon-link"
+              style="padding: 4px 5px;"
+              title="资源链接"
+              @click.native.stop
+            ></el-button>
+          </el-popover>
+
           <el-upload
             @click.native.stop
-            class="upload-demo"
+            class="upload-btn"
+            style="display: inline-block;"
             action="https://jsonplaceholder.typicode.com/posts/"
             multiple
             :limit="3"
@@ -54,37 +87,49 @@
             @on-success="handleUploadSuccess"
             @on-error="handleUploadError"
           >
-            <el-button type="text" icon="el-icon-plus" style="padding: 4px 5px;"></el-button>
+            <el-button type="text" icon="el-icon-upload2" title="上传资源" style="padding: 4px 5px;"></el-button>
           </el-upload>
         </template>
         <div class="file-list" style="padding: 8px 0;">
           <div
-            class="file-list-item"
+            :class="{'file-list-item': true, active: currentPickResItemIdx == idx}"
             v-for="(val, idx) in fileList"
-            :key="idx"
+            :key="`${val.name }-${idx}`"
             :draggable="true"
-            :tabindex="-1"
+            @dragstart="handleResDragstart(...arguments, val)"
+            @dragend="handleResDragend"
+            @click="handleClick(idx)"
           >
             <p class="f-toe">
               <i class="el-icon-picture item-icon"></i>
               {{ val.name }}
               <el-popover
                 placement="right"
-                title="预览"
+                :title="`预览 ${checkImgName} ${checkImgResolution}`"
                 width="auto"
-                trigger="hover"
-                content=""
-                transition=""
+                trigger="click"
+                popper-class="resource-preview-popover"
+                content
+                :popper-options="{
+                  removeOnDestroy: true
+                }"
+                transition
                 @after-enter="popoverShow(val)"
               >
-                <img :src="checkImgSrc" alt class="check-view-img">
-                <el-button
-                  slot="reference"
-                  type="text"
-                  class="item-icon f-fr check-img"
-                  icon="el-icon-view"
-                ></el-button>
+                <div class="content">
+                  <img :src="checkImgSrc" alt class="check-view-img" />
+                </div>
+
+                <div slot="reference" class="f-fr">
+                  <el-button type="text" class="item-icon" icon="el-icon-view"></el-button>
+                </div>
               </el-popover>
+              <el-button
+                type="text"
+                class="item-icon delete-img f-fr"
+                icon="el-icon-delete"
+                @click="handleDelete(idx)"
+              ></el-button>
             </p>
           </div>
         </div>
@@ -93,8 +138,11 @@
   </div>
 </template>
 <script>
-import foldBar from "../components/fold-bar";
-import splitPane from "../components/split-pane";
+import foldBar from "../components/split-pane/fold-bar";
+import splitPane from "../components/split-pane/split-pane";
+import { getViewportVueInstance } from "../../utils/index";
+import EventBus from "../../bus";
+const URL_REG = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/gi;
 const widgets = [
   {
     group: "BASICS",
@@ -102,27 +150,30 @@ const widgets = [
     items: [
       {
         name: "容器",
-        widgetName: "List",
+        widgetName: "widget-container",
         widget: "",
-        icon: "el-icon-c-scale-to-original"
+        icon: "el-icon-c-scale-to-original",
+        svg: "builder"
       },
       {
-        name: "图片",
-        widgetName: "List",
+        name: "标签容器",
+        widgetName: "widget-tabs",
         widget: "",
-        icon: "el-icon-picture"
+        icon: "el-icon-more-outline",
+        svg: "tab"
       },
       {
-        name: "倒计时",
-        widgetName: "List",
+        name: "搜索",
+        widgetName: "widget-search",
         widget: "",
-        icon: "el-icon-timer"
+        icon: "el-icon-search"
       },
       {
         name: "按钮",
-        widgetName: "List",
+        widgetName: "widget-button",
         widget: "",
-        icon: "el-icon-aim"
+        icon: "el-icon-aim",
+        svg: "button"
       }
     ]
   },
@@ -132,15 +183,9 @@ const widgets = [
     items: [
       {
         name: "倒计时",
-        widgetName: "List",
+        widgetName: "widget-search",
         widget: "",
         icon: "el-icon-timer"
-      },
-      {
-        name: "进度条",
-        widgetName: "List",
-        widget: "",
-        icon: "el-icon-more-outline"
       }
     ]
   }
@@ -156,10 +201,18 @@ export default {
       widgets,
       searchValue: "",
       checkImgSrc: "",
+      checkImgResolution: "",
+      deleteConfirmVisible: false,
+      addLinkPopovervisible: false,
+      checkImgName: "",
       splitPercent: +editorSetting.leftPanelSplit || 70,
       splitStatus: editorSetting.leftPanelStatus || {
         top: true,
         bottom: true
+      },
+      linkRes: {
+        name: "",
+        url: ""
       },
       fileList: [
         {
@@ -168,17 +221,54 @@ export default {
             "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
         },
         {
-          name: "food2.jpeg",
+          name: "lizhi.png",
+          url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
+        },
+        {
+          name: "food.jpeg",
           url:
             "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
+        },
+        {
+          name: "lizhi.png",
+          url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
+        },
+        {
+          name: "food.jpeg",
+          url:
+            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
+        },
+        {
+          name: "lizhi.png",
+          url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
         }
-      ]
+      ],
+      currentPickResItemIdx: -1
     };
   },
   mounted() {},
   methods: {
-    handleDragstart(e) {
-      e.dataTransfer.setData("WIDGET_TYPE", "hello");
+    handleWidgetDragstart(e, widget) {
+      getViewportVueInstance().setDragType("drag_widget");
+      e.dataTransfer.setData("WIDGET_NAME", widget.widgetName);
+    },
+    handleResDragstart(e, file) {
+      getViewportVueInstance().setDragType("drag_resource");
+      e.dataTransfer.setData("RESOURCE_TYPE", "image");
+      e.dataTransfer.setData("RESOURCE_FILE", JSON.stringify(file));
+    },
+    handleDragend(e) {
+      getViewportVueInstance().onDragend(e);
+    },
+    handleResDragend(e) {
+      EventBus.$emit("resource-dragend");
+    },
+    handleClick(idx) {
+      this.currentPickResItemIdx = idx;
+    },
+    handleDelete(idx) {
+      this.deleteConfirmVisible = false;
+      this.fileList.splice(idx, 1);
     },
     handleUploadSuccess() {},
     handleUploadProgress() {},
@@ -191,6 +281,34 @@ export default {
     },
     popoverShow(img) {
       this.checkImgSrc = img.url;
+      this.checkImgName = img.name;
+      this.setImgNaturalWHInfo(img.url);
+    },
+    setImgNaturalWHInfo(url) {
+      var image = new Image();
+      image.src = url;
+      const naturalWidth = image.width;
+      const naturalHeight = image.Height;
+      image.onload = () => {
+        this.checkImgResolution = `( ${image.naturalWidth ||
+          naturalWidth} x ${image.naturalHeight || naturalHeight} )`;
+      };
+    },
+    handleAddLinkRes() {
+      const url = this.linkRes.url.trim();
+      const name = this.linkRes.name.trim();
+      if (!URL_REG.test(url)) {
+        this.$message.error("请添加正确的资源 URl 地址");
+        return;
+      }
+      this.addLinkPopovervisible = false;
+      const pos = this.linkRes.url.lastIndexOf("/");
+      const fileName = url.substring(pos + 1, url.length);
+      this.fileList.push({
+        name: name || fileName,
+        url
+      });
+      this.linkRes = {};
     }
   }
 };
@@ -227,18 +345,27 @@ $file-icon-color: #4ca2ab;
       user-select: none;
     }
     &:hover {
-      background-color: #fd9527;
-      color: #333;
+      background-color: #343438;
+      color: #fd9527;
+      i {
+        color: #eee;
+      }
     }
     &:focus {
-      background-color: #fd9527;
-      color: #333;
+      background-color: #343438;
+      color: #fd9527;
       outline: 0;
+      i {
+        color: #eee;
+      }
     }
     &:active {
-      background-color: #fd9527;
-      color: #333;
+      background-color: #343438;
+      color: #fd9527;
       outline: 0;
+      i {
+        color: #eee;
+      }
     }
   }
   .file-list {
@@ -251,36 +378,30 @@ $file-icon-color: #4ca2ab;
       transition: all 0.2s;
       margin-bottom: 1px;
       &:hover {
-        background-color: #fd9527;
-        color: #333;
-        .check-img {
-          display: inline-block;
-        }
+        background-color: #343438;
+        // color: #fd9527;
       }
       &:focus {
-        background-color: #fd9527;
-        color: #333;
         outline: 0;
       }
       &:active {
-        background-color: #fd9527;
-        color: #333;
         outline: 0;
       }
     }
+    .active {
+      background-color: #343438;
+      color: #fd9527;
+      outline: 0;
+    }
     .item-icon {
-      font-size: 16px;
-      color: $img-icon-color;
+      font-size: 12px;
       margin-right: 2px;
       position: relative;
-      top: 2px;
-    }
-    .check-img {
-      display: none;
-      font-size: 14px;
-      color: #333;
-      // top: 5px;
       padding: 4px 0;
+    }
+    .delete-img {
+      top: 2px;
+      margin-right: 16px;
     }
   }
 }

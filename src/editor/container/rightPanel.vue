@@ -5,23 +5,79 @@
       :split-percent="splitPercent"
       :split-status="splitStatus"
     >
-      <fold-bar title="属性" slot="left" pos="top">
-        <controller-item
-          v-for="(val, idx) in controllerList"
-          :key="`${new Date().getTime()}-${idx}`"
-        >
-          <span slot="label">{{ val.label }}</span>
-          <component
-            :is="controllerTypeMap[val.controllerType]"
-            slot="ctrl"
-            :value="val.$value"
-            ref="ctrls"
-            @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
-          ></component>
-        </controller-item>
+      <fold-bar title="属性控制" slot="left" pos="top">
+        <div slot="prefix" class="component-info" v-if="controllerList.length">
+          <div class="box">
+            <span class="name">{{ name }}</span>
+            <div class="btn f-fr">
+              <el-button
+                type="text"
+                title="数值复制"
+                style="padding: 4px 8px;margin-left: 0;"
+                @click="handleCopy"
+              >
+                <i class="el-icon-document-copy"></i>
+              </el-button>
+              <el-button
+                type="text"
+                title="数值粘贴"
+                style="padding: 4px 8px;margin-left: 0;"
+                @click="handlePaste"
+              >
+                <i class="el-icon-brush"></i>
+              </el-button>
+              <el-button
+                type="text"
+                title="还原"
+                @click="handleResetClick"
+                style="padding: 4px 8px;margin-left: 0;"
+              >
+                <i class="el-icon-refresh-left"></i>
+              </el-button>
+              <el-popover placement="top" width="160" v-model="deleteConfirmVisible">
+                <p>确认删除此组件？</p>
+                <div style="text-align: right; margin: 0">
+                  <el-button size="mini" type="text" @click="deleteConfirmVisible = false">取消</el-button>
+                  <el-button type="primary" size="mini" @click="handleDeleteClick">确定</el-button>
+                </div>
+                <el-button
+                  slot="reference"
+                  type="text"
+                  title="删除"
+                  style="padding: 4px 8px;margin-left: 0;"
+                >
+                  <i class="el-icon-delete"></i>
+                </el-button>
+              </el-popover>
+            </div>
+          </div>
+        </div>
+        <template v-for="(val) in controllerList">
+          <controller-item
+            :key="`${val.id}`"
+            v-if="val.controllerType !== custom_component_type_name"
+          >
+            <span slot="label">{{ val.label }}</span>
+            <component
+              :is="controllerTypeMap[val.controllerType]"
+              slot="ctrl"
+              :value="val.value"
+              :setting="val.setting"
+              @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
+            ></component>
+          </controller-item>
+          <div v-else :key="`${val.id}`" class="custom-controller controller-item">
+            <component
+              :is="val.customController"
+              :value="val.value"
+              :setting="val.setting"
+              @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
+            ></component>
+          </div>
+        </template>
       </fold-bar>
       <fold-bar
-        title="组件树"
+        title="组件导航"
         slot="right"
         pos="bottom"
         ref="tree"
@@ -33,13 +89,21 @@
   </div>
 </template>
 <script>
-import foldBar from "../components/fold-bar";
+import foldBar from "../components/split-pane/fold-bar";
 import controllerItem from "../components/controller-item";
-import splitPane from "../components/split-pane";
+import splitPane from "../components/split-pane/split-pane";
 import componentTree from "../components/tree/component-tree";
 import { controllers, controllerTypeMap } from "../controllers";
-import { getViewportVueInstance } from "../../utils/index";
+import clonedeep from "lodash.clonedeep";
+import {
+  getViewportVueInstance,
+  debounce,
+  getRandomStr,
+  UNDEFINED
+} from "../../utils/index";
 import EventBus from "../../bus";
+import storage from "../../storage";
+const custom_component_type_name = "CTRL_CUSTOM";
 
 export default {
   components: {
@@ -51,7 +115,9 @@ export default {
   },
   data() {
     const editorSetting = this.$store.state.editor.setting;
+    this.controllerMap = {};
     return {
+      custom_component_type_name,
       splitPercent: +editorSetting.rightPanelSplit || 70,
       splitStatus: editorSetting.rightPanelStatus || {
         top: true,
@@ -60,7 +126,8 @@ export default {
       controllerTypeMap,
       controllerList: [],
       instancesTree: [],
-      currentUid: null
+      deleteConfirmVisible: false,
+      name: ""
     };
   },
   mounted() {
@@ -70,13 +137,17 @@ export default {
         // 选定一个元素
         if (e.data.type === "select-component") {
           const ins = getViewportVueInstance();
-          e.data.profile.controllers.forEach(val => {
-            val.$value = undefined;
+          const profile = ins.getSelectWidgetProfile();
+          if (!profile.controllers) return;
+          profile.controllers.forEach(val => {
+            val.value = undefined;
           });
-          const profile = e.data.profile;
           this.controllerList = profile.controllers;
+          this.name = profile.name;
           this.controllerList.forEach(val => {
-            val.$value = ins.getWidgetDataValue(val.propName);
+            val.value = ins.getWidgetDataValue(val.propName);
+            this.controllerMap[val.propName] = val;
+            val.id = getRandomStr(6);
           });
         }
       },
@@ -95,9 +166,11 @@ export default {
     window.addEventListener(
       "message",
       e => {
-        // 刷新组件树
+        // 滚动条同步
         if (e.data.type === "viewport-scroll-percent") {
+          this.viewportSrcolling = true;
           this.$refs.tree.contentScrollTo(+e.data.percent);
+          this.scrollEnd();
         }
       },
       false
@@ -109,7 +182,7 @@ export default {
         if (e.data.type === "flush-controller-value") {
           const ins = getViewportVueInstance();
           this.controllerList.forEach(val => {
-            val.$value = ins.getWidgetDataValue(val.propName);
+            val.value = ins.getWidgetDataValue(val.propName);
           });
         }
       },
@@ -125,6 +198,9 @@ export default {
     EventBus.$on("tree-select-instance", id => {
       getViewportVueInstance().highlighitSelectedInstance(id);
     });
+    this.scrollEnd = debounce(() => {
+      this.viewportSrcolling = false;
+    }, 500);
   },
   methods: {
     handleSplitChange(data) {
@@ -133,11 +209,47 @@ export default {
     },
     handleSubmitUpdate(key, value) {
       const ins = getViewportVueInstance();
-      ins.updateWidgetProp(key, value);
+      ins.updateWidgetProp(clonedeep({ key, value }));
+      this.controllerMap[key].value = clonedeep(value);
     },
     handleContentScroll(percent) {
+      // 此处会相互触发 srcoll 事件, 需要防止
+      if (this.viewportSrcolling) return;
       const ins = getViewportVueInstance();
       ins.viewportScrollTo(percent);
+    },
+    handleResetClick() {
+      const ins = getViewportVueInstance();
+      ins.resetComponentPropData();
+      this.$nextTick(() =>
+        this.controllerList.forEach(val => {
+          val.value = ins.getWidgetDataValue(val.propName);
+          val.id = getRandomStr(6);
+        })
+      );
+    },
+    handleDeleteClick() {
+      this.deleteConfirmVisible = false;
+      const ins = getViewportVueInstance();
+      ins.deleteComponentFromModel();
+    },
+    handleCopy() {
+      storage.set("local_clipboard", {
+        name: this.name,
+        controllers: this.controllerList
+      });
+    },
+    handlePaste() {
+      const obj = storage.get("local_clipboard") || {};
+      if (obj.name !== this.name) return; // 只能同种组件数值复制
+      const ins = getViewportVueInstance();
+      obj.controllers.forEach(val => {
+        const _value = val.value;
+        val.value = _value === UNDEFINED ? undefined : _value;
+        val.id = getRandomStr(6); // 更新控制器
+        ins.updateWidgetProp(clonedeep({ key: val.propName, value: _value })); // 更新组件 props
+      });
+      this.controllerList = obj.controllers;
     }
   }
 };
@@ -145,6 +257,23 @@ export default {
 <style lang="scss" scoped>
 .right-panel {
   height: 100%;
+  .component-info {
+    padding: 14px 8px;
+    padding-bottom: 8px;
+    .box {
+      height: 20px;
+      line-height: 20px;
+      color: #fd9527;
+      border: 1px solid #343438;
+      padding: 4px 10px;
+      /* padding-bottom: 0; */
+      background-color: #252525;
+      border-radius: 4px;
+    }
+    .btn {
+      margin-right: -8px;
+    }
+  }
 }
 </style>
 

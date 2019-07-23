@@ -1,14 +1,22 @@
 <template>
   <div class="layout">
     <div class="top">
-      <top-bar/>
+      <top-bar />
     </div>
     <div class="content">
-      <container/>
+      <container />
     </div>
     <div class="bottom">
-      <bottom-bar/>
+      <bottom-bar />
     </div>
+
+    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+      <span>这是一段信息</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -21,14 +29,13 @@ export default {
     bottomBar,
     topBar
   },
-  mounted() {
-    // 防止样式污染
-    this.$nextTick(() => {
-      document.documentElement.style.height = "100%";
-      document.body.style.height = "100%";
-      document.getElementById("app").style.height = "100%";
-    });
-  }
+  data() {
+    return {
+      dialogVisible: false
+    };
+  },
+  mounted() {},
+  methods: {}
 };
 </script>
 <style lang="scss" scoped>
@@ -48,6 +55,7 @@ export default {
     box-sizing: border-box;
   }
   .content {
+    position: relative;
     height: 100%;
   }
   .bottom {
@@ -61,3 +69,4 @@ export default {
   }
 }
 </style>
+

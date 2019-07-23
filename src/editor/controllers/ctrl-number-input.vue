@@ -7,7 +7,9 @@
       :min="0"
       :max="400"
       label="描述文字"
-    ></el-input-number>
+    >
+      <template slot="prepend">Http://</template>
+    </el-input-number>
   </div>
 </template>
 <script>

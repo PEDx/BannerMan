@@ -2,11 +2,11 @@ import {
   classify,
   getComponentName,
   getInstanceName,
-  getInstanceProfile
-} from '../utils/index';
+  getProfileByInstance
+} from '../../utils/index';
 const isBrowser = true;
 const classifyComponents = false;
-
+const scrollingElement = document.scrollingElement;
 function inDoc(node) {
   if (!node) return false;
   var doc = node.ownerDocument.documentElement;
@@ -26,6 +26,10 @@ function mapNodeRange(node, end, op) {
     node = next;
   }
   op(end);
+}
+
+function isInvisible(rect) {
+  return rect.width === 0 && rect.height === 0;
 }
 
 let overlay;
@@ -58,8 +62,8 @@ function initOverlay() {
 
 let selectedOverlay;
 function initSelectedOverlay() {
-  if (selectedOverlay || !isBrowser) {
-    selectedOverlay.style.display = 'flex';
+  if (selectedOverlay) {
+    selectedOverlay.style.display = 'block';
     return;
   }
   selectedOverlay = document.createElement('div');
@@ -68,10 +72,30 @@ function initSelectedOverlay() {
   selectedOverlay.style.boxSizing = 'border-box';
   selectedOverlay.style.border = '1px dashed #ff5500';
   selectedOverlay.style.pointerEvents = 'none';
-  selectedOverlay.style.display = 'flex';
+  selectedOverlay.style.display = 'block';
   selectedOverlay.style.alignItems = 'center';
   selectedOverlay.style.justifyContent = 'center';
   selectedOverlay.style.borderRadius = '3px';
+}
+let containerOverlay;
+function initContainerOverlay(level) {
+  if (containerOverlay) {
+    containerOverlay.style.display = 'block';
+    containerOverlay.style.backgroundColor = `rgba(0, 255, 20, ${0.2 +
+      level / 20})`;
+    return;
+  }
+  containerOverlay = document.createElement('div');
+  containerOverlay.style.position = 'absolute';
+  containerOverlay.className = 'containerOverlay';
+  containerOverlay.style.zIndex = '9997';
+  containerOverlay.style.boxSizing = 'border-box';
+  containerOverlay.style.backgroundColor = 'rgba(0, 255, 20, 0.2)';
+  containerOverlay.style.pointerEvents = 'none';
+  containerOverlay.style.display = 'flex';
+  containerOverlay.style.alignItems = 'center';
+  containerOverlay.style.justifyContent = 'center';
+  containerOverlay.style.borderRadius = '3px';
 }
 
 /**
@@ -83,9 +107,8 @@ function initSelectedOverlay() {
 export function highlight(instance) {
   if (!instance) return;
   const rect = getInstanceOrVnodeRect(instance);
-
-  if (!isBrowser) {
-    // TODO: Highlight rect area.
+  if (isInvisible(rect)) {
+    overlay.style.display = 'none';
     return;
   }
   initOverlay();
@@ -95,7 +118,7 @@ export function highlight(instance) {
       ? getComponentName(instance.fnOptions)
       : getInstanceName(instance);
     if (classifyComponents) compName = classify(name);
-    const name = getInstanceProfile(instance).name || compName;
+    const name = getProfileByInstance(instance).name || compName;
     if (name) {
       const pre = document.createElement('span');
       pre.style.opacity = '0.6';
@@ -113,7 +136,10 @@ export function highlight(instance) {
 export function highlightSelected(instance) {
   if (!instance) return;
   const rect = getInstanceOrVnodeRect(instance);
-
+  if (isInvisible(rect)) {
+    overlay.style.display = 'none';
+    return;
+  }
   if (!isBrowser) {
     return;
   }
@@ -122,6 +148,17 @@ export function highlightSelected(instance) {
   if (rect) {
     showOverlay(selectedOverlay, rect);
   }
+}
+export function highlightContainer(instance) {
+  if (!instance) return;
+  const rect = getInstanceOrVnodeRect(instance);
+  if (!rect) return;
+  if (isInvisible(rect)) {
+    overlay.style.display = 'none';
+    return;
+  }
+  initContainerOverlay(instance.childDeepLevel || 0);
+  showOverlay(containerOverlay, rect);
 }
 /**
  * Remove highlight overlay.
@@ -137,6 +174,11 @@ export function unHighlightSelected() {
     selectedOverlay.style.display = 'none';
   }
 }
+export function unHighlightContainer() {
+  if (containerOverlay && containerOverlay.parentNode) {
+    containerOverlay.style.display = 'none';
+  }
+}
 
 /**
  * Get the client rect for an instance.
@@ -147,7 +189,7 @@ export function unHighlightSelected() {
 
 function isBannerManWidget(instance) {
   if (!instance) return false;
-  if (!getInstanceProfile(instance)) return false;
+  if (!getProfileByInstance(instance)) return false;
   return true;
 }
 
@@ -166,13 +208,12 @@ export function getInstanceOrVnodeRect(instance) {
     return getFragmentRect(instance);
   } else if (el.nodeType === 1) {
     const react = el.getBoundingClientRect();
+    // if (scrollElement.scrollTop > 30) debugger;
     return {
-      width: react.width,
+      width: el.clientWidth,
       height: react.height,
       top: react.top,
-      left: react.left,
-      offsetTop: el.offsetTop,
-      offsetLeft: el.offsetLeft
+      left: react.left
     };
   }
 }
@@ -250,8 +291,8 @@ function showOverlay(
   overlay.style.width = ~~width + 'px';
   overlay.style.height = ~~height + 'px';
   if (!overlayContent) {
-    overlay.style.top = ~~offsetTop + 'px';
-    overlay.style.left = ~~offsetLeft + 'px';
+    overlay.style.top = ~~top + scrollingElement.scrollTop + 'px';
+    overlay.style.left = ~~left + scrollingElement.scrollLeft + 'px';
   } else {
     overlay.style.top = ~~top + 'px';
     overlay.style.left = ~~left + 'px';

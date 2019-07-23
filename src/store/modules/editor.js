@@ -1,5 +1,12 @@
-import storage from '../../utils/storage';
+import storage from '../../storage';
+import { UNDEFINED } from '../../utils/index';
 const local_editor_setting = storage.get('setting') || {};
+
+Object.keys(local_editor_setting).forEach(key => {
+  const _val = local_editor_setting[key];
+  local_editor_setting[key] = _val === UNDEFINED ? undefined : _val;
+});
+
 const app = {
   state: {
     setting: {

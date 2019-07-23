@@ -1,11 +1,13 @@
-import EventBus from '../bus';
+import EventBus from '../../bus';
 import {
   highlight,
   unHighlight,
   unHighlightSelected,
+  highlightContainer,
+  unHighlightContainer,
   highlightSelected
 } from './highlighter';
-import { findRelatedComponent } from '../utils/index';
+import { findRelatedComponent } from '../../utils/index';
 const isBrowser = true;
 
 export default class ComponentSelector {
@@ -54,7 +56,9 @@ export default class ComponentSelector {
 
     const el = e.target;
     if (el) {
-      this.mouseOverInstance = findRelatedComponent(el);
+      const mouseOverInstance = findRelatedComponent(el);
+      if (mouseOverInstance === this.mouseOverInstance) return;
+      this.mouseOverInstance = mouseOverInstance;
     }
     if (this.mouseOverInstance) {
       EventBus.$emit('element-mouseover', this.mouseOverInstance);
@@ -68,10 +72,9 @@ export default class ComponentSelector {
    */
   // 不在 selector 中做元素选择
   elementClicked(e) {
-    this.cancelEvent(e);
+    // this.cancelEvent(e);
     if (!this.mouseOverInstance) return;
     // 选中编辑元素
-
     unHighlight();
     this.selectedInstance = this.mouseOverInstance;
     EventBus.$emit('element-selected', this.selectedInstance);
@@ -96,7 +99,12 @@ export default class ComponentSelector {
     unHighlightSelected();
   }
   clearHoverHighlight() {
+    this.mouseOverInstance = null;
     unHighlight();
+  }
+  clearContainerHighlight() {
+    this.containerInstance = null;
+    unHighlightContainer();
   }
   highlighitMouseoverInstance(instance) {
     this.mouseOverInstance = instance;
@@ -105,6 +113,10 @@ export default class ComponentSelector {
   highlighitSelectedInstance(instance) {
     this.selectedInstance = instance;
     highlightSelected(instance);
+  }
+  highlighitContainerInstance(instance) {
+    this.containerInstance = instance;
+    highlightContainer(instance);
   }
   /**
    * Bind class methods to the class scope to avoid rebind for event listeners

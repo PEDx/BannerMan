@@ -1,22 +1,19 @@
 <template>
   <sortble-container
-    class="viewport-content"
-    ref="viewportContent"
-    v-model="componentStack"
-    :lock-to-container-edges="true"
+    ref="rootContainer"
+    v-model="componentsModelTree"
+    :lock-to-container-edges="false"
+    :hide-sortable-ghost="true"
+    :use-window-as-scroll-container="true"
+    :should-cancel-start="() => {}"
     :distance="10"
     axis="y"
+    lock-axis="y"
     @sort-start="_handleSortStart"
     @sort-end="_handleSortEnd"
+    @input="_handleSortInput"
   >
-    <component
-      v-for="(val, idx) in componentStack"
-      :is="val.name"
-      :key="`${getRandomStr(6)}-${val.name}`"
-      :index="idx"
-      @change-prop="val.childEmitEven"
-      v-bind="val.props"
-    ></component>
+    <components-wrap :components="componentsModelTree"></components-wrap>
   </sortble-container>
 </template>
 
@@ -24,191 +21,351 @@
 import {
   debounce,
   throttle,
-  generateInstanceBriefObj,
   parseQueryString,
-  getInstanceProfile,
-  serialization,
-  getRandomStr
+  getProfileByInstance,
+  findRelatedContainerComponent,
+  getRandomStr,
+  UNDEFINED,
+  traversal
 } from "../utils/index";
-import storage from "../utils/storage";
-import ComponentSelector from "./component-selector";
-import { ElementMixin } from "vue-slicksort";
-import SortbleContainer from "./sortble-container";
+import storage from "../storage";
+import { getInstanceOrVnodeRect } from "./selector/highlighter";
+import ComponentSelector from "./selector/component-selector";
+import { ElementMixin } from "./sortble";
+import sortbleContainer from "./components/sortble-container";
+import { WidgetContainerMixin } from "./components/widget-container-mixin";
+
 import widgets from "../widgets";
 import EventBus from "../bus";
+const MutationObserver =
+  window.MutationObserver ||
+  window.WebKitMutationObserver ||
+  window.MozMutationObserver;
 const selector = new ComponentSelector();
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
-
-const sort_status = {
-  sorting: false,
-  moving: false
+const SORT_TYPE = {
+  SORT: 0, // 正常排序
+  ADD: 1 // 添加
 };
+const _BM_EDIT_RUNTIME_ = true; // 全局变量, 告诉各个容器控件此时在编辑器内
+window._BM_EDIT_RUNTIME_ = _BM_EDIT_RUNTIME_;
+window._BM_WIDGET_CONTAINER_MIXIN_ = WidgetContainerMixin; // 由编辑器提供容器的可拖拽功能
 
 export default {
   components: {
-    "sortble-container": SortbleContainer
+    sortbleContainer
   },
   data() {
-    this.children = [];
+    this.componentInstanceMap = {}; // id 对应实例
+    this.componentModelMap = {}; // id 对应数据模型
+    this.loadingCompleteStatusMap = {};
+    this.pageId = null;
+    this.dragingContainerId = null;
+    this.dropEndComponentName = "";
+    this.selectedId = "";
+    this.treeScrolling = false;
+    this.resourceDraging = false;
+    this.draging = false;
+    this.sorting = false;
+    this.sortingType = SORT_TYPE.SORT;
+    this.dragingContainer = null;
     return {
-      componentStack: [], // 组件数据模型, 在此分发传入各个组件的 props
-      instancesMap: {},
-      loadingCompleteStatusMap: {},
-      pageId: null,
-      index: 0
+      componentsModelTree: [] // 组件数据模型, 在此分发传入各个组件的 props
     };
   },
   mounted() {
     this.pageId = parseQueryString(location.href).id;
     window._CURRENT_VIEWPORT_VUE_INSTANCE_ = this;
-    window.onresize = debounce(() => {
-      console.log("viewport resize");
-      selector.resetHighlight();
-      this._setMeta(document.body.clientWidth);
-    }, 150);
+
     selector.startSelecting();
-    // document.addEventListener("mouseleave", () => {
-    //   selector.clearHoverHighlight();
-    // });
-    // document.addEventListener("mouseenter", () => {
-    //   selector.startSelecting();
-    // });
-    document.addEventListener("dragenter", e => e.preventDefault());
-    document.addEventListener("dragover", e => e.preventDefault());
-    document.addEventListener("dragleave", e => e.preventDefault());
-    document.addEventListener(
-      "scroll",
-      throttle(e => {
-        const scroll_top = document.documentElement.scrollTop;
-        const scroll_height = document.documentElement.scrollHeight;
-        const window_height = document.documentElement.clientHeight;
-        const percent = scroll_top / (scroll_height - window_height);
-        window.parent.postMessage({
-          type: "viewport-scroll-percent",
-          percent: percent.toFixed(2)
-        });
-      }, 20)
-    );
-    document.addEventListener("drop", e => {
-      const msg = e.dataTransfer.getData("WIDGET_TYPE");
-      if (msg) {
-        this._asyncAddComponent("widget-search");
-        // this._asyncAddComponent("widget-button");
-        window.parent.postMessage({
-          type: "drag-end",
-          axis: {
-            x: e.x,
-            y: e.y
-          }
-        });
-      }
-    });
+
     EventBus.$on("element-selected", instance => {
-      this._selectComponentAndHighlightByIdx(this._findComponentIdx(instance));
+      this._selectComponentAndHighlightById(instance.$el.id);
     });
     EventBus.$on("element-mouseover", instance =>
-      window.parent.postMessage({
-        type: "element-mouseover",
-        id: instance._EDITER_TREE_UID__
-      })
+      window.parent.postMessage(
+        {
+          type: "element-mouseover",
+          id: instance.$el.id
+        },
+        "*"
+      )
     );
-
+    this.scrollEnd = debounce(() => {
+      this.treeScrolling = false;
+    }, 500);
+    this._initDocumentListener();
     this._observerGeometric();
+    this._observerStyle();
     this._renderPageFromLocal(); // 加载保存的组件数据
+  },
+  provide() {
+    return {
+      rootContainer: this
+    };
   },
   methods: {
     getRandomStr,
+    _initDocumentListener() {
+      document.addEventListener("mouseleave", () => {
+        selector.clearHoverHighlight();
+      });
+      // document.addEventListener("mouseenter", () => {
+      //   selector.startSelecting();
+      // });
+      window.onresize = debounce(() => {
+        console.log("viewport resize");
+        selector.resetHighlight();
+        this._setMeta(document.body.clientWidth);
+      }, 150);
+      document.addEventListener("dragenter", e => {
+        if (this.dragingType === "drag_resource") return;
+        // 找到需要添加元素的容器
+        const container =
+          findRelatedContainerComponent(e.target) || this.$refs.rootContainer;
+        if (this.dragingContainer === container) return;
+        if (this.dragingContainer && this.dragingContainer.clearHackState) {
+          this.dragingContainer.clearHackState(e);
+        }
+        this.draging = true;
+        this.dragingContainer = container;
+        selector.clearContainerHighlight();
+        selector.highlighitContainerInstance(container);
+        this.dragingContainerId = container.$el.id;
+        container.hackState(e);
+        this.dropEndComponentName = "";
+        e.preventDefault();
+      });
+      document.addEventListener("dragover", e => {
+        if (this.dragingType === "drag_resource") return;
+        this.dragingContainer.palceholderMove(e);
+        e.preventDefault();
+      });
+      document.addEventListener("drop", e => {
+        const widgetName = e.dataTransfer.getData("WIDGET_NAME");
+        console.log("drop");
+        if (!widgetName) return;
+        // debugger
+        this.dropEndComponentName = widgetName;
+        window.parent.postMessage(
+          {
+            type: "drag-end",
+            axis: {
+              x: e.x,
+              y: e.y
+            }
+          },
+          "*"
+        );
+      });
+      document.addEventListener(
+        "scroll",
+        throttle(e => {
+          if (this.treeScrolling) return;
+          // 此处会相互触发 srcoll 事件
+          const scroll_top = document.documentElement.scrollTop;
+          const scroll_height = document.documentElement.scrollHeight;
+          const window_height = document.documentElement.clientHeight;
+          const percent = scroll_top / (scroll_height - window_height);
+          window.parent.postMessage(
+            {
+              type: "viewport-scroll-percent",
+              percent: percent.toFixed(2)
+            },
+            "*"
+          );
+        }, 20)
+      );
+    },
     _handleSortStart({ index }) {
       selector.stopSelecting();
-      sort_status.sorting = true;
-    },
-    _getInstanceList() {
-      return this.$refs.viewportContent.$children || [];
+      this.sorting = true;
     },
     // 排序完成后所有的排序元素实例都会销毁重建
-    _handleSortEnd({ newIndex, oldIndex }) {
+    _handleSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
       selector.startSelecting();
-      sort_status.sorting = false;
-      setTimeout(() => {
-        if (newIndex === oldIndex) return; // 没有移动过
-        this._genComponentsTree();
-        this._selectComponentAndHighlightByIdx(newIndex);
+      if (this.draging) return;
+      this.newIndex = newIndex;
+      if (isPlaceholder) {
+        if (!this.dropEndComponentName) return;
+        this.sortingType = SORT_TYPE.ADD;
+        this._asyncAddComponent(this.dropEndComponentName, newIndex);
+        return;
+      } // 在指定位置添加新组件
+      this.sortingType = SORT_TYPE.SORT;
+      // 正常排序
+      if (newIndex === oldIndex && !isPlaceholder) return; // 没有移动过
+    },
+    _handleSortInput() {
+      // 此时数据模型排序完毕
+      if (this.draging) return;
+      if (this.sortingType === SORT_TYPE.ADD) return;
+      this.$nextTick(() => {
+        const id = this.componentsModelTree[this.newIndex].id;
+        this._drawWidgetsTree();
+        this._selectComponentAndHighlightById(id);
       });
     },
-    _getRealDomInstanceTree(el) {
-      const ret = [];
-      for (let i = 0, len = el.children.length; i < len; i++) {
-        const _el = el.children[i];
-        ret.push(_el.__vue__);
-      }
-      return ret;
-    },
-    _selectComponentAndHighlightByIdx(idx) {
-      this.index = idx;
-      const component = this.componentStack[idx];
-      const instance = this._getInstanceList()[idx];
+    // 需要在生成组件树后再选中高亮
+    _selectComponentAndHighlightById(id) {
+      if (!id) return;
+      this.selectedId = id;
+      const instance = this.componentInstanceMap[id];
       selector.highlighitSelectedInstance(instance);
-      window.parent.postMessage({
-        type: "select-component",
-        profile: getInstanceProfile(instance),
-        id: instance._EDITER_TREE_UID__,
-        name: component.name
-      });
+      window.parent.postMessage(
+        {
+          type: "select-component",
+          id
+        },
+        "*"
+      );
     },
     // 监听元素几何属性变化
+    _loadImage(e) {
+      const img = e.target;
+      console.log("imgLoad");
+      e.target.draggable = false;
+      img.removeEventListener("load", this._loadImage, false);
+      selector.resetHighlight();
+    },
     _observerGeometric() {
-      const MutationObserver =
-        window.MutationObserver ||
-        window.WebKitMutationObserver ||
-        window.MozMutationObserver;
       // IE 11 及以上兼容
       const mutationObserver = new MutationObserver((mutations, observer) => {
+        if (this.sorting) return;
         // 重置高亮
-        if (!sort_status.sorting) {
-          console.log("viewport attr changed");
+        let haveStyleLoad = false;
+        mutations.forEach(mutation => {
+          switch (mutation.type) {
+            case "attributes":
+              if (mutation.target.tagName === "IMG") {
+                mutation.target.addEventListener(
+                  "load",
+                  this._loadImage,
+                  false
+                );
+              }
+              if (mutation.attributeName === "style") {
+                haveStyleLoad = true;
+              }
+
+              break;
+            default:
+          }
+        });
+        if (!haveStyleLoad) return;
+        // 非样式更改不重置 selecter
+        if (!this.sorting) {
+          console.log("mutations");
           selector.resetHighlight();
         }
       });
-      mutationObserver.observe(this.$el, {
-        subtree: true,
-        attributes: true
+      mutationObserver.observe(this.$refs.rootContainer.$el, {
+        characterData: true,
+        childList: true,
+        attributes: true,
+        subtree: true
       });
     },
-    _findComponentIdx(ins) {
-      let ret = 0;
-      this._getInstanceList().forEach((val, idx) => {
-        if (val === ins) ret = idx;
+    _observerStyle() {
+      let list = [];
+      // 一次性添加完
+      const addStyle = debounce(function() {
+        console.time("addStyleToTopWindow");
+        const docFragWrap = document.createDocumentFragment();
+        list.forEach(val => {
+          docFragWrap.appendChild(val.cloneNode(true));
+        });
+        window.parent.document.head.appendChild(docFragWrap);
+        console.timeEnd("addStyleToTopWindow");
+        list = [];
+      }, 30);
+      // 为实现自定义控制器, 传递 iframe 样式给顶层 window
+      const mutationObserver = new MutationObserver(mutations => {
+        mutations.forEach(val => {
+          const tag = val.target.tagName;
+          if (tag === "STYLE" || tag === "LINK") {
+            list.push(val.target);
+            addStyle();
+          }
+        });
+      });
+      mutationObserver.observe(document.head, {
+        characterData: true,
+        childList: true,
+        attributes: true,
+        subtree: true
+      });
+    },
+    // 查找实例的 ID
+    _findComponentId(ins) {
+      const map = this.componentInstanceMap;
+      let ret = null;
+      Object.keys(this.componentInstanceMap).forEach(key => {
+        if (map[key] === ins) ret = key;
       });
       return ret;
     },
-
-    _addComponent(name, propsObj) {
-      this.componentStack.push({
-        name: name,
-        props: propsObj,
-        childEmitEven: (prpos => {
-          return obj => {
-            Object.keys(obj).forEach(key => (prpos[key] = obj[key]));
-            window.parent.postMessage({
-              type: "flush-controller-value"
-            });
-          };
-        })(propsObj)
-      }); // 在此初始化组件
+    // 使用 ID 查找对应数据模型对象
+    _findComponentModelById(id) {
+      let ret = null;
+      ret = this.componentModelMap[id];
+      return ret;
     },
-    _asyncLoadComponent(name) {
-      const widget = widgets[name];
-      return new Promise((resolve, reject) => {
-        widget().then(ins => {
-          if (!this.loadingCompleteStatusMap[name]) {
-            // 防止并发加载多次添加 mixin 到同一组件上
-            ins.default.mixin(ElementMixin);
-            this.loadingCompleteStatusMap[name] = true;
-          }
-          resolve(ins);
-        });
+    _componentPropsChanged(obj, id) {
+      // 监听组件更新自己 props 事件
+      const props = this._findComponentModelById[id].props;
+      Object.keys(obj).forEach(key => (props[key] = obj[key]));
+      window.parent.postMessage(
+        {
+          type: "flush-controller-value"
+        },
+        "*"
+      );
+    },
+    _componentChildrenChanged(sortedArr, id) {
+      if (this.draging) return;
+      // 监听组件更新自己 child 事件
+      this._findComponentModelById(id).children = sortedArr;
+      if (this.sortingType === SORT_TYPE.ADD) return;
+      selector.clearContainerHighlight();
+      this.$nextTick(() => {
+        const _id = this._findComponentModelById(id).children[this.newIndex].id;
+        this._drawWidgetsTree();
+        this._selectComponentAndHighlightById(_id);
       });
+    },
+    // tab 容器专用 api
+    _tabsCountChanged(count, id) {
+      this.dragingContainerId = id;
+      const containersArr = this._findComponentModelById(id).children;
+      // debugger
+      if (containersArr.length > count) {
+        // decrese tab container
+        containersArr.pop();
+        this.$nextTick(this._drawWidgetsTree);
+      } else if (containersArr.length < count) {
+        // increase
+        this._asyncAddComponent("widget-container", containersArr.length);
+      }
+    },
+    _contianerSortStart(container) {
+      selector.stopSelecting();
+      this.sorting = true;
+      selector.clearContainerHighlight();
+      selector.highlighitContainerInstance(container);
+    },
+    _contianerSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
+      selector.startSelecting();
+      this.newIndex = newIndex;
+      selector.clearContainerHighlight();
+      if (isPlaceholder) {
+        if (!this.dropEndComponentName) return;
+        this.sortingType = SORT_TYPE.ADD;
+        this._asyncAddComponent(this.dropEndComponentName, newIndex);
+        return;
+      } // 在指定位置添加新组件
+      this.sortingType = SORT_TYPE.SORT;
     },
     _test_() {
       const promiseArr = [
@@ -220,68 +377,142 @@ export default {
         "widget-search",
         "widget-search"
       ].map(this._asyncLoadComponent);
-      serialization(promiseArr).then(res => {});
+      return promiseArr;
     },
     // 第一次添加组件会是异步加载
-    _asyncAddComponent(widgetName) {
+    _asyncAddComponent(widgetName, place) {
       this._asyncLoadComponent(widgetName).then(ins => {
         const profile = ins.default.extendOptions._profile_;
         const _obj = {};
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
         });
-        this._addComponent(widgetName, _obj);
-        setTimeout(this._genComponentsTree);
+        this._addComponent({ name: widgetName, propsObj: _obj }, place);
       });
     },
-    _asyncFormatComponentFromLocalData(data) {
+    _addComponent({ name, propsObj, id }, place) {
+      const _id = id || `${getRandomStr(6)}-${name}`;
+      const _containerModel = this._findComponentModelById(
+        this.dragingContainerId
+      ) || { children: this.componentsModelTree };
+      const _obj = {
+        name: name,
+        props: propsObj,
+        children: [],
+        multContainer: name === "widget-tabs",
+        id: _id
+      };
+      _containerModel.children.splice(place, 0, _obj);
+      this.componentModelMap[_id] = _obj;
+      this.$nextTick(() => {
+        const id = _containerModel.children[place].id;
+        this._drawWidgetsTree();
+        this._setImageNodeUndraggable();
+        this._selectComponentAndHighlightById(id);
+      });
+      this.dragingContainerId = null;
+    },
+    _setImageNodeUndraggable() {
+      [...document.getElementsByTagName("img")].forEach(val => {
+        val.draggable = false;
+      });
+    },
+    _asyncLoadComponent(name) {
+      const widget = widgets[name];
       return new Promise((resolve, reject) => {
-        this._asyncLoadComponent(data.name)
-          .then(ins => {
-            const profile = ins.default.extendOptions._profile_;
-            const _obj = {};
-            profile.controllers.forEach(val => {
-              _obj[val.propName] = data.props[val.propName];
-            });
-            resolve([data.name, _obj]);
-          })
-          .catch(e => reject(e));
+        widget().then(ins => {
+          // 防止并发加载多次添加 mixin 到同一组件上
+          if (!this.loadingCompleteStatusMap[name] && !!_BM_EDIT_RUNTIME_) {
+            ins.default.mixin(ElementMixin);
+            this.loadingCompleteStatusMap[name] = true;
+          }
+          resolve(ins);
+        });
       });
     },
     _renderPageFromLocal() {
       if (!this.pageId) return;
-      const componentStack =
+      console.time("renderPageFromLocal");
+      const componentsModelTree =
         storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
-      const _promiseArr = componentStack.map(
-        this._asyncFormatComponentFromLocalData
-      );
-      serialization(_promiseArr).then(res => {
-        res.forEach(val => this._addComponent(...val));
-        setTimeout(this._genComponentsTree);
+      const _promiseArr = [];
+      const _promiseMap = {};
+      traversal(componentsModelTree, node => {
+        Object.keys(node.props).forEach(key => {
+          const _val = node.props[key];
+          node.props[key] = _val === UNDEFINED ? undefined : _val;
+        });
+        if (_promiseMap[node.name]) return;
+        const promise = this._asyncLoadComponent(node.name);
+        _promiseMap[node.name] = true;
+        _promiseArr.push(promise);
+      });
+      Promise.all(_promiseArr).then(res => {
+        this.componentsModelTree = componentsModelTree;
+        this._generateComponentModelMap();
+        this.$nextTick(() => {
+          console.timeEnd("renderPageFromLocal");
+          this._setImageNodeUndraggable();
+          this._drawWidgetsTree();
+        });
       });
     },
-    _genComponentsTree() {
-      const instances = this._getInstanceList();
-      const instancesTree = generateInstanceBriefObj(instances);
-      const map = {};
-      function walk(instance) {
-        map[instance._EDITER_TREE_UID__] = instance;
-        if (instance.children) {
-          instance.children.forEach(child => {
-            child.parent = instance;
-            walk(child);
+    _generateComponentModelMap() {
+      traversal(this.componentsModelTree, node => {
+        this.componentModelMap[node.id] = node;
+      });
+    },
+    _generateWidgetsTree() {
+      // 根据数据模型生成树
+      // 生成真实树, 有正确的顺序,且只能是定义有 profile 的组件
+      // $children 不保证顺序 https://github.com/vuejs/vue/issues/2275
+      const _root = {
+        children: []
+      };
+      const walk = function(parent, componentModel) {
+        if (Array.isArray(componentModel)) {
+          componentModel.forEach(val => {
+            walk(parent, val);
           });
+          return;
         }
-      }
-      instances.forEach(walk);
-      this.instancesMap = map;
-      window.parent.postMessage({
-        type: "flush-component-tree",
-        instancesTree
+        const _id = componentModel.id;
+        const element = document.getElementById(_id);
+        if (!element) return;
+        const instance = element.__vue__;
+        const rect = getInstanceOrVnodeRect(instance);
+        const top = rect ? rect.top : Infinity;
+        const _obj = {
+          children: [],
+          top,
+          name: getProfileByInstance(instance).name,
+          id: _id
+        };
+        parent.children.push(_obj);
+        componentModel.children &&
+          componentModel.children.forEach(val => {
+            walk(_obj, val);
+          });
+
+        this.componentInstanceMap[_id] = instance;
+      }.bind(this);
+      // debugger;
+      this.componentsModelTree.forEach(val => {
+        walk(_root, val);
       });
+      return _root;
     },
-    _deleteComponent(idx) {
-      this.componentStack.splice(idx, 1);
+    _drawWidgetsTree() {
+      console.time("drawWidgetsTree");
+      const _tree = this._generateWidgetsTree();
+      console.timeEnd("drawWidgetsTree");
+      window.parent.postMessage(
+        {
+          type: "flush-component-tree",
+          instancesTree: _tree.children
+        },
+        "*"
+      );
     },
     _setMeta(baseWidth) {
       const scale = 1;
@@ -302,46 +533,97 @@ export default {
       meta.setAttribute("content", metaContent);
       document.getElementsByTagName("head")[0].appendChild(meta);
     },
-    updateWidgetProp(key, value) {
-      const compObj = this.componentStack[this.index];
-      compObj.props[key] = value;
+    deleteComponentFromModel() {
+      let index = -1;
+      let list = null;
+      traversal([{ children: this.componentsModelTree }], node => {
+        const _list = node.children || [];
+        _list.forEach((val, idx) => {
+          if (val.id === this.selectedId) {
+            index = idx;
+            list = _list;
+          }
+        });
+      });
+      if (index >= 0) {
+        if (list[index]) delete this.componentModelMap[list[index].id];
+        list.splice(index, 1);
+        return;
+      }
+      if (index >= 0) {
+        console.log("deleted");
+        this.$nextTick(this._drawWidgetsTree);
+        selector.clearHighlight();
+      }
+    },
+    resetComponentPropData() {
+      const compObj = this._findComponentModelById(this.selectedId);
+      Object.keys(compObj.props).forEach(key => (compObj.props[key] = void 0));
+    },
+    updateWidgetProp(data) {
+      // 注意: 此时更新 props 必须是组件声明过的 props 才能得到更新,
+      // 动态添加的 props 无法更新
+      // 譬如读取历史生成的组件, 开发过程中再更改组件的 props 会出现此 bug
+      const compObj = this._findComponentModelById(this.selectedId);
+      if (!compObj) return;
+      compObj.props[data.key] = data.value;
+      // selector.resetHighlight();
     },
     getWidgetDataValue(key) {
-      const vm = this._getInstanceList()[this.index];
+      const vm = this.componentInstanceMap[this.selectedId];
       return vm[key];
+    },
+    getSelectWidgetProfile() {
+      if (!this.selectedId) return;
+      const instance = this.componentInstanceMap[this.selectedId];
+      return getProfileByInstance(instance) || {};
     },
     // 清空编辑页面
     clearPage() {
-      this.componentStack = [];
+      this.componentsModelTree = [];
       selector.clearHighlight();
     },
     // 保存编辑页面数据对象模型
     savePage() {
       storage.set(
         `${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`,
-        this.componentStack
+        this.componentsModelTree
       );
     },
     // 自动保存
     autoSave() {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
+    onDragend(e) {
+      this.draging = false;
+      this.sorting = false;
+      this.treeScrolling = false;
+      if (this.dragingContainer && this.dragingContainer.clearHackState) {
+        this.dragingContainer.clearHackState(e);
+        this.dragingContainer = null;
+        selector.clearContainerHighlight();
+      }
+    },
     highlighitInstance(id) {
-      const instance = this.instancesMap[id];
+      const instance = this.componentInstanceMap[id];
       selector.highlighitMouseoverInstance(instance);
     },
     highlighitSelectedInstance(id) {
-      const instance = this.instancesMap[id];
       selector.clearHighlight();
-      selector.highlighitSelectedInstance(instance);
-      this._selectComponentAndHighlightByIdx(this._findComponentIdx(instance));
+      this._selectComponentAndHighlightById(id);
     },
     viewportScrollTo(percent) {
+      if (this.sorting) return;
+      this.treeScrolling = true;
       const scroll_height = document.documentElement.scrollHeight;
       const window_height = document.documentElement.clientHeight;
       document.documentElement.scrollTo({
         top: (scroll_height - window_height) * percent
       });
+      this.scrollEnd();
+    },
+    setDragType(type) {
+      this.dragingType = type;
     }
   }
 };

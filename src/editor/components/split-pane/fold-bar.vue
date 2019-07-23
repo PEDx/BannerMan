@@ -11,6 +11,7 @@
         </div>
       </div>
       <div class="content" slot="scroll">
+        <slot name="prefix"></slot>
         <slot></slot>
       </div>
     </scroll-pane>
