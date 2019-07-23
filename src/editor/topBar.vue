@@ -62,24 +62,24 @@
       </el-row>
     </div>
     <float-window :show.sync="showThemeWindow" :position="nodePos" :size="nodeSize" title="主题调色板">
-      <them-picker></them-picker>
+      <theme-color-picker></theme-color-picker>
     </float-window>
   </div>
 </template>
 <script>
 import floatWindow from "./components/float-window";
-import themPicker from "./components/them-picker";
+import themeColorPicker from "./components/theme-color-picker";
 import deviceModelList from "./device";
 import EventBus from "../bus";
 import logo from "./logo";
 import { getViewportVueInstance } from "../utils/index";
 
 export default {
-  components: { logo, floatWindow, themPicker },
+  components: { logo, floatWindow, themeColorPicker },
   data() {
     return {
       clearConfirmVisible: false,
-      showThemeWindow: true,
+      showThemeWindow: false,
       options: deviceModelList,
       value: this.$store.state.editor.setting.deviceType || "iphone6",
       nodePos: {
@@ -88,6 +88,8 @@ export default {
       },
       nodeSize: {
         width: 800,
+        minWidth: 800,
+        minHeight: 400,
         height: 400
       }
     };

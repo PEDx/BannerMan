@@ -11,6 +11,8 @@
       @deactivated="onDeactivated"
       @dragstop="onDragStop"
       :w="size.width"
+      :min-width="size.minWidth || 100"
+      :min-height="size.minHeight || 100"
       :h="size.height"
       :x="position.x "
       :y="position.y"

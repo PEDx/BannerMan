@@ -16,6 +16,7 @@ import {
   InputNumber,
   ColorPicker,
   Button,
+  Link,
   Upload,
   Dialog,
   Dropdown,
@@ -42,6 +43,7 @@ Vue.use(Row)
   .use(Input)
   .use(Dropdown)
   .use(DropdownItem)
+  .use(Link)
   .use(DropdownMenu)
   .use(Dialog)
   .use(Form)
