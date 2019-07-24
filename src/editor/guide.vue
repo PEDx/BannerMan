@@ -2,16 +2,13 @@
   <transition name="fade">
     <div class="guide" v-if="show">
       <div class="content">
+        <div class="version">版本 1.0.13</div>
         <div class="brand">
-          <img
-            src="https://cdn.dribbble.com/users/78464/screenshots/6818614/untitled_artwork_2x.jpg"
-            alt
-          />
+          <img :src="brandImg" alt />
         </div>
         <div class="info">
-          <div class="header">欢迎来到 Banner Man !</div>
-          <div class="version">版本 1.0.13</div>
-          <div class="feat">版本特性:</div>
+          <div class="header">欢迎来到 Banner Man</div>
+          <div class="feat">新版本特性:</div>
           <ul>
             <li>可定义全局主题颜色</li>
             <li>统一资源管理</li>
@@ -33,9 +30,11 @@
   </transition>
 </template>
 <script>
+import brandImg from "../assets/img/guide-brand.jpg";
 export default {
   data() {
     return {
+      brandImg,
       show: true
     };
   },
@@ -54,8 +53,9 @@ export default {
   right: 0;
   bottom: 0;
   z-index: 99;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   .content {
+    position: relative;
     width: 670px;
     min-width: 670px;
     height: 420px;
@@ -70,7 +70,7 @@ export default {
     margin-top: -200px;
     overflow: hidden;
     font-family: Nunito Sans;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.82), 0 0 6px rgba(0, 0, 0, 0.74);
     .brand {
       float: left;
       height: 100%;
@@ -78,8 +78,16 @@ export default {
       img {
         display: inline-block;
         height: 100%;
-        margin-left: -10%;
+        margin-left: -4%;
       }
+    }
+    .version {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      font-size: 12px;
+      text-shadow: 2px 2px #333;
+      color: #fff;
     }
     .info {
       position: relative;
@@ -95,19 +103,18 @@ export default {
         font-size: 20px;
         padding: 4px 0;
       }
-      .version {
-        font-size: 12px;
-      }
+
       .feat {
         margin-top: 18px;
         font-size: 18px;
       }
       .tutorial-link {
         position: absolute;
-        bottom: 60px;
+        bottom: 24px;
         left: 28px;
         a {
           margin-right: 15px;
+          font-size: 12px;
         }
       }
       ul {
