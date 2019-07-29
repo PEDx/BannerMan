@@ -1,5 +1,5 @@
 <template>
-  <right-adaption class="theme-picker">
+  <middle-adaption class="theme-picker">
     <div class="option" slot="left">
       <div
         :class="{'item': true, active: currentPickItemIdx == idx}"
@@ -8,7 +8,7 @@
         @click="handleClick(idx)"
       >{{ val.name }}</div>
     </div>
-    <div class="content" slot="right">
+    <div slot="middle">
       <ul class="clan" v-for="(val, idx) in themeList[currentPickItemIdx].clan" :key="idx">
         <span class="clan-name">{{ val.name }}</span>
         <li class="color float-animation" v-for="(num, idx) in 9" :key="idx">
@@ -21,11 +21,15 @@
         </li>
       </ul>
     </div>
-  </right-adaption>
+    <div slot="right">
+      <color-picker></color-picker>
+    </div>
+  </middle-adaption>
 </template>
 <script>
-import rightAdaption from "./right-adaption";
+import middleAdaption from "./middle-adaption";
 import tinycolor from "tinycolor2";
+import colorPicker from "./color-picker";
 const themeList = [
   {
     name: "风暴客",
@@ -122,7 +126,7 @@ const themeList = [
 ];
 
 export default {
-  components: { rightAdaption },
+  components: { middleAdaption, colorPicker },
   data() {
     this.tinycolor = tinycolor;
     return {

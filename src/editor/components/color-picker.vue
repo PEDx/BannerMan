@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import imgSucker from "../img/sucker.png";
+// // import imgSucker from "../img/sucker.png";
 export default {
   props: {
     color: {
@@ -207,7 +207,7 @@ export default {
     suckerCanvas(newVal) {
       this.isSucking = false;
       this.suckColor(newVal);
-      newVal.style.cursor = `url(${imgSucker}) 0 32, default`;
+      // newVal.style.cursor = `url(${imgSucker}) 0 32, default`;
     }
   },
   created() {
@@ -274,7 +274,8 @@ export default {
         1,
         1
       );
-      let [r, g, b, a] = imgData.data;
+      const [r, g, b] = imgData.data;
+      let [a] = imgData.data;
       a = parseFloat((a / 255).toFixed(2));
       const style = this.suckerPreview.style;
       Object.assign(style, {
@@ -547,7 +548,8 @@ export default {
           1,
           1
         );
-        let [r, g, b, a] = imgData.data;
+        const [r, g, b] = imgData.data;
+        let [a] = imgData.data;
         a = parseFloat((a / 255).toFixed(2));
         this.setColorValue({ r, g, b, a });
         this.setColorPos();
@@ -707,8 +709,8 @@ export default {
         h = (60 * (r - g)) / delta + 240;
       }
       h = Math.floor(h);
-      let s = parseFloat((max === 0 ? 0 : 1 - min / max).toFixed(2));
-      let v = parseFloat(max.toFixed(2));
+      const s = parseFloat((max === 0 ? 0 : 1 - min / max).toFixed(2));
+      const v = parseFloat(max.toFixed(2));
       return { h, s, v };
     }
   }

@@ -23,10 +23,10 @@ rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), err => {
       stats.toString({
         colors: true,
         modules: false,
-        children: false, // If you are using ts-loader, setting this to true will make TypeScript errors show up during build.
+        children: false,
         chunks: false,
-        chunkModules: false
-      }) + '\n\n'
+        chunkModules: false,
+      }) + '\n\n',
     );
 
     if (stats.hasErrors()) {
@@ -38,8 +38,8 @@ rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), err => {
     console.log(
       chalk.yellow(
         '  Tip: built files are meant to be served over an HTTP server.\n' +
-          "  Opening index.html over file:// won't work.\n"
-      )
+          "  Opening index.html over file:// won't work.\n",
+      ),
     );
   });
 });

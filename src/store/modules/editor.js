@@ -17,7 +17,9 @@ const app = {
       leftPanelSplit: local_editor_setting.leftPanelSplit,
       rightPanelStatus: local_editor_setting.rightPanelStatus,
       leftPanelStatus: local_editor_setting.leftPanelStatus,
-      rightPanelSplit: local_editor_setting.rightPanelSplit
+      rightPanelSplit: local_editor_setting.rightPanelSplit,
+      editID: local_editor_setting.editID,
+      guideVisibility: false
     }
   },
   mutations: {
@@ -50,6 +52,12 @@ const app = {
     },
     update_viewport_scale: ({ commit }, scale) => {
       commit('UPDATE_EDITER_SETTING', ['viewportScale', scale]);
+    },
+    update_edit_id: ({ commit }, id) => {
+      commit('UPDATE_EDITER_SETTING', ['editID', id]);
+    },
+    update_guide_visibility: ({ commit }, bol) => {
+      commit('UPDATE_EDITER_SETTING', ['guideVisibility', bol]);
     }
   }
 };

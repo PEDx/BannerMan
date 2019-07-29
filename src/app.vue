@@ -38,6 +38,19 @@ body {
 .f-fr {
   float: right;
 }
+.f-cb:after,
+.f-cbli li:after {
+  display: block;
+  clear: both;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  content: ".";
+}
+.f-cb,
+.f-cbli li {
+  zoom: 1;
+}
 @keyframes spin {
   50%,
   100% {
@@ -81,7 +94,7 @@ body {
   animation-name: zoomIn;
 }
 
-.scale-enter-active{
+.scale-enter-active {
   animation: zoomIn 0.3s;
 }
 .scale-leave-active {
