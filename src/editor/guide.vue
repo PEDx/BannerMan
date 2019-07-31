@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div class="guide" v-if="show">
+    <div class="guide" v-if="visible">
       <div class="content">
         <div class="version">版本 1.0.13</div>
         <div class="brand">
@@ -32,15 +32,20 @@
 <script>
 import brandImg from "../assets/img/guide-brand.jpg";
 export default {
+  props: {
+    visible: {
+      default: false,
+      type: Boolean
+    }
+  },
   data() {
     return {
-      brandImg,
-      show: true
+      brandImg
     };
   },
   methods: {
     handleEnter() {
-      this.show = false;
+      this.$store.dispatch("update_guide_visibility", false);
     }
   }
 };

@@ -1,6 +1,6 @@
 <template>
   <middle-adaption class="theme-picker">
-    <div class="option" slot="left">
+    <div class="option" slot="left" style="padding: 8px 0;">
       <div
         :class="{'item': true, active: currentPickItemIdx == idx}"
         v-for="(val, idx) in themeList"
@@ -9,20 +9,35 @@
       >{{ val.name }}</div>
     </div>
     <div slot="middle">
-      <ul class="clan" v-for="(val, idx) in themeList[currentPickItemIdx].clan" :key="idx">
-        <span class="clan-name">{{ val.name }}</span>
-        <li class="color float-animation" v-for="(num, idx) in 9" :key="idx">
-          <span
-            class="inner"
-            :style="{
-              backgroundColor: tinycolor(val.color).setAlpha(`${(10 - idx) / 10}`)
-            }"
-          ></span>
-        </li>
-      </ul>
+      <el-row
+        :gutter="10"
+        class="clan"
+        v-for="(val, index) in themeList[currentPickItemIdx].clan"
+        :key="index"
+      >
+        <el-col
+          :span="6"
+          v-for="(num, idx) in 4"
+          :key="index + '' + idx"
+          @click.native="handleChangeColor(val.color, idx)"
+        >
+          <div class="color">
+            <div
+              class="inner"
+              :style="{
+                backgroundColor: tinycolor(val.color).setAlpha(`${(10 - idx) / 10}`)
+              }"
+            ></div>
+            <div class="info">
+              <div>{{ `${val.name}_${idx}` }}</div>
+              <div>rgba(1, 1, 1,.8)</div>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
     </div>
     <div slot="right">
-      <color-picker></color-picker>
+      <color-picker :color="colorPickerColor"></color-picker>
     </div>
   </middle-adaption>
 </template>
@@ -52,11 +67,11 @@ const themeList = [
       },
       {
         name: "White",
-        color: "#eee"
+        color: "#eeeeee"
       },
       {
         name: "Black",
-        color: "#333"
+        color: "#333333"
       }
     ]
   },
@@ -131,10 +146,15 @@ export default {
     this.tinycolor = tinycolor;
     return {
       themeList,
-      currentPickItemIdx: 0
+      currentPickItemIdx: 0,
+      colorPickerColor: "#ffffff"
     };
   },
   methods: {
+    handleChangeColor(color, idx) {
+      this.colorPickerColor = color;
+      this.colorPickerIndex = idx;
+    },
     handleClick(idx) {
       this.currentPickItemIdx = idx;
     }
@@ -171,9 +191,7 @@ export default {
   .clan {
     display: flex;
     justify-content: space-between;
-    padding: 0 10px;
-    padding-top: 10px;
-    line-height: 48px;
+    padding: 10px;
     .clan-name {
       display: inline-block;
       width: 60px;
@@ -184,22 +202,25 @@ export default {
     }
     .color {
       display: inline-block;
-      width: 48px;
-      line-height: 48px;
-      height: 48px;
-      border-radius: 50%;
+      width: 100%;
       cursor: pointer;
       box-sizing: border-box;
       background-color: #fff;
-      padding: 4px;
+      border-radius: 3px;
+      overflow: hidden;
       .inner {
         box-sizing: border-box;
-        display: inline-block;
         width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        border: 2px solid #bbb;
+        height: 98px;
         position: relative;
+        border-bottom: 1px solid #000;
+      }
+      .info {
+        width: 100%;
+        font-size: 12px;
+        color: #333;
+        box-sizing: border-box;
+        padding: 4px;
       }
     }
   }

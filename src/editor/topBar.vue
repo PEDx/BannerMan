@@ -56,7 +56,7 @@
               >主题调色板</el-dropdown-item>
               <el-dropdown-item icon="el-icon-files">控件管理</el-dropdown-item>
               <el-dropdown-item icon="el-icon-cpu">燃烧 GPU</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-discover" @click="handleShowGuide">引导</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-discover" @click.native="handleShowGuide">引导</el-dropdown-item>
               <el-dropdown-item icon="el-icon-user-solid">用户设置</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -81,7 +81,7 @@ export default {
   data() {
     return {
       clearConfirmVisible: false,
-      showThemeWindow: true,
+      showThemeWindow: false,
       options: deviceModelList,
       value: this.$store.state.editor.setting.deviceType || "iphone6",
       nodePos: {
@@ -90,7 +90,7 @@ export default {
       },
       nodeSize: {
         width: 1000,
-        minWidth: 800,
+        minWidth: 1000,
         minHeight: 400,
         height: 400
       }
@@ -113,7 +113,7 @@ export default {
       this.showThemeWindow = !this.showThemeWindow;
     },
     handleShowGuide() {
-      this.showThemeWindow = !this.showThemeWindow;
+      this.$store.dispatch("update_guide_visibility", true);
     },
     clearViewportPage() {
       this.clearConfirmVisible = false;

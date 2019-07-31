@@ -30,13 +30,12 @@ export default {};
     margin: 0 -180px 0 0;
     box-sizing: border-box;
     border-right: 1px solid #313134;
-    padding: 8px 0;
   }
   .g-sd52 {
     float: right;
     width: 220px;
     margin: 0 0 0 -220px;
-     border-left: 1px solid #313134;
+    border-left: 1px solid #313134;
   }
   .g-mn5 {
     float: left;
@@ -48,6 +47,7 @@ export default {};
   }
   .content {
     height: 100%;
+    overflow-y: scroll;
     &::-webkit-scrollbar {
       background: #343438;
       border-radius: 2px;

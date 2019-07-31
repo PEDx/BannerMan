@@ -9,7 +9,7 @@
     <div class="bottom">
       <bottom-bar />
     </div>
-    <guide />
+    <guide :visible.sync="guideVisible" />
     <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
       <span>这是一段信息</span>
       <span slot="footer" class="dialog-footer">
@@ -35,6 +35,12 @@ export default {
     return {
       dialogVisible: false
     };
+  },
+  computed: {
+    guideVisible() {
+      const editorSetting = this.$store.state.editor.setting;
+      return editorSetting.guideVisibility;
+    }
   },
   mounted() {},
   methods: {}
