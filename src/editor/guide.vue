@@ -19,6 +19,7 @@
             <el-link type="danger">开发文档</el-link>
           </div>
           <div class="btn">
+            <el-checkbox class="f-fl" v-model="DoNotShowAgain" @change="handleCheckChange">不再显示</el-checkbox>
             <el-button type="text" @click="handleEnter">
               进入编辑器
               <i class="el-icon-d-arrow-right"></i>
@@ -31,6 +32,7 @@
 </template>
 <script>
 import brandImg from "../assets/img/guide-brand.jpg";
+import storage from "../storage";
 export default {
   props: {
     visible: {
@@ -40,10 +42,14 @@ export default {
   },
   data() {
     return {
-      brandImg
+      brandImg,
+      DoNotShowAgain: !!storage.get('do_not_show_again_guide')
     };
   },
   methods: {
+    handleCheckChange() {
+      storage.set("do_not_show_again_guide", this.DoNotShowAgain);
+    },
     handleEnter() {
       this.$store.dispatch("update_guide_visibility", false);
     }
@@ -115,8 +121,12 @@ export default {
       }
       .tutorial-link {
         position: absolute;
-        bottom: 24px;
-        left: 28px;
+        bottom: 58px;
+        left: 0;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 28px;
+        text-align: justify;
         a {
           margin-right: 15px;
           font-size: 12px;
@@ -135,8 +145,12 @@ export default {
       .btn {
         position: absolute;
         bottom: 20px;
-        right: 28px;
+        left: 0;
         text-align: right;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 16px;
+        padding-left: 28px;
       }
     }
   }

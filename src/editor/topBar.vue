@@ -89,8 +89,8 @@ export default {
         y: 0
       },
       nodeSize: {
-        width: 1000,
-        minWidth: 1000,
+        width: 1040,
+        minWidth: 1040,
         minHeight: 400,
         height: 400
       }

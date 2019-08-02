@@ -12,6 +12,7 @@ import {
   Row,
   Col,
   Select,
+  Checkbox,
   Option,
   InputNumber,
   ColorPicker,
@@ -40,6 +41,7 @@ Vue.use(Row)
   .use(Col)
   .use(InputNumber)
   .use(Slider)
+  .use(Checkbox)
   .use(Input)
   .use(Dropdown)
   .use(DropdownItem)

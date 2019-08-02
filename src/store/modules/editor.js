@@ -19,7 +19,7 @@ const app = {
       leftPanelStatus: local_editor_setting.leftPanelStatus,
       rightPanelSplit: local_editor_setting.rightPanelSplit,
       editID: local_editor_setting.editID,
-      guideVisibility: true
+      guideVisibility: !storage.get('do_not_show_again_guide')
     }
   },
   mutations: {

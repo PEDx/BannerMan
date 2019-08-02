@@ -25,12 +25,12 @@
             <div
               class="inner"
               :style="{
-                backgroundColor: tinycolor(val.color).setAlpha(`${(10 - idx) / 10}`)
+                backgroundColor: val.colors[idx]
               }"
             ></div>
             <div class="info">
               <div>{{ `${val.name}_${idx}` }}</div>
-              <div>rgba(1, 1, 1,.8)</div>
+              <div>{{ val.colors[idx] }}</div>
             </div>
           </div>
         </el-col>
@@ -51,27 +51,33 @@ const themeList = [
     clan: [
       {
         name: "Brand",
-        color: "#3b989b"
+        main: "#3b989b",
+        colors: []
       },
       {
         name: "Primary",
-        color: "#ee5872"
+        main: "#ee5872",
+        colors: []
       },
       {
         name: "Accent",
-        color: "#5678a3"
+        main: "#5678a3",
+        colors: []
       },
       {
         name: "Gray",
-        color: "#e3e4e6"
+        main: "#e3e4e6",
+        colors: []
       },
       {
         name: "White",
-        color: "#eeeeee"
+        main: "#eeeeee",
+        colors: []
       },
       {
         name: "Black",
-        color: "#333333"
+        main: "#333333",
+        colors: []
       }
     ]
   },
@@ -80,19 +86,23 @@ const themeList = [
     clan: [
       {
         name: "Brand",
-        color: "#5776c9"
+        main: "#5776c9",
+        colors: []
       },
       {
         name: "Primary",
-        color: "#569dd1"
+        main: "#569dd1",
+        colors: []
       },
       {
         name: "Accent",
-        color: "#63c7df"
+        main: "#63c7df",
+        colors: []
       },
       {
         name: "Gray",
-        color: "#89e5f4"
+        main: "#89e5f4",
+        colors: []
       }
     ]
   },
@@ -101,19 +111,23 @@ const themeList = [
     clan: [
       {
         name: "Brand",
-        color: "#7e7ec6"
+        main: "#7e7ec6",
+        colors: []
       },
       {
         name: "Primary",
-        color: "#fcba70"
+        main: "#fcba70",
+        colors: []
       },
       {
         name: "Accent",
-        color: "#f27a7b"
+        main: "#f27a7b",
+        colors: []
       },
       {
         name: "Gray",
-        color: "#d3c7c0"
+        main: "#d3c7c0",
+        colors: []
       }
     ]
   },
@@ -122,19 +136,23 @@ const themeList = [
     clan: [
       {
         name: "Brand",
-        color: "#236ad6"
+        main: "#236ad6",
+        colors: []
       },
       {
         name: "Primary",
-        color: "#2095f2"
+        main: "#2095f2",
+        colors: []
       },
       {
         name: "Accent",
-        color: "#d7415e"
+        main: "#d7415e",
+        colors: []
       },
       {
         name: "Gray",
-        color: "#ffd960"
+        main: "#ffd960",
+        colors: []
       }
     ]
   }
@@ -150,9 +168,21 @@ export default {
       colorPickerColor: "#ffffff"
     };
   },
+  created() {
+    this.themeList.forEach(val => {
+      val.clan.forEach(val2 => {
+        Array.from({ length: 4 }).forEach((v, idx) => {
+          const _color = tinycolor(val2.main)
+            .setAlpha(`${(10 - idx) / 10}`)
+            .toRgbString();
+          val2.colors.push(_color);
+        });
+      });
+    });
+  },
   methods: {
     handleChangeColor(color, idx) {
-      this.colorPickerColor = color;
+      this.colorPickerColor = tinycolor(color).toHexString();
       this.colorPickerIndex = idx;
     },
     handleClick(idx) {
@@ -208,6 +238,7 @@ export default {
       background-color: #fff;
       border-radius: 3px;
       overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
       .inner {
         box-sizing: border-box;
         width: 100%;

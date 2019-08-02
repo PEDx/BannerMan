@@ -284,6 +284,7 @@ export default {
       const mutationObserver = new MutationObserver(mutations => {
         mutations.forEach(val => {
           const tag = val.target.tagName;
+          const releaseTag = val.addedNodes[0].tagName;
           if (tag === "STYLE" || tag === "LINK") {
             list.push(val.target);
             addStyle();
