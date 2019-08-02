@@ -285,8 +285,12 @@ export default {
         mutations.forEach(val => {
           const tag = val.target.tagName;
           const releaseTag = val.addedNodes[0].tagName;
-          if (tag === "STYLE" || tag === "LINK") {
+          if (tag === "STYLE") {
             list.push(val.target);
+            addStyle();
+          }
+          if (releaseTag === "LINK") {
+            list.push(val.addedNodes[0]);
             addStyle();
           }
         });
