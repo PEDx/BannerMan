@@ -56,7 +56,7 @@ body {
 <style lang="css" scoped>
 .timeline-box {
   border: 1px solid;
-  border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+  border-color: #e5e6e9;
   border-radius: 3px;
   box-sizing: border-box;
 }
@@ -89,6 +89,7 @@ body {
 .layout {
   height: 100%;
   padding: 40px 10px;
+  padding-bottom: 32px;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
@@ -107,6 +108,7 @@ body {
   bottom: 0;
   margin-bottom: 0px;
   margin-top: 10px;
+  height: 22px;
 }
 .g-sd51,
 .g-sd52 {
@@ -144,8 +146,10 @@ body {
 .g-mn5 {
   float: left;
   width: 100%;
+  height: 100%;
 }
 .g-mn5c {
+  height: 100%;
   margin: 0 310 0 310;
 }
 .viewport {
@@ -203,5 +207,22 @@ body {
 .info-one {
   height: 40px;
   margin-bottom: 20px;
+}
+
+.dark-mode.timeline-item {
+  background-color: #414146;
+}
+.dark-mode .timeline-box {
+  border-color: #252527;
+}
+.dark-mode .animated-background {
+  background: linear-gradient(90deg, #333336 25%, #414146 37%, #333336 63%);
+  background-size: 400% 100%;
+}
+.dark-mode .info .round {
+  background-color: #414146;
+}
+.dark-mode  .empty {
+  background-color: #414146;
 }
 </style>
