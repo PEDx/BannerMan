@@ -6,6 +6,7 @@ const config = require('../config');
 const merge = require('webpack-merge');
 const baseWebpackConfig = require('./webpack.base.conf');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WebpackSkeletonPlugin = require('./webpack-skeleton-plugin');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 const portfinder = require('portfinder');
 
@@ -63,7 +64,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     }),
     new webpack.HotModuleReplacementPlugin(),
     // https://github.com/ampedandwired/html-webpack-plugin
-    ...(config.pages.map(
+    ...config.pages.map(
       val =>
         new HtmlWebpackPlugin({
           filename: val.output,
@@ -72,7 +73,8 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           inject: true,
           chunks: [val.name]
         })
-    ))
+    ),
+    new WebpackSkeletonPlugin()
   ]
 });
 

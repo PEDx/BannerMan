@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import App from './app';
+import router from './router';
 import '@style/cssrest.css';
 import '@style/element-style-reload.scss';
 import VueDraggableResizable from 'vue-draggable-resizable';
@@ -69,6 +70,7 @@ Vue.prototype.$ELEMENT = { size: 'mini' };
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  router,
   store,
   render: h => h(App)
 });

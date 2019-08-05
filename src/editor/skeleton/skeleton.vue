@@ -1,148 +1,207 @@
 <template>
   <div class="timeline-item">
-    <div class="animated-background">
-      <div class="background-masker header-top"></div>
-      <div class="background-masker header-left"></div>
-      <div class="background-masker header-right"></div>
-      <div class="background-masker header-bottom"></div>
-      <div class="background-masker subheader-left"></div>
-      <div class="background-masker subheader-right"></div>
-      <div class="background-masker subheader-bottom"></div>
+    <div class="top-bar animated-background timeline-box"></div>
+    <div class="layout f-cb">
+      <div class="g-sd51 timeline-box">
+        <div class="top timeline-box">
+          <div class="info animated-background"></div>
+          <div class="item-list">
+            <div class="item" v-for="n in 10" :key="n">
+              <div class="round animated-background"></div>
+              <div class="info animated-background"></div>
+            </div>
+          </div>
+          <div class="info animated-background" v-for="n in 3" :key="n"></div>
+        </div>
+        <div class="bottom timeline-box">
+          <div class="info animated-background" v-for="n in 8" :key="n">
+            <div class="empty"></div>
+          </div>
+        </div>
+      </div>
+      <div class="g-mn5">
+        <div class="g-mn5c">
+          <div class="viewport animated-background timeline-box"></div>
+        </div>
+      </div>
+      <div class="g-sd52 timeline-box">
+        <div class="top timeline-box">
+          <div class="info-one animated-background"></div>
+          <div class="info animated-background" v-for="n in 8" :key="n">
+            <div class="round">
+              <span class="animated-background"></span>
+            </div>
+          </div>
+        </div>
+        <div class="bottom timeline-box animated-background"></div>
+      </div>
     </div>
+    <div class="bottom-bar animated-background timeline-box"></div>
   </div>
 </template>
 <script>
 export default {};
 </script>
+<style>
+html,
+body,
+#app {
+  height: 100%;
+}
+body {
+  margin: 0px;
+}
+</style>
 
-<style lang="css">
-.timeline-item {
-  background: #fff;
+<style lang="css" scoped>
+.timeline-box {
   border: 1px solid;
   border-color: #e5e6e9 #dfe0e4 #d0d1d5;
   border-radius: 3px;
-  padding: 12px;
-  margin: 0 auto;
-  max-width: 472px;
-  min-height: 200px;
+  box-sizing: border-box;
+}
+.timeline-item {
+  background: #fff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 @keyframes placeHolderShimmer {
   0% {
-    background-position: -468px 0;
+    background-position: 100% 50%;
   }
+
   100% {
-    background-position: 468px 0;
+    background-position: 0 50%;
   }
 }
 
 .animated-background {
-  animation-duration: 1s;
-  animation-fill-mode: forwards;
-  animation-iteration-count: infinite;
-  animation-name: placeHolderShimmer;
-  animation-timing-function: linear;
-  background: #f6f7f8;
-  background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
-  background-size: 800px 104px;
+  animation: placeHolderShimmer 1.4s ease infinite;
+  background: linear-gradient(90deg, #f2f2f2 25%, #e6e6e6 37%, #f2f2f2 63%);
+  background-size: 400% 100%;
   height: 40px;
   position: relative;
 }
 
-.background-masker {
-  background: #fff;
+.layout {
+  height: 100%;
+  padding: 40px 10px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+.top-bar,
+.bottom-bar {
   position: absolute;
+  width: 100%;
+  height: 30px;
+  margin-bottom: 10px;
 }
-
-/* Every thing below this is just positioning */
-
-.background-masker.header-top,
-.background-masker.header-bottom,
-.background-masker.subheader-bottom {
+.top-bar {
   top: 0;
-  left: 40px;
-  right: 0;
-  height: 10px;
 }
-
-.background-masker.header-left,
-.background-masker.subheader-left,
-.background-masker.header-right,
-.background-masker.subheader-right {
-  top: 10px;
-  left: 40px;
-  height: 8px;
-  width: 10px;
+.bottom-bar {
+  bottom: 0;
+  margin-bottom: 0px;
+  margin-top: 10px;
 }
-
-.background-masker.header-bottom {
-  top: 18px;
-  height: 6px;
+.g-sd51,
+.g-sd52 {
+  display: flex;
+  flex-direction: column;
+  float: left;
+  width: 300px;
+  margin: 0 -300px 0 0;
+  height: 100%;
+  padding: 10px;
+  overflow: hidden;
 }
-
-.background-masker.subheader-left,
-.background-masker.subheader-right {
-  top: 24px;
-  height: 6px;
+.g-sd51 .top,
+.g-sd52 .top {
+  width: 100%;
+  height: 450px;
+  margin-bottom: 10px;
+  padding: 10px;
+  overflow: hidden;
 }
-
-.background-masker.header-right,
-.background-masker.subheader-right {
-  width: auto;
-  left: 300px;
-  right: 0;
+.g-sd52 .top {
+  height: 560px;
 }
-
-.background-masker.subheader-right {
-  left: 230px;
+.g-sd51 .bottom,
+.g-sd52 .bottom {
+  flex: 1;
+  padding: 10px;
+  overflow: hidden;
 }
-
-.background-masker.subheader-bottom {
-  top: 30px;
-  height: 10px;
+.g-sd52 {
+  float: right;
+  width: 300px;
+  margin: 0 0 0 -300px;
 }
-
-.background-masker.content-top,
-.background-masker.content-second-line,
-.background-masker.content-third-line,
-.background-masker.content-second-end,
-.background-masker.content-third-end,
-.background-masker.content-first-end {
-  top: 40px;
-  left: 0;
-  right: 0;
-  height: 6px;
+.g-mn5 {
+  float: left;
+  width: 100%;
 }
-
-.background-masker.content-top {
+.g-mn5c {
+  margin: 0 310 0 310;
+}
+.viewport {
+  width: 375px;
+  height: 667px;
+  margin: 0 auto;
+  position: relative;
+  top: 20px;
+}
+.item-list {
+  overflow: hidden;
+}
+.item {
+  width: 50px;
+  float: left;
+  margin-left: 11px;
+  margin-bottom: 20px;
+}
+.item .round {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-bottom: 5px;
+}
+.info {
+  width: 100%;
   height: 20px;
+  margin-bottom: 20px;
 }
-
-.background-masker.content-first-end,
-.background-masker.content-second-end,
-.background-masker.content-third-end {
-  width: auto;
-  left: 380px;
-  right: 0;
-  top: 60px;
-  height: 8px;
+.item .info {
+  margin: 0;
 }
-
-.background-masker.content-second-line {
-  top: 68px;
+.bottom .info {
+  margin-bottom: 10px;
 }
-
-.background-masker.content-second-end {
-  left: 420px;
-  top: 74px;
+.empty {
+  height: 100%;
+  width: 10px;
+  float: left;
+  background-color: #fff;
+  margin-left: 30px;
 }
-
-.background-masker.content-third-line {
-  top: 82px;
+.info .round {
+  width: 25px;
+  height: 100%;
+  background-color: #fff;
+  float: left;
 }
-
-.background-masker.content-third-end {
-  left: 300px;
-  top: 88px;
+.info .round span {
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+}
+.info-one {
+  height: 40px;
+  margin-bottom: 20px;
 }
 </style>
