@@ -69,12 +69,12 @@
   </div>
 </template>
 <script>
-import floatWindow from "./components/float-window";
-import themeColorPicker from "./components/theme-color-picker";
+import floatWindow from "@editor/components/float-window";
+import themeColorPicker from "@editor/components/theme-color-picker";
 import deviceModelList from "./device";
-import EventBus from "../bus";
+import EventBus from "@/bus";
 import logo from "./logo";
-import { getViewportVueInstance } from "../utils/index";
+import { getViewportVueInstance } from "@utils/index";
 
 export default {
   components: { logo, floatWindow, themeColorPicker },

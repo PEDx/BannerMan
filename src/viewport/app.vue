@@ -27,16 +27,16 @@ import {
   getRandomStr,
   UNDEFINED,
   traversal
-} from "../utils/index";
-import storage from "../storage";
+} from "@utils/index";
+import storage from "@/storage";
 import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
 import { ElementMixin } from "./sortble";
 import sortbleContainer from "./components/sortble-container";
 import { WidgetContainerMixin } from "./components/widget-container-mixin";
 
-import widgets from "../widgets";
-import EventBus from "../bus";
+import widgets from "@/widgets";
+import EventBus from "@/bus";
 const MutationObserver =
   window.MutationObserver ||
   window.WebKitMutationObserver ||

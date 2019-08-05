@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { clamp } from "../../../utils/index";
+import { clamp } from "@utils/index";
 const MIN_BASE_PIX = 20; // 为最小拖拉和关闭后的高度像素值
 export default {
   props: {

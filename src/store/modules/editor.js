@@ -1,5 +1,5 @@
-import storage from '../../storage';
-import { UNDEFINED } from '../../utils/index';
+import storage from '@/storage';
+import { UNDEFINED } from '@utils/index';
 const local_editor_setting = storage.get('setting') || {};
 
 Object.keys(local_editor_setting).forEach(key => {

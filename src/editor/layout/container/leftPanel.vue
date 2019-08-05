@@ -138,10 +138,10 @@
   </div>
 </template>
 <script>
-import foldBar from "../components/split-pane/fold-bar";
-import splitPane from "../components/split-pane/split-pane";
-import { getViewportVueInstance } from "../../utils/index";
-import EventBus from "../../bus";
+import foldBar from "@editor/components/split-pane/fold-bar";
+import splitPane from "@editor/components/split-pane/split-pane";
+import { getViewportVueInstance } from "@utils/index";
+import EventBus from "@/bus";
 const URL_REG = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/gi;
 const widgets = [
   {

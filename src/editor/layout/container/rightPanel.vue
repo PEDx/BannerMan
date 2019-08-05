@@ -89,20 +89,20 @@
   </div>
 </template>
 <script>
-import foldBar from "../components/split-pane/fold-bar";
-import controllerItem from "../components/controller-item";
-import splitPane from "../components/split-pane/split-pane";
-import componentTree from "../components/tree/component-tree";
-import { controllers, controllerTypeMap } from "../controllers";
+import foldBar from "@editor/components/split-pane/fold-bar";
+import controllerItem from "@editor/components/controller-item";
+import splitPane from "@editor/components/split-pane/split-pane";
+import componentTree from "@editor/components/tree/component-tree";
+import { controllers, controllerTypeMap } from "@editor/controllers";
 import clonedeep from "lodash.clonedeep";
 import {
   getViewportVueInstance,
   debounce,
   getRandomStr,
   UNDEFINED
-} from "../../utils/index";
-import EventBus from "../../bus";
-import storage from "../../storage";
+} from "@utils/index";
+import EventBus from "@/bus";
+import storage from "@/storage";
 const custom_component_type_name = "CTRL_CUSTOM";
 
 export default {

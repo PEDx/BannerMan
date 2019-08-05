@@ -57,8 +57,8 @@
 import rightPanel from "./rightPanel";
 import leftPanel from "./leftPanel";
 import deviceModelList from "../device";
-import { throttle, clamp } from "../../utils/index";
-import EventBus from "../../bus";
+import { throttle, clamp } from "@utils/index";
+import EventBus from "@/bus";
 const EDITER_LEFT_PANEL_MIN_WIDTH = 260;
 const EDITER_RIGHT_PANEL_MIN_WIDTH = 300;
 export default {

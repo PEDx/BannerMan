@@ -26,7 +26,7 @@
   </div>
 </template>
 <script>
-import EventBus from "../../bus";
+import EventBus from "@/bus";
 export default {
   props: {
     value: Object

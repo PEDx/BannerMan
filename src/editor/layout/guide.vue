@@ -31,8 +31,8 @@
   </transition>
 </template>
 <script>
-import brandImg from "../assets/img/guide-brand.jpg";
-import storage from "../storage";
+import brandImg from "@editor/assets/img/guide-brand.jpg";
+import storage from "@/storage";
 export default {
   props: {
     visible: {

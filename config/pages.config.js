@@ -2,10 +2,10 @@
 const path = require('path');
 module.exports = [
   {
-    name: 'editer',
+    name: 'editor',
     title: '编辑器',
-    entry: './src/main.js',
-    template: './index.html',
+    entry: './src/editor/main.js',
+    template: './src/editor/index.html',
     output: path.resolve(__dirname, '../dist/index.html')
   },
   {
