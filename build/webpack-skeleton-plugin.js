@@ -11,77 +11,93 @@ const ora = require('ora');
 const createBundleRenderer = require('vue-server-renderer')
   .createBundleRenderer;
 
-const config = {
-  target: 'node',
-  entry: {
-    skeleton: './src/editor/skeleton/skeleton.entry.js'
-  },
-  output: {
-    path: path.resolve(__dirname, '../dist'),
-    publicPath: '/dist/',
-    filename: '[name].js',
-    libraryTarget: 'commonjs2'
-  },
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: ['vue-style-loader', 'css-loader']
-      },
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader'
-      }
-    ]
-  },
-  externals: nodeExternals({
-    whitelist: /\.css$/
-  }),
-  resolve: {
-    alias: {
-      vue$: 'vue/dist/vue.esm.js'
+const config = (entry, output) => {
+  const _obj = {};
+  _obj[entry.name] = entry.path;
+  return {
+    target: 'node',
+    entry: _obj,
+    output: {
+      path: output,
+      publicPath: '/dist/',
+      filename: '[name].js',
+      libraryTarget: 'commonjs2'
     },
-    extensions: ['*', '.js', '.vue', '.json']
-  },
-  plugins: [
-    new VueLoaderPlugin(),
-    new VueSSRServerPlugin({
-      filename: 'skeleton.json'
-    })
-  ]
+    module: {
+      rules: [
+        {
+          test: /\.css$/,
+          use: ['vue-style-loader', 'css-loader']
+        },
+        {
+          test: /\.vue$/,
+          loader: 'vue-loader'
+        }
+      ]
+    },
+    externals: nodeExternals({
+      whitelist: /\.css$/
+    }),
+    resolve: {
+      alias: {
+        vue$: 'vue/dist/vue.esm.js'
+      },
+      extensions: ['*', '.js', '.vue', '.json']
+    },
+    plugins: [
+      new VueLoaderPlugin(),
+      new VueSSRServerPlugin({
+        filename: `skeleton.${entry.name}.json`
+      })
+    ]
+  };
 };
 
 class WebpackSkeletonPlugin {
+  constructor(options) {
+    this.options = options;
+  }
   apply(compiler) {
     compiler.hooks.compilation.tap('WebpackSkeletonPlugin', compilation => {
-      console.log('The compiler is starting a new compilation...');
       // Static Plugin interface |compilation |HOOK NAME | register listener
       HtmlWebpackPlugin.getHooks(compilation).afterTemplateExecution.tapAsync(
         'WebpackSkeletonPlugin', // <-- Set a meaningful name here for stacktraces
         (data, callback) => {
-          webpack(config, (err, stats) => {
-            // console.log(stats);
-            genSkeletonHtml().then(skeletonHtml => {
-              data.html = skeletonHtml;
-              callback(null, data);
-            });
-          });
+          const htmlPluginOption = data.plugin.options;
+          if (!this.options.entry[htmlPluginOption.name]) {
+            callback(null, data);
+            return;
+          }
+          webpack(
+            config(
+              {
+                name: htmlPluginOption.name,
+                path: this.options.entry[htmlPluginOption.name]
+              },
+              this.options.output
+            ),
+            (err, stats) => {
+              // console.log(stats);
+              genSkeletonHtml(
+                htmlPluginOption.name,
+                htmlPluginOption.template.split('!')[1],
+                this.options.output
+              ).then(skeletonHtml => {
+                data.html = skeletonHtml;
+                callback(null, data);
+              });
+            }
+          );
         }
       );
     });
   }
 }
-function genSkeletonHtml() {
+function genSkeletonHtml(name, htmlPath, output) {
   const _html = '';
-  const renderer = createBundleRenderer(
-    resolve(__dirname, '../dist/skeleton.json'),
-    {
-      template: fs.readFileSync(
-        resolve(__dirname, '../src/editor/index.html'),
-        'utf-8'
-      )
-    }
-  );
+  const renderer = createBundleRenderer(`${output}/skeleton.${name}.json`, {
+    template: fs.readFileSync(htmlPath, 'utf-8')
+  });
 
   return new Promise((resolve, reject) => {
     renderer.renderToString({}, (err, html) => {

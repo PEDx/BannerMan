@@ -6,7 +6,6 @@ const config = require('../config');
 const merge = require('webpack-merge');
 const baseWebpackConfig = require('./webpack.base.conf');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const WebpackSkeletonPlugin = require('./webpack-skeleton-plugin');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 const portfinder = require('portfinder');
 
@@ -71,10 +70,10 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           template: val.template,
           title: val.title,
           inject: true,
+          name: val.name,
           chunks: [val.name]
         })
-    ),
-    new WebpackSkeletonPlugin()
+    )
   ]
 });
 
