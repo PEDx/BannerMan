@@ -59,9 +59,8 @@ export default {
       resizable: false
     };
   },
-  created() {
-    var component = this.$mount();
-    document.body.appendChild(component.$el);
+  mounted() {
+    document.body.appendChild(this.$el);
   },
   methods: {
     onResize(x, y, width, height) {},

@@ -1,13 +1,11 @@
 const fs = require('fs');
-const { resolve } = require('path');
-const path = require('path');
+
 const nodeExternals = require('webpack-node-externals');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueSSRServerPlugin = require('vue-server-renderer/server-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const webpack = require('webpack');
-// const cheerio = require('cheerio');
-const ora = require('ora');
+
 const createBundleRenderer = require('vue-server-renderer')
   .createBundleRenderer;
 
@@ -53,15 +51,15 @@ const config = (entry, output) => {
   };
 };
 
-class WebpackSkeletonPlugin {
+class VueSkeletonWebpackPlugin {
   constructor(options) {
     this.options = options;
   }
   apply(compiler) {
-    compiler.hooks.compilation.tap('WebpackSkeletonPlugin', compilation => {
+    compiler.hooks.compilation.tap('VueSkeletonWebpackPlugin', compilation => {
       // Static Plugin interface |compilation |HOOK NAME | register listener
       HtmlWebpackPlugin.getHooks(compilation).afterTemplateExecution.tapAsync(
-        'WebpackSkeletonPlugin', // <-- Set a meaningful name here for stacktraces
+        'VueSkeletonWebpackPlugin', // <-- Set a meaningful name here for stacktraces
         (data, callback) => {
           const htmlPluginOption = data.plugin.options;
           if (!this.options.entry[htmlPluginOption.name]) {
@@ -106,4 +104,4 @@ function genSkeletonHtml(name, htmlPath, output) {
     });
   });
 }
-module.exports = WebpackSkeletonPlugin;
+module.exports = VueSkeletonWebpackPlugin;
