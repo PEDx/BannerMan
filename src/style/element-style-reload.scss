@@ -86,11 +86,22 @@
 }
 
 .el-notification {
+  padding: 12px;
+  border-radius: 4px;
+  background-color: #343438;
+  border: 1px solid #7e7b85;
   width: auto;
-  padding: 14px;
+  min-width: 330px;
+
+  .el-notification__title {
+    color: #eee;
+    font-size: 14px;
+  }
 
   .el-notification__content {
-    line-height: 0;
+    // line-height: 0;
+    font-size: 12px;
+    color: #aaa;
   }
 }
 
@@ -322,4 +333,22 @@
     top: 0;
     left: 3px;
   }
+}
+
+
+.el-message--error {
+  border-color: #F56C6C;
+}
+
+.el-message--success {
+  border-color: #67C23A;
+}
+
+.el-message--warning {
+  border-color: #E6A23C;
+}
+
+.el-message {
+  background-color: #343438;
+  padding: 8px 10px 8px 14px;
 }

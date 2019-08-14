@@ -15,7 +15,7 @@
             </el-button>
           </div>
           <div class="number">
-            <input v-model.number="rangeValue" type="number" @change="handleInputChange">
+            <input v-model.number="rangeValue" type="number" @change="handleInputChange" />
           </div>
           <div class="slider">
             <el-slider
@@ -90,10 +90,8 @@ export default {
           this.$notify({
             title: "截图预览",
             dangerouslyUseHTMLString: true,
-            message: `<div id="screenshot-content" style="border: 1px solid #fd9527;font-size: 0;box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);height: ${
-              this.device.height
-            }px;overflow-y: scroll;overflow-x: hidden;"></div>`,
-            duration: 1000,
+            message: `<div id="screenshot-content" style="border: 1px solid #fd9527;font-size: 0;box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);height: ${this.device.height}px;overflow-y: auto;overflow-x: hidden;"></div>`,
+            duration: 1500,
             showClose: false,
             position: "bottom-right",
             onClose: () => {
