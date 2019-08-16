@@ -67,6 +67,7 @@ body {
   box-sizing: border-box;
 }
 .timeline-item {
+  position: relative;
   background: #fff;
   height: 100%;
   display: flex;

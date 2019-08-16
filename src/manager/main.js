@@ -3,7 +3,8 @@ import App from './app';
 import router from './router';
 import '@style/cssrest.css';
 import '@style/element-style-reload.scss';
-
+import store from '@store';
+import './styles/index.scss';
 import {
   Row,
   Col,
@@ -23,10 +24,17 @@ import {
   FormItem,
   Switch,
   Slider,
+  Scrollbar,
   Input,
+  Breadcrumb,
   Popover,
   Card,
+  Menu,
+  Submenu,
+  MenuItem,
+  MenuItemGroup,
   Message,
+  BreadcrumbItem,
   Notification
 } from 'element-ui';
 
@@ -38,17 +46,24 @@ Vue.use(Row)
   .use(Input)
   .use(Dropdown)
   .use(DropdownItem)
+  .use(Scrollbar)
   .use(Link)
   .use(DropdownMenu)
   .use(Dialog)
   .use(Form)
   .use(FormItem)
+  .use(BreadcrumbItem)
+  .use(Breadcrumb)
   .use(Switch)
   .use(Tooltip)
   .use(Upload)
   .use(Popover)
   .use(Card)
   .use(Button)
+  .use(Menu)
+  .use(Submenu)
+  .use(MenuItem)
+  .use(MenuItemGroup)
   .use(Select)
   .use(Option);
 
@@ -60,5 +75,6 @@ Vue.prototype.$ELEMENT = { size: 'mini' };
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 });

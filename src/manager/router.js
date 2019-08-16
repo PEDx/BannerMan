@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Manager from './app';
+import Dashboard from './pages/dashboard';
 import Skeleton from './skeleton/skeleton';
 
 Vue.use(Router);
@@ -10,17 +10,20 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/manager'
+      redirect: 'manager',
+      meta: { title: '退款申请', icon: 'fp' }
     },
     {
       path: '/manager',
       name: 'manager',
-      component: Manager
+      component: Dashboard,
+      meta: { title: '退款申请', icon: 'fp' }
     },
     {
       path: '/manager/skeleton',
       name: 'skeleton',
-      component: Skeleton
+      component: Skeleton,
+      meta: { title: '退款申请', icon: 'fp' }
     }
   ]
 });

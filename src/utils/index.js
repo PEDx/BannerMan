@@ -25,7 +25,9 @@ function sanitize(data) {
     return data;
   }
 }
-
+export function isExternal(path) {
+  return /^(https?:|mailto:|tel:)/.test(path);
+}
 export function flatten(items) {
   return items.reduce((acc, item) => {
     if (item instanceof Array) acc.push(...flatten(item));
