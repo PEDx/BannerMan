@@ -62,8 +62,7 @@ const webpackConfig = merge(baseWebpackConfig, {
             removeComments: true,
             collapseWhitespace: true,
             removeAttributeQuotes: true
-          },
-          chunks: ['manifest', 'vendor', val.name]
+          }
         })
     ),
     new ScriptExtHtmlWebpackPlugin({
@@ -101,17 +100,24 @@ const webpackConfig = merge(baseWebpackConfig, {
   optimization: {
     splitChunks: {
       chunks: 'all',
+      maxAsyncRequests: 5, // 最大异步请求数， 默认5
+      maxInitialRequests: 4, // 最大初始化请求书，默认3
       cacheGroups: {
         libs: {
           name: 'chunk-libs',
           test: /[\\/]node_modules[\\/]/,
-          priority: 10,
+          priority: 1,
           chunks: 'initial' // 只打包初始时依赖的第三方
         },
         elementUI: {
           name: 'chunk-elementUI', // 单独将 elementUI 拆包
-          priority: 20, // 权重要大于 libs 和 app 不然会被打包进 libs 或者 app
+          priority: 2, // 权重要大于 libs 和 app 不然会被打包进 libs 或者 app
           test: /[\\/]node_modules[\\/]element-ui[\\/]/
+        },
+        quill: {
+          name: 'chunk-quill',
+          priority: 3,
+          test: /[\\/]node_modules[\\/]quill[\\/]/
         }
       }
     },
@@ -156,7 +162,7 @@ if (config.build.generateAnalyzerReport || config.build.bundleAnalyzerReport) {
   if (config.build.bundleAnalyzerReport) {
     webpackConfig.plugins.push(
       new BundleAnalyzerPlugin({
-        analyzerPort: 8080,
+        analyzerPort: 9090,
         generateStatsFile: false
       })
     );
