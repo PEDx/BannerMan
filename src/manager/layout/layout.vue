@@ -58,14 +58,14 @@ export default {
   transition: margin-left 0.28s;
   margin-left: $sideBarWidth;
   position: relative;
-  .top{
+  .top {
     position: absolute;
     top: 0;
     left: 0;
     height: 50px;
     width: 100%;
   }
-  .bottom{
+  .bottom {
     height: 100%;
     box-sizing: border-box;
     padding-top: 50px;
@@ -81,6 +81,7 @@ export default {
     top: 0;
   }
 }
+
 .drawer-bg {
   background: #000;
   opacity: 0.3;

@@ -6,9 +6,15 @@
       :collapse="isCollapse"
       mode="vertical"
       background-color="#343438"
-      text-color="#575757"
+      text-color="#fff"
+      active-text-color="#fd9527"
     >
-      <sidebar-item v-for="route in routes" :key="route.path" :item="route" :base-path="route.path"></sidebar-item>
+      <sidebar-item
+        v-for="route in routes.children"
+        :key="route.path"
+        :item="route"
+        :base-path="routes.path"
+      ></sidebar-item>
     </el-menu>
   </el-scrollbar>
 </template>
@@ -22,11 +28,18 @@ export default {
   computed: {
     ...mapGetters(["sidebar"]),
     routes() {
-      return this.$router.options.routes;
+      let rootRoute = null;
+      this.$router.options.routes.forEach(val => {
+        if (val.root) rootRoute = val;
+      });
+      return rootRoute;
     },
     isCollapse() {
       return !this.sidebar.opened;
     }
+  },
+  created() {
+    console.log(this.$router);
   }
 };
 </script>

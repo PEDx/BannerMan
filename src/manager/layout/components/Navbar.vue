@@ -54,6 +54,9 @@ export default {
   line-height: 50px;
   border-radius: 0px !important;
   box-shadow: 0 2px 4px 0 #d3d3d3;
+  & > div:focus:not(.focusing) {
+    outline-width: 0;
+  }
   .hamburger-container {
     line-height: 58px;
     height: 50px;

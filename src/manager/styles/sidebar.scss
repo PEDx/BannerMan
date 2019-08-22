@@ -1,8 +1,5 @@
 #app {
 
-  // 主体区域
-
-
   // 侧边栏
   .sidebar-container {
     transition: width 0.28s;
@@ -44,17 +41,25 @@
     }
 
     .svg-icon {
-      margin-right: 16px;
+      margin-right: 10px;
     }
 
     .el-menu {
       border: none;
       height: 100%;
       width: 100% !important;
-    }
 
-    .is-active>.el-submenu__title {
-      // color: $subMenuBg !important;
+      .el-menu-item {
+        height: 34px;
+        line-height: 34px;
+        color: #eee;
+      }
+
+      .el-submenu__title {
+        height: 34px;
+        line-height: 34px;
+        color: #eee;
+      }
     }
   }
 
@@ -100,16 +105,6 @@
           }
         }
       }
-    }
-  }
-
-  .sidebar-container .nest-menu .el-submenu>.el-submenu__title,
-  .sidebar-container .el-submenu .el-menu-item {
-    min-width: $sideBarWidth !important;
-    background-color: $subMenuBg !important;
-
-    &:hover {
-      background-color: $menuHover !important;
     }
   }
 

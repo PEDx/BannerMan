@@ -5,6 +5,8 @@ import '@style/cssrest.css';
 import '@style/element-style-reload.scss';
 import store from '@store';
 import './styles/index.scss';
+import '@/icons';
+import SvgIcon from '../editor/components/svg-icon.vue';
 import {
   Row,
   Col,
@@ -66,7 +68,7 @@ Vue.use(Row)
   .use(MenuItemGroup)
   .use(Select)
   .use(Option);
-
+Vue.component('svg-icon', SvgIcon);
 Vue.prototype.$notify = Notification;
 Vue.prototype.$message = Message;
 Vue.prototype.$ELEMENT = { size: 'mini' };

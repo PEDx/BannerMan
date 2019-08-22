@@ -10,7 +10,7 @@
     <use
       :xlink:href="iconName"
       :style="{
-        fill: color,
+        fill: 'currentColor',
         width: `${width}px`,
         height: `${height}px`
       }"
@@ -51,7 +51,7 @@ export default {
   width: 28px;
   height: 29px;
   svg {
-    fill: #fff;
+    // fill: #fff;
   }
 }
 </style>
