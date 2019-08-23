@@ -112,9 +112,7 @@ export default {
   z-index: 999;
   padding: 10px;
   flex: 1;
-  // background: #fff;
-  // max-width: 960px;
-  // margin: 0 auto;
+  font-size: 14px;
   ul,
   p {
     margin: 0;

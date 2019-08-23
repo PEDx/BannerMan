@@ -276,11 +276,10 @@ export default {
       let nonius = 0;
       return title => {
         if (idObj[title]) {
-          // debugger
           return idObj[title];
         } else {
           nonius++;
-          idObj[title] = colorArr[nonius % 4];
+          idObj[title] = colorArr[nonius];
           return idObj[title];
         }
       };

@@ -83,12 +83,12 @@ export default {
       const oneDay = 1000 * 60 * 60 * 24;
       // let debug = false;
       const res = [{}, {}, {}];
-      res[0].addDate = 1536508800000;
-      res[0].remainPeriodEndDate = 1542816000000;
-      res[1].addDate = 1539100800000 - oneDay * 30;
-      res[1].remainPeriodEndDate = 1539100800000 - oneDay * 30;
-      res[2].addDate = 1539100800000;
-      res[2].remainPeriodEndDate = 1542816000000;
+      res[0].addDate = new Date(2019, 1, 12).getTime();
+      res[0].remainPeriodEndDate = new Date(2019, 1, 23).getTime();
+      res[1].addDate = new Date(2018, 9, 23).getTime();
+      res[1].remainPeriodEndDate = new Date(2018, 10, 23).getTime();
+      res[2].addDate = new Date(2018, 11, 23).getTime();
+      res[2].remainPeriodEndDate = new Date(2018, 12, 23).getTime();
 
       const _obj = res.map(val => {
         const startDate = new Date(val.addDate);
@@ -97,7 +97,7 @@ export default {
           endDate = new Date(val.remainPeriodEndDate - oneDay);
         }
         return {
-          title: val.pesticideName,
+          title: val.pesticideName || "title",
           pesticideId: val.pesticideId,
           start: [
             startDate.getFullYear(),
