@@ -352,6 +352,11 @@
   background-color: #343438;
   padding: 8px 10px 8px 14px;
 }
-.el-menu-item:hover{
-  background-color: #252525!important;
+
+.el-menu-item:hover {
+  background-color: #252525 !important;
+}
+
+.el-menu-item.is-active {
+  background-color: #252525 !important;
 }

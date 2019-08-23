@@ -26,6 +26,7 @@ module.exports = {
     ],
     'vue/attributes-order': false,
     'vue/require-default-prop': false,
+    'vue/no-use-v-if-with-v-for': false,
     'vue/html-self-closing': [
       'error',
       {
