@@ -1,8 +1,10 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Skeleton from './skeleton/skeleton';
-import Layout from './layout/layout';
-import DateFlow from './pages/dateFlow';
+import Skeleton from '@manager/skeleton/skeleton';
+import Layout from '@manager/layout/layout';
+import DateFlow from '@manager/pages/dateFlow';
+import Gallery from '@manager/pages/gallery';
+import Group from '@manager/pages/group';
 Vue.use(Router);
 
 export default new Router({
@@ -41,7 +43,7 @@ export default new Router({
         {
           path: 'group',
           name: 'group',
-          component: Skeleton,
+          component: Group,
           meta: { title: '团队管理', icon: 'group' }
         },
         {
@@ -51,9 +53,9 @@ export default new Router({
           meta: { title: '组件管理', icon: 'swatch' }
         },
         {
-          path: 'skeleton',
-          name: 'skeleton',
-          component: Skeleton,
+          path: 'gallery',
+          name: 'gallery',
+          component: Gallery,
           meta: { title: 'Gallery', icon: 'gallery' }
         }
       ]

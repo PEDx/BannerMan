@@ -42,6 +42,7 @@ module.exports = {
       '@': resolve('src'),
       '@editor': resolve('src/editor'),
       '@viewport': resolve('src/viewport'),
+      '@manager': resolve('src/manager'),
       '@style': resolve('src/style'),
       '@store': resolve('src/store'),
       '@utils': resolve('src/utils')

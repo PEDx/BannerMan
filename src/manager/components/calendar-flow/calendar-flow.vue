@@ -109,7 +109,7 @@ export default {
 <style lang="scss">
 .comp-full-calendar {
   position: relative;
-  z-index: 999;
+  // z-index: 999;
   padding: 10px;
   flex: 1;
   font-size: 14px;
@@ -133,7 +133,7 @@ export default {
     margin-bottom: 5px;
     overflow: hidden;
     .number {
-      color: #ffac00;
+      color: rgb(253, 149, 39);
       font-size: 36px;
       font-style: italic;
     }

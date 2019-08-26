@@ -45,43 +45,22 @@
                     }]"
                     @click="eventClick(event,$event, idx)"
                   >
-                    <span v-if="day.isCurMonth">
+                    <template v-if="day.isCurMonth">
                       <span
-                        :class="['name-text', isStart(event.start, day.date) && event.isShow && 'show-name-text' ]"
+                        :class="['day-text']"
                         v-if="isStart(event.start, day.date)"
+                        :style="`backgroundColor: ${computedColor(event.title)}`"
                       >{{ isBegin(event, day.date, day.weekDay) }}</span>
-                      <svg
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        v-if="event.isShow || !isEnd(event.end,day.date)"
-                        class="svg-comp"
-                      >
-                        <defs>
-                          <linearGradient
-                            :id="`leftToRight${computedColor(event.title).join('-')}-${computedOpacity(day.date, event.start, event.end, 'start')}`"
-                            x1="0%"
-                            y1="0%"
-                            x2="100%"
-                            y2="0%"
-                          >
-                            <stop
-                              offset="0%"
-                              :style="`stop-color:rgb(${computedColor(event.title)});
-                    stop-opacity:${computedOpacity(day.date, event.start, event.end, 'start')}`"
-                            />
-                            <stop
-                              offset="100%"
-                              :style="`stop-color:rgb(${computedColor(event.title)});
-                    stop-opacity:${computedOpacity(day.date, event.start, event.end, 'end')}`"
-                            />
-                          </linearGradient>
-                        </defs>
-                        <polygon
-                          :points="computedPoints(day.date, event.start, event.end)"
-                          :style="`fill:url(#leftToRight${computedColor(event.title).join('-')}-${computedOpacity(day.date, event.start, event.end, 'start')})`"
-                        />
-                      </svg>
-                    </span>
+                      <span
+                        :class="['name-taxt']"
+                        v-if="isStart(event.start, day.date)"
+                        :style="{width: cutTitle(this,event.start)}"
+                      >{{ event.title }}</span>
+                      <span
+                        class="color-block"
+                        :style="`backgroundColor: ${tinycolor(computedColor(event.title)).setAlpha(0.4).toRgbString()}`"
+                      ></span>
+                    </template>
                   </p>
                 </div>
               </div>
@@ -97,15 +76,12 @@
           v-show="showInfo"
           :style="{left: morePos.left + 'px', top: morePos.top + 'px'}"
         >
-          <div>
-            施药种类: {{ eventInfo.title }}
-            <span
-              class="info-color"
-              :style="`background-color: rgb(${infoColor});`"
-            ></span>
+          <div class="wrap" :style="`border-color: ${infoColor};`">
+            <div>名称: {{ eventInfo.title }}</div>
+            <div>开始: {{ eventInfo.start }}</div>
+            <div>结束: {{ eventInfo.end }}</div>
           </div>
-          <div>开始时间: {{ eventInfo.start }}</div>
-          <div>结束时间: {{ eventInfo.end }}</div>
+          <!-- <span class="info-color" :style="`background-color: rgb(${infoColor});`"></span> -->
         </div>
       </transition>
 
@@ -115,7 +91,32 @@
 </template>
 <script type="text/babel">
 import dateFunc from "./dateFunc";
-
+import tinycolor from "tinycolor2";
+const _idColorMap = {};
+const _computedColor = (() => {
+  const colorArr = [
+    [238, 88, 114],
+    [137, 229, 244],
+    [32, 149, 242],
+    [51, 51, 51],
+    [126, 126, 198],
+    [59, 152, 155],
+    [86, 120, 163],
+    [242, 122, 123],
+    [255, 217, 96]
+  ];
+  let nonius = 0;
+  const len = colorArr.length;
+  return title => {
+    if (_idColorMap[title]) {
+      return _idColorMap[title];
+    } else {
+      _idColorMap[title] = `rgb(${colorArr[nonius % len].join(",")})`;
+      nonius++;
+      return _idColorMap[title];
+    }
+  };
+})();
 export default {
   props: {
     currentDate: {
@@ -153,13 +154,8 @@ export default {
         left: 0
       },
       selectDay: {},
-      infoColor: "",
-      colorArr: [
-        [237, 84, 100],
-        [35, 198, 200],
-        [248, 172, 89],
-        [28, 132, 198]
-      ],
+      infoColor: {},
+      idColorMap: {},
       cellWidth: 50,
       reload: true
     };
@@ -170,7 +166,8 @@ export default {
     }
   },
   created() {
-    this.computedColor = this._computedColor();
+    this.computedColor = _computedColor;
+    this.idColorMap = _idColorMap;
     this.localEvents = this.deepClone(this.events).map((item, index) => {
       item.id = item.id || index;
       item.end = item.end || item.start;
@@ -187,36 +184,13 @@ export default {
   },
   mounted() {
     this.cellWidth = this.$refs.dayCellRef[0].getBoundingClientRect().width;
-    const spanArr = document.getElementsByClassName("show-name-text");
-    const scrollSpanArr = [];
-    for (let i = 0, len = spanArr.length; i < len; i++) {
-      const span = spanArr[i];
-
-      if (span.clientWidth > span.parentElement.clientWidth) {
-        scrollSpanArr.push(span);
-        // console.log('span.clientWidth');
-        // console.log(span.clientWidth);
-        // console.log(span.parentElement.clientWidth);
-        // console.log('span.clientWidth');
-      }
-    }
-    let status = false;
-    if (scrollSpanArr.length) {
-      setInterval(() => {
-        status = !status;
-        scrollSpanArr.forEach(span => {
-          if (!status) {
-            span.style.left = "0px";
-            return;
-          }
-          const gap = span.clientWidth - span.parentElement.clientWidth;
-          span.style.left = `-${gap + 2}px`;
-        });
-      }, 4000);
-    }
   },
 
   methods: {
+    tinycolor,
+    cutTitle(is, start) {
+      // console.log(is, start);
+    },
     deepClone(obj) {
       const _obj = JSON.stringify(obj);
       const objClone = JSON.parse(_obj);
@@ -229,7 +203,7 @@ export default {
         st.toDateString() === date.toDateString() ||
         date.getDate() === 1
       ) {
-        return event.title;
+        return st.getDate();
       }
       return "";
     },
@@ -255,7 +229,7 @@ export default {
     },
     computedOpacity(currentDate, startDateStr, endDateStr, start) {
       if (startDateStr === endDateStr) return 1.0;
-      const opcitySection = 0.9;
+      const opcitySection = 0.1;
       const { allDays, disStart } = this.computedDistanceDate(
         currentDate,
         startDateStr,
@@ -265,28 +239,9 @@ export default {
         ? (1 - (opcitySection / allDays) * disStart).toFixed(4)
         : (1 - (opcitySection / allDays) * (disStart + 1)).toFixed(4);
     },
-    _computedColor() {
-      const colorArr = [
-        [237, 84, 100],
-        [35, 198, 200],
-        [248, 172, 89],
-        [28, 132, 198]
-      ];
-      const idObj = {};
-      let nonius = 0;
-      return title => {
-        if (idObj[title]) {
-          return idObj[title];
-        } else {
-          nonius++;
-          idObj[title] = colorArr[nonius];
-          return idObj[title];
-        }
-      };
-    },
     computedPoints(currentDate, startDateStr, endDateStr) {
-      const height = 18;
-      const minHeight = 6;
+      const height = 35;
+      const minHeight = 35;
       const width = this.cellWidth;
       const disHeight = height - minHeight;
       const { allDays, disStart } = this.computedDistanceDate(
@@ -299,8 +254,8 @@ export default {
       const rightY = base * (disStart + 1);
       // 零天残留不显示
       if (allDays === 1) return "";
-      return `0,${leftY} ${width},${rightY} ${width},${18 - rightY} 0,${18 -
-        leftY}`;
+      return `0,${leftY} ${width},${rightY} ${width},${height -
+        rightY} 0,${height - leftY}`;
     },
     computedTrapezoid(currentDate, startDateStr, endDateStr, direction) {
       const height = 18;
@@ -456,7 +411,7 @@ export default {
         return;
       }
       const sameDay = event.start === event.end;
-      this.infoColor = !sameDay ? this.colorArr[idx % 4] : "0,0,0";
+      this.infoColor = !sameDay ? this.idColorMap[event.title] : "0,0,0";
       this.showInfo = true;
       this.eventInfo = event;
       // console.log(event);
@@ -486,11 +441,7 @@ $border-color: #c2c2c2;
   svg {
     position: relative;
     display: inline-block;
-    height: 18px;
     width: 0%;
-    // animation: growing 1s;
-    // -webkit-animation: growing 1s; /*Safari and Chrome*/
-    // -webkit-animation-fill-mode: forwards;
     transition: width ease-in 0.5s;
   }
 
@@ -523,28 +474,39 @@ $border-color: #c2c2c2;
       position: relative;
       cursor: pointer;
       font-size: 12px;
-      margin-bottom: 2px;
+      margin-top: 6px;
       color: #fff;
-      height: 18px;
-      line-height: 18px;
+      height: 24px;
+      line-height: 24px;
       white-space: nowrap;
-      overflow: hidden;
-      // text-overflow: ellipsis;
       z-index: 2;
-
-      // overflow: hidden;
+      margin-right: -1px;
       // box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.1);
-      .name-text {
+      .day-text {
         position: absolute;
-        padding-left: 2px;
+        // padding-left: 6px;
         box-sizing: border-box;
         z-index: 100;
-        // width: 100%;
-        // overflow: hidden;
-        left: 0;
+        // text-shadow: 1px 1px #333;
+        color: #fff;
+        left: 3px;
+        top: 3px;
         transition: left ease 1.5s;
+        border-radius: 50%;
+        height: 18px;
+        line-height: 18px;
+        width: 18px;
+        text-align: center;
+        background-color: #fff;
+        font-size: 12px;
+        font-weight: 900;
       }
-
+      .name-taxt {
+        position: absolute;
+        left: 28px;
+        // text-shadow: 1px 1px #fff;
+        color: #333;
+      }
       &.red {
         color: #fff;
         background-color: rgb(237, 84, 100);
@@ -573,18 +535,29 @@ $border-color: #c2c2c2;
       }
 
       &.is-start {
-        // margin-left: 8px;
+        margin-left: 4px;
+        .color-block {
+          border-radius: 12px 0 0 12px;
+        }
       }
 
       &.is-end {
-        // margin-right: 4px;
-        // opacity: 0;
+        margin-right: 4px;
+        .color-block {
+          border-radius: 0 12px 12px 0;
+        }
       }
 
       &.is-opacity {
         opacity: 0;
       }
-
+      &.is-zero {
+        box-sizing: border-box;
+        color: #333;
+        .color-block {
+          border-radius: 12px 0 0 12px;
+        }
+      }
       .triangle-left {
         position: absolute;
         top: 0;
@@ -603,12 +576,11 @@ $border-color: #c2c2c2;
         border-width: 9px 15px 9px 0;
         border-color: transparent #fff transparent transparent;
       }
-    }
-
-    .is-zero {
-      box-sizing: border-box;
-      color: #333;
-      border: 1px solid #ffac00;
+      .color-block {
+        display: inline-block;
+        height: 100%;
+        width: 100%;
+      }
     }
 
     .week-row {
@@ -717,9 +689,6 @@ $border-color: #c2c2c2;
     }
 
     .event-info {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
       position: absolute;
       top: 0px;
       left: 0;
@@ -731,11 +700,18 @@ $border-color: #c2c2c2;
       z-index: 9999;
       border: 1px solid #e2e2e2;
       color: #777;
-
+      .wrap {
+        border-left: 4px solid;
+        box-sizing: $border-color;
+        padding-left: 4px;
+      }
       .info-color {
+        position: absolute;
+        left: 4px;
+        top: 4px;
         display: inline-block;
-        width: 10px;
-        height: 10px;
+        width: 4px;
+        height: 100%;
         border-radius: 5px;
         background-color: deeppink;
       }

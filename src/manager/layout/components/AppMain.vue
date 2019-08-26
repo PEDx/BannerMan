@@ -24,7 +24,8 @@ export default {
 .app-main {
   height: 100%;
   position: relative;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   box-sizing: border-box;
   padding: 10px;
 }

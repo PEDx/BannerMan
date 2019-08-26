@@ -82,22 +82,37 @@ export default {
     getEvents() {
       const oneDay = 1000 * 60 * 60 * 24;
       // let debug = false;
-      const res = [{}, {}, {}];
-      res[0].addDate = new Date(2019, 1, 12).getTime();
-      res[0].remainPeriodEndDate = new Date(2019, 1, 23).getTime();
-      res[1].addDate = new Date(2018, 9, 23).getTime();
-      res[1].remainPeriodEndDate = new Date(2018, 10, 23).getTime();
-      res[2].addDate = new Date(2018, 11, 23).getTime();
-      res[2].remainPeriodEndDate = new Date(2018, 12, 23).getTime();
+      const res = [
+        {
+          startDate: new Date(2018, 11, 22).getTime(),
+          endDate: new Date(2019, 0, 22).getTime()
+        },
+        {
+          startDate: new Date(2018, 8, 21).getTime(),
+          endDate: new Date(2018, 9, 22).getTime()
+        },
+        {
+          startDate: new Date(2018, 10, 21).getTime(),
+          endDate: new Date(2018, 11, 22).getTime()
+        },
+        {
+          startDate: new Date(2018, 10, 20).getTime(),
+          endDate: new Date(2018, 11, 15).getTime()
+        },
+        {
+          startDate: new Date(2019, 1, 21).getTime(),
+          endDate: new Date(2019, 2, 22).getTime()
+        }
+      ];
 
-      const _obj = res.map(val => {
-        const startDate = new Date(val.addDate);
-        let endDate = new Date(val.remainPeriodEndDate);
+      const _obj = res.map((val, idx) => {
+        const startDate = new Date(val.startDate);
+        let endDate = new Date(val.endDate);
         if (!this.sameDay(startDate, endDate)) {
-          endDate = new Date(val.remainPeriodEndDate - oneDay);
+          endDate = new Date(val.endDate - oneDay);
         }
         return {
-          title: val.pesticideName || "title",
+          title: val.pesticideName || "荷兰优质淡奶，奶香浓而不腻" + idx,
           pesticideId: val.pesticideId,
           start: [
             startDate.getFullYear(),
