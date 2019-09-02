@@ -1,5 +1,5 @@
 <template>
-  <div class="full-calendar-body" @click="hideInfo" style="`background-color: 'rgba(0,0,0,0.9)';`">
+  <div class="full-calendar-body">
     <div class="weeks">
       <template v-for="(week, idx) in currentDates">
         <template v-for="(day, idx2) in week">
@@ -27,7 +27,7 @@
                 :class="{
                   'not-cur-month' : !day.isCurMonth,
                 }"
-                :style="`z-index:${100 - (idx * 10 + idx2)}`"
+                :style="{zIndex: 100 - (idx * 7 + idx2)}"
               >
                 <div class="left-itme-list">
                   <p class="day-number" :class="{'today' : day.isToday}">
@@ -43,22 +43,39 @@
                       'is-zero': event.end === event.start,
                       'is-opacity': !event.isShow
                     }]"
-                    @click="eventClick(event,$event, idx)"
+                    :style="`box-shadow: 0px 5px 15px 0px ${tinycolor(computedColor(event.title)).setAlpha(0.6).toRgbString()};`"
                   >
+                    <template v-if="isStart(event.start, day.date)">
+                      <transition name="fade">
+                        <div class="event-info">
+                          <div class="wrap" :style="`border-color: ${computedColor(event.title)};`">
+                            <div>{{ event.title }}</div>
+                            <div>{{ event.start }}</div>
+                            <div>{{ event.end }}</div>
+                          </div>
+                        </div>
+                      </transition>
+                    </template>
+
                     <template v-if="day.isCurMonth">
                       <span
                         :class="['day-text']"
                         v-if="isStart(event.start, day.date)"
-                        :style="`backgroundColor: ${computedColor(event.title)}`"
+                        :style="`backgroundColor: ${tinycolor(computedColor(event.title)).darken(20)}`"
                       >{{ isBegin(event, day.date, day.weekDay) }}</span>
                       <span
+                        :class="['day-text', 'end-day-text']"
+                        v-if="isEnd(event.end,day.date)"
+                        :style="`backgroundColor: ${tinycolor(computedColor(event.title)).darken(20)}`"
+                      >{{ day.date.getDate() }}</span>
+                      <!-- <span
                         :class="['name-taxt']"
                         v-if="isStart(event.start, day.date)"
-                        :style="{width: cutTitle(this,event.start)}"
-                      >{{ event.title }}</span>
+                        :style="{width: cutTitle(this,event.start),color: tinycolor(computedColor(event.title)).getLuminance() > 0.5 ? '#333': '#eee'}"
+                      >{{ event.title }}</span>-->
                       <span
                         class="color-block"
-                        :style="`backgroundColor: ${tinycolor(computedColor(event.title)).setAlpha(0.4).toRgbString()}`"
+                        :style="`backgroundColor: ${tinycolor(computedColor(event.title)).toRgbString()}`"
                       ></span>
                     </template>
                   </p>
@@ -70,7 +87,7 @@
       </div>
 
       <!-- full events when click show more -->
-      <transition name="fade">
+      <!-- <transition name="fade">
         <div
           class="event-info"
           v-show="showInfo"
@@ -81,9 +98,8 @@
             <div>开始: {{ eventInfo.start }}</div>
             <div>结束: {{ eventInfo.end }}</div>
           </div>
-          <!-- <span class="info-color" :style="`background-color: rgb(${infoColor});`"></span> -->
         </div>
-      </transition>
+      </transition>-->
 
       <slot name="body-card"></slot>
     </div>
@@ -421,9 +437,6 @@ export default {
       if (this.morePos.left < -10) this.morePos.left += 50;
       if (this.morePos.left > 250) this.morePos.left -= 40;
       jsEvent.stopPropagation();
-    },
-    hideInfo() {
-      this.showInfo = false;
     }
   }
 };
@@ -475,22 +488,19 @@ $border-color: #c2c2c2;
       cursor: pointer;
       font-size: 12px;
       margin-top: 6px;
+      margin-bottom: 76px;
       color: #fff;
-      height: 24px;
-      line-height: 24px;
+      height: 6px;
+      line-height: 6px;
       white-space: nowrap;
       z-index: 2;
       margin-right: -1px;
-      // box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.1);
       .day-text {
         position: absolute;
-        // padding-left: 6px;
         box-sizing: border-box;
         z-index: 100;
-        // text-shadow: 1px 1px #333;
         color: #fff;
-        left: 3px;
-        top: 3px;
+        top: -5px;
         transition: left ease 1.5s;
         border-radius: 50%;
         height: 18px;
@@ -501,11 +511,15 @@ $border-color: #c2c2c2;
         font-size: 12px;
         font-weight: 900;
       }
+      .end-day-text {
+        right: 0;
+      }
       .name-taxt {
         position: absolute;
-        left: 28px;
+        left: 24px;
         // text-shadow: 1px 1px #fff;
-        color: #333;
+        font-weight: 900;
+        color: #eee;
       }
       &.red {
         color: #fff;
@@ -555,7 +569,7 @@ $border-color: #c2c2c2;
         box-sizing: border-box;
         color: #333;
         .color-block {
-          border-radius: 12px 0 0 12px;
+          border-radius: 10px 0 0 10px;
         }
       }
       .triangle-left {
@@ -593,14 +607,13 @@ $border-color: #c2c2c2;
         min-height: 80px;
         padding: 4px 0;
         box-sizing: border-box;
-
+        // z-index: 1;
         .day-number {
           box-sizing: border-box;
           padding: 0 4px;
         }
 
         .left-itme-list {
-          z-index: 5;
           position: relative;
         }
 
@@ -690,16 +703,16 @@ $border-color: #c2c2c2;
 
     .event-info {
       position: absolute;
-      top: 0px;
-      left: 0;
+      top: 16px;
+      left: 1px;
+      line-height: 1.4;
       box-sizing: border-box;
       padding: 5px;
-      font-size: 14px;
+      font-size: 12px;
       background-color: #fff;
       box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.1);
-      z-index: 9999;
       border: 1px solid #e2e2e2;
-      color: #777;
+      color: #333;
       .wrap {
         border-left: 4px solid;
         box-sizing: $border-color;

@@ -3,7 +3,7 @@
     <div class="logo">
       <div class="temporary">
         <logo />
-        <h1 class="txt">Banner Man</h1>
+        <!-- <h1 class="txt">Banner Man</h1> -->
       </div>
     </div>
     <div class="function">

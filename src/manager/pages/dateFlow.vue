@@ -84,7 +84,7 @@ export default {
       // let debug = false;
       const res = [
         {
-          startDate: new Date(2018, 11, 22).getTime(),
+          startDate: new Date(2018, 11, 30).getTime(),
           endDate: new Date(2019, 0, 22).getTime()
         },
         {
@@ -97,7 +97,7 @@ export default {
         },
         {
           startDate: new Date(2018, 10, 20).getTime(),
-          endDate: new Date(2018, 11, 15).getTime()
+          endDate: new Date(2018, 10, 29).getTime()
         },
         {
           startDate: new Date(2019, 1, 21).getTime(),
