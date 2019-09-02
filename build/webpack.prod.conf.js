@@ -57,6 +57,7 @@ const webpackConfig = merge(baseWebpackConfig, {
           template: val.template,
           inject: true,
           name: val.name,
+          chunks: [val.name],
           title: val.title,
           minify: {
             removeComments: true,
