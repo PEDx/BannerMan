@@ -1,5 +1,5 @@
 <template>
-  <img src="../assets/img/logo.png" alt srcset />
+  <img src="../../../static/img/logo.png" alt srcset />
 </template>
 <script>
 export default {};
