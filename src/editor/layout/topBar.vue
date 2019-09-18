@@ -1,10 +1,8 @@
 <template>
   <div class="top-bar">
     <div class="logo">
-      <div class="temporary">
-        <logo />
-        <!-- <h1 class="txt">Banner Man</h1> -->
-      </div>
+      <img src="../../../static/img/logo/logo-28.png" />
+      <h1 class="txt">Banner Man</h1>
     </div>
     <div class="function">
       <el-row style="height: 100%;">
@@ -73,11 +71,10 @@ import floatWindow from "@editor/components/float-window";
 import themeColorPicker from "@editor/components/theme-color-picker";
 import deviceModelList from "./device";
 import EventBus from "@/bus";
-import logo from "./logo";
 import { getViewportVueInstance } from "@utils/index";
 
 export default {
-  components: { logo, floatWindow, themeColorPicker },
+  components: { floatWindow, themeColorPicker },
   data() {
     return {
       clearConfirmVisible: false,
@@ -130,31 +127,27 @@ export default {
 .top-bar {
   height: 100%;
   .logo {
+    position: absolute;
+    top: 0;
+    left: 0;
     height: 100%;
-    position: relative;
-    float: left;
-    width: 100px;
-    margin-right: -100px;
+    line-height: 31px;
     text-align: center;
-    // background-color: #414146;
-    .temporary {
-      position: relative;
+    padding-left: 42px;
+    padding-right: 20px;
+    border-right: 1px solid #262629;
+    img {
+      position: absolute;
+      top: 3px;
+      left: 10px;
+      height: 24px;
       display: inline-block;
-      height: 30px;
-      line-height: 30px;
-      width: 80px;
-      margin-top: 2px;
-      .txt {
-        position: absolute;
-        top: 0px;
-        left: 10px;
-        width: 65px;
-        line-height: 14px;
-        color: #ffffff;
-        transform: rotate(-4deg);
-        font-size: 18px;
-        text-shadow: 2px 2px #333;
-      }
+    }
+    .txt {
+      display: inline-block;
+      color: #7a7a7a;
+      font-size: 14px;
+      font-weight: normal;
     }
   }
   .function {
