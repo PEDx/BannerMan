@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - develop
+
+jobs:
+  deploy: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@develop
+      
+      - name: Build
+        run: |
+            npm install
+            npm run build
+          
+      - name: Copy folder content recursively to remote
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: dist
+          remote: /root/ped/web
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.PASSWORD }}
+      
