@@ -1,4 +1,4 @@
-<p align="center"><img width="120" src="https://github.com/PEDx/BannerMan/blob/develop/static/img/logo.png" alt="Vue logo"></p>
+<p align="center"><img width="120" src="https://github.com/PEDx/BannerMan/blob/develop/static/img/logo.png" alt="BM logo"></p>
 <h2 align="center">Banner Man</h2>
 <p align="center">a web editer base vuejs ecosystem</p>
 
