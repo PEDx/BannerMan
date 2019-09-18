@@ -203,6 +203,7 @@ export default {
       if (this.sortingType === SORT_TYPE.ADD) return;
       this.$nextTick(() => {
         const id = this.componentsModelTree[this.newIndex].id;
+        this._generateComponentModelMap();
         this._drawWidgetsTree();
         this._selectComponentAndHighlightById(id);
       });
@@ -335,6 +336,7 @@ export default {
       if (this.sortingType === SORT_TYPE.ADD) return;
       selector.clearContainerHighlight();
       this.$nextTick(() => {
+        this._generateComponentModelMap();
         const _id = this._findComponentModelById(id).children[this.newIndex].id;
         this._drawWidgetsTree();
         this._selectComponentAndHighlightById(_id);
@@ -411,6 +413,7 @@ export default {
       this.componentModelMap[_id] = _obj;
       this.$nextTick(() => {
         const id = _containerModel.children[place].id;
+        this._generateComponentModelMap();
         this._drawWidgetsTree();
         this._setImageNodeUndraggable();
         this._selectComponentAndHighlightById(id);
@@ -572,7 +575,7 @@ export default {
       const compObj = this._findComponentModelById(this.selectedId);
       if (!compObj) return;
       compObj.props[data.key] = data.value;
-      // selector.resetHighlight();
+      selector.resetHighlight();
     },
     getWidgetDataValue(key) {
       const vm = this.componentInstanceMap[this.selectedId];
