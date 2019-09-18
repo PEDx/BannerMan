@@ -85,6 +85,10 @@ export const ContainerMixin = {
             eventName,
             throttle(e => {
               this.events[key](e);
+              if (eventName === 'mouseup') return;
+              // fix bug
+              e.stopImmediatePropagation();
+              e.preventDefault();
             }, 20),
             false
           )

@@ -45,6 +45,7 @@ module.exports = {
       '@manager': resolve('src/manager'),
       '@style': resolve('src/style'),
       '@store': resolve('src/store'),
+      '@static': resolve('static'),
       '@utils': resolve('src/utils')
     }
   },

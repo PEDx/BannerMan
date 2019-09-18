@@ -1,7 +1,7 @@
 <template>
   <el-scrollbar wrap-class="scrollbar-wrapper">
     <div class="logo">
-      <img src="../../../../../static/img/logo.png" alt srcset />
+      <img src="../../../../../static/img/logo/logo-57.png" alt srcset />
       <span class="logo-txt">Banner Manager</span>
       <div class="separate"></div>
     </div>
