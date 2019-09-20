@@ -100,7 +100,6 @@ export default {
       const placeholder = this.$refs.placeholder.$el;
       placeholder.style.top = `${offsetY - PLACEHOLDER_HEIGHT / 2}px`;
       placeholder.style.display = `block`;
-
     },
     handleDragover(e) {
       this.handleSortMove(e);
@@ -165,7 +164,8 @@ export default {
       this.ghostNode.style.height = `${this.sortingNodeHeight}px`;
       this.ghostNode.style.outline = `1px dashed rgb(125, 0, 0)`;
       this.ghostNode.style.boxSizing = "border-box";
-      this.ghostNode.style.pointerEvents = "none";
+      // this.ghostNode.style.pointerEvents = "none";
+      // this.ghostNode.style.cursor = "pointer";
 
       // 隐藏原 node
       this.sortingNode.style.visibility = "hidden";
