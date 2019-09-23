@@ -6,11 +6,7 @@
         :element-mixin-index="idx"
         :key="val.name"
       >{{ val.name }}</sort-element>
-      <sort-element
-        :element-mixin-index="dataList.length"
-        class="placeholder"
-        ref="placeholder"
-      >placeholder</sort-element>
+      <div class="placeholder" ref="placeholder" style="transform: translate3d(0,0,0);"></div>
     </div>
     <div class="btn" :draggable="true">开始插入</div>
   </div>
@@ -27,7 +23,7 @@ import {
   limit,
   getOffset
 } from "./utils";
-import { throttle } from "@utils/index";
+// import { throttle } from "@utils/index";
 const SORT_STATUS = {
   SORT_START: 1,
   SORT_MOVE: 2,
@@ -83,30 +79,73 @@ export default {
     initEvent() {
       this.container = this.$refs.container;
       this.container.addEventListener("mousedown", this.handleStart);
-      this.container.addEventListener("mousemove", this.handleMove);
       this.container.addEventListener("mouseup", this.handleEnd);
       document.addEventListener("mouseup", this.handleEnd);
       this.container.addEventListener("dragenter", this.handleDragenter);
       this.container.addEventListener("drop", this.handleDrop);
-      this.container.addEventListener(
-        "dragover",
-        throttle(this.handleDragover, 10)
-      );
+      this.container.addEventListener("dragover", this.handleDragover);
+      this.container.addEventListener("dragleave", this.handleDragleave);
+      this.container.addEventListener("dragend", this.handleDragend);
     },
     handleDragenter(e) {
       if (this.dragStatus === DRAG_STATUS.DRAG_START) return;
       this.dragStatus = DRAG_STATUS.DRAG_START;
-      const offsetY = e.pageY;
-      const placeholder = this.$refs.placeholder.$el;
-      placeholder.style.top = `${offsetY - PLACEHOLDER_HEIGHT / 2}px`;
-      placeholder.style.display = `block`;
+      const offsetY =
+        e.pageY - PLACEHOLDER_HEIGHT * 1.5 + this.container.scrollTop;
+      const placeholder = this.$refs.placeholder;
+      placeholder.style.transform = `translate3d(0,${offsetY}px, 0)`;
+      // 开始拖拽初始的容器滚动了多少
+      this.pressStartScroll = {
+        top: this.container.scrollTop,
+        left: this.container.scrollLeft
+      };
+      this.sortingNode = placeholder;
+      this.sortIndex = 14;
+      this.sortingNodeHeight = placeholder.offsetHeight;
+
+      const boundingClientRect = placeholder.getBoundingClientRect();
+      const containerBoundingRect = this.container.getBoundingClientRect();
+
+      // 最多向下移动
+      this.maxTranslateY =
+        containerBoundingRect.top +
+        containerBoundingRect.height -
+        boundingClientRect.top -
+        placeholder.offsetHeight / 2;
+
+      // 最多向上移动
+      this.minTranslateY =
+        containerBoundingRect.top -
+        boundingClientRect.top -
+        placeholder.offsetHeight / 2;
+
+      // 开始拖拽元素初始距离容器上边的距离
+      this.pressStartEdgeOffse = getEdgeOffset(placeholder);
+      this.pressStartOffset = getOffset(e);
+      console.log("handleDragenter");
+      e.preventDefault();
     },
     handleDragover(e) {
-      this.handleSortMove(e);
+      let offsetY =
+        e.pageY - PLACEHOLDER_HEIGHT * 1.5 + this.container.scrollTop;
+      const placeholder = this.$refs.placeholder;
+
+      if (offsetY <= -30) offsetY = -30;
+      placeholder.style.transform = `translate3d(0,${offsetY}px, 0)`;
+      this.animateOtherNodes({
+        y: offsetY
+      });
+      this.autoDragScroll({ y: offsetY });
+      e.preventDefault();
     },
-    handleDrop() {
+    autoDragScroll(translate) {
+
+    },
+    handleDrop(e) {
       this.dragStatus = DRAG_STATUS.DRAG_END;
+      console.log("handleDrop");
     },
+
     handleStart(e) {
       console.log("handleStart");
       const node = closest(e.target, el => el.sortableInfo != null);
@@ -115,7 +154,6 @@ export default {
         this.sortStatus = SORT_STATUS.SORT_START;
       }
     },
-    handleMove() {},
     handleEnd(e) {
       if (this.sortStatus !== SORT_STATUS.SORT_START) return;
       console.log("handleEnd");
@@ -164,8 +202,6 @@ export default {
       this.ghostNode.style.height = `${this.sortingNodeHeight}px`;
       this.ghostNode.style.outline = `1px dashed rgb(125, 0, 0)`;
       this.ghostNode.style.boxSizing = "border-box";
-      // this.ghostNode.style.pointerEvents = "none";
-      // this.ghostNode.style.cursor = "pointer";
 
       // 隐藏原 node
       this.sortingNode.style.visibility = "hidden";
@@ -203,8 +239,8 @@ export default {
     handleSortMove(e) {
       e.preventDefault();
       this.updateGhostPosition(e);
-      this.animateOtherNodes();
-      this.autoScroll();
+      this.animateOtherNodes(this.ghostTranslate);
+      this.autoScroll(this.ghostTranslate);
     },
     handleSortEnd() {},
     updateGhostPosition(e) {
@@ -218,7 +254,7 @@ export default {
       this.ghostTranslate = translate;
       this.ghostNode.style.transform = `translate3d(0,${translate.y}px, 0)`;
     },
-    animateOtherNodes() {
+    animateOtherNodes(translate) {
       this.newIndex = MAX_NUMBER;
       const nodeList = this.manager.getOrderedRefs();
       // 在拖拽移动中滚动了的差值
@@ -227,7 +263,7 @@ export default {
         top: this.container.scrollTop - this.pressStartScroll.top
       };
       const sortingMoveY =
-        this.ghostTranslate.y + this.pressStartEdgeOffse.top + deltaScroll.top;
+        translate.y + this.pressStartEdgeOffse.top + deltaScroll.top;
 
       for (let i = 0, len = nodeList.length; i < len; i++) {
         const { node } = nodeList[i];
@@ -261,8 +297,8 @@ export default {
         node.style.transform = `translate3d(0,${offsetY}px, 0)`;
       }
     },
-    autoScroll() {
-      const translateY = this.ghostTranslate.y;
+    autoScroll(translate) {
+      const translateY = translate.y;
       const direction = {
         x: 0,
         y: 0
@@ -308,8 +344,7 @@ export default {
             top: 1 * speed.y * direction.y
           };
           this.container.scrollTop += offset.top;
-          this.ghostTranslate.y += offset.top;
-          this.animateOtherNodes();
+          this.animateOtherNodes(translate);
         }, 15);
       }
     }
@@ -339,10 +374,12 @@ export default {
   margin-top: 40px;
 }
 .placeholder {
-  height: 0;
-  overflow: hidden;
-  position: relative;
-  top: 999px;
+  position: absolute;
+  top: 0px;
+  height: 60px;
+  width: 100%;
+  background-color: aquamarine;
+  z-index: 999;
 }
 </style>
 
