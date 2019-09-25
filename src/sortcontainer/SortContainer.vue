@@ -1,13 +1,20 @@
 <template>
   <div class="sxp">
     <div ref="container" class="sort-container">
-      <sort-element
-        v-for="(val, idx) in dataList"
-        :element-mixin-index="idx"
-        :key="val.name"
-      >{{ val.name }}</sort-element>
-      <div class="placeholder" ref="placeholder" style="transform: translate3d(0,0,0);"></div>
+      <div class="sort-container-wrap" ref="wrap">
+        <sort-element
+          v-for="(val, idx) in dataList"
+          :element-mixin-index="idx"
+          :key="val.name"
+        >{{ val.name }}</sort-element>
+      </div>
+      <div
+        class="placeholder"
+        ref="placeholder"
+        style="transform: translate3d(0,0,0);visibility: hidden;top: 0;"
+      ></div>
     </div>
+
     <div class="btn" :draggable="true">开始插入</div>
   </div>
 </template>
@@ -23,7 +30,7 @@ import {
   limit,
   getOffset
 } from "./utils";
-// import { throttle } from "@utils/index";
+import { throttle } from "@utils/index";
 const SORT_STATUS = {
   SORT_START: 1,
   SORT_MOVE: 2,
@@ -34,7 +41,7 @@ const DRAG_STATUS = {
   DRAG_MOVE: 2,
   DRAG_END: 3
 };
-const PLACEHOLDER_HEIGHT = 60;
+
 const MAX_NUMBER = Number.MAX_SAFE_INTEGER;
 export default {
   components: {
@@ -82,67 +89,88 @@ export default {
       this.container.addEventListener("mouseup", this.handleEnd);
       document.addEventListener("mouseup", this.handleEnd);
       this.container.addEventListener("dragenter", this.handleDragenter);
-      this.container.addEventListener("drop", this.handleDrop);
-      this.container.addEventListener("dragover", this.handleDragover);
+      document.addEventListener("drop", this.handleDrop);
+      document.addEventListener("dragover", throttle(this.handleDragover, 16));
       this.container.addEventListener("dragleave", this.handleDragleave);
       this.container.addEventListener("dragend", this.handleDragend);
+    },
+    cancelEvent(e) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
     },
     handleDragenter(e) {
       if (this.dragStatus === DRAG_STATUS.DRAG_START) return;
       this.dragStatus = DRAG_STATUS.DRAG_START;
-      const offsetY =
-        e.pageY - PLACEHOLDER_HEIGHT * 1.5 + this.container.scrollTop;
       const placeholder = this.$refs.placeholder;
-      placeholder.style.transform = `translate3d(0,${offsetY}px, 0)`;
+      this.placeholderGhostNode = clonePressGhogNodeNode(placeholder);
+      this.sortingNode = this.placeholderGhostNode;
+      this.sortIndex = 14;
+      this.sortingNodeHeight = placeholder.offsetHeight;
+      this.sortingNodeWidth = placeholder.offsetWidth;
+      const offsetY = e.pageY - this.sortingNodeHeight * 1.5;
+      placeholder.style.top = `${offsetY}px`;
+      console.log(offsetY);
+      const wrap = this.$refs.wrap;
+      const boundingClientRect = placeholder.getBoundingClientRect();
+      const containerBoundingRect = this.container.getBoundingClientRect();
+      this.placeholderGhostNode.style.visibility = "";
+      this.placeholderGhostNode.style.position = "fixed";
+      this.placeholderGhostNode.style.top = `${boundingClientRect.top}px`;
+      this.placeholderGhostNode.style.left = `${boundingClientRect.left}px`;
+      this.placeholderGhostNode.style.width = `${this.sortingNodeWidth}px`;
+      this.placeholderGhostNode.style.height = `${this.sortingNodeHeight}px`;
+      this.placeholderGhostNode.style.outline = `1px dashed rgb(125, 0, 0)`;
+      this.placeholderGhostNode.style.boxSizing = "border-box";
+      wrap.style.paddingBottom = `${this.sortingNodeHeight}px`;
       // 开始拖拽初始的容器滚动了多少
       this.pressStartScroll = {
         top: this.container.scrollTop,
         left: this.container.scrollLeft
       };
-      this.sortingNode = placeholder;
-      this.sortIndex = 14;
-      this.sortingNodeHeight = placeholder.offsetHeight;
-
-      const boundingClientRect = placeholder.getBoundingClientRect();
-      const containerBoundingRect = this.container.getBoundingClientRect();
 
       // 最多向下移动
       this.maxTranslateY =
         containerBoundingRect.top +
         containerBoundingRect.height -
         boundingClientRect.top -
-        placeholder.offsetHeight / 2;
+        this.sortingNodeHeight / 2;
 
       // 最多向上移动
       this.minTranslateY =
         containerBoundingRect.top -
         boundingClientRect.top -
-        placeholder.offsetHeight / 2;
+        this.sortingNodeHeight / 2;
 
       // 开始拖拽元素初始距离容器上边的距离
-      this.pressStartEdgeOffse = getEdgeOffset(placeholder);
+      this.pressStartEdgeOffse = getEdgeOffset(this.placeholderGhostNode);
       this.pressStartOffset = getOffset(e);
       console.log("handleDragenter");
-      e.preventDefault();
+      this.cancelEvent(e);
     },
     handleDragover(e) {
-      let offsetY =
-        e.pageY - PLACEHOLDER_HEIGHT * 1.5 + this.container.scrollTop;
-      const placeholder = this.$refs.placeholder;
-
-      if (offsetY <= -30) offsetY = -30;
-      placeholder.style.transform = `translate3d(0,${offsetY}px, 0)`;
-      this.animateOtherNodes({
-        y: offsetY
-      });
-      this.autoDragScroll({ y: offsetY });
-      e.preventDefault();
+      if (this.dragStatus !== DRAG_STATUS.DRAG_START) return;
+      const offset = getOffset(e);
+      const translate = {
+        y: offset.y - this.pressStartOffset.y
+      };
+      this.placeholderGhostNode.style.transform = `translate3d(0,${translate.y}px, 0)`;
+      this.animateOtherNodes(translate);
+      this.autoScroll(translate);
+      this.cancelEvent(e);
     },
-    autoDragScroll(translate) {
-
-    },
+    autoDragScroll(translate) {},
     handleDrop(e) {
+      if (this.dragStatus === DRAG_STATUS.DRAG_END) return;
       this.dragStatus = DRAG_STATUS.DRAG_END;
+      const wrap = this.$refs.wrap;
+      this.animateOtherNodes({
+        y: 0
+      });
+      wrap.style.paddingBottom = `${0}px`;
+      this.placeholderGhostNode.parentNode.removeChild(
+        this.placeholderGhostNode
+      );
+      this.cleanUp();
       console.log("handleDrop");
     },
 
@@ -157,6 +185,7 @@ export default {
     handleEnd(e) {
       if (this.sortStatus !== SORT_STATUS.SORT_START) return;
       console.log("handleEnd");
+      this.ghostNode.parentNode.removeChild(this.ghostNode);
       this.cleanUp();
       console.log(`this.newIndex-${this.newIndex}`);
       if (this.newIndex === MAX_NUMBER) {
@@ -168,7 +197,7 @@ export default {
     },
     cleanUp() {
       this.sortStatus = SORT_STATUS.SORT_END;
-      this.ghostNode.parentNode.removeChild(this.ghostNode);
+
       this.sortingNode.style.visibility = "";
       this.sortingNode.style.opacity = "";
 
@@ -230,7 +259,6 @@ export default {
         node.offsetHeight / 2;
 
       this.sortIndex = node.sortableInfo.index;
-
       // debugger;
       console.log(`this.sortIndex-${this.sortIndex}`);
       window.addEventListener("mousemove", this.handleSortMove, false);
