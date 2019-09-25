@@ -4,44 +4,9 @@
   </div>
 </template>
 <script>
+import { SortElementMixin } from "./SortElementMixin";
 export default {
-  inject: ["manager"],
-  props: {
-    ElementMixinIndex: {
-      type: Number,
-      required: true
-    },
-    ElementMixinCollection: {
-      type: [String, Number],
-      default: "default"
-    }
-  },
-  watch: {
-    ElementMixinIndex(newIndex) {
-      if (this.$el && this.$el.sortableInfo) {
-        this.$el.sortableInfo.index = newIndex;
-      }
-    }
-  },
-  mounted() {
-    const { ElementMixinCollection, ElementMixinIndex } = this.$props;
-    this.setDraggable(ElementMixinCollection, ElementMixinIndex);
-  },
-  methods: {
-    setDraggable(collection, index) {
-      // debugger;
-      const node = this.$el;
-
-      node.sortableInfo = {
-        index,
-        collection,
-        manager: this.manager
-      };
-
-      this.ref = { node };
-      this.manager.add(this.ref);
-    }
-  }
+  mixins: [SortElementMixin]
 };
 </script>
 

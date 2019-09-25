@@ -71,3 +71,12 @@ export function clonePressGhogNodeNode(node) {
 
   return document.querySelector('body').appendChild(clonedNode);
 }
+export const RAF =
+  window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  window.oRequestAnimationFrame ||
+  window.msRequestAnimationFrame ||
+  function(callback) {
+    window.setTimeout(callback, 1000 / 60);
+  };

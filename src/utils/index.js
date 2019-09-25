@@ -321,3 +321,10 @@ export function traversal(root, callback) {
   }
   root.forEach(walk);
 }
+
+export function scaleLoop(callback) {
+  const next = gap => {
+    setTimeout(callback, gap);
+  };
+  callback(next);
+}

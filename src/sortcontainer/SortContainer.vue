@@ -1,25 +1,38 @@
 <template>
   <div class="sxp">
-    <div ref="container" class="sort-container">
+    <div
+      ref="container"
+      class="sort-container"
+      :style="{
+        height: BmSortContainerHeight,
+        position: 'relative',
+        overflow: 'auto'
+      }"
+    >
       <div class="sort-container-wrap" ref="wrap">
-        <sort-element
-          v-for="(val, idx) in dataList"
-          :element-mixin-index="idx"
-          :key="val.name"
-        >{{ val.name }}</sort-element>
+        <slot />
       </div>
       <div
-        class="placeholder"
+        class="sort-container-placeholder"
         ref="placeholder"
-        style="transform: translate3d(0,0,0);visibility: hidden;top: 0;"
-      ></div>
+        style="
+        transform: translate3d(0,0,0);
+        position: absolute;
+        top: 0;
+        visibility: hidden;
+        width: 100%;
+        height: 80px;
+        line-height: 80px;
+        text-align: center;
+        box-sizing: border-box;
+        background-color: rgba(166, 160, 183, 0.16);"
+      >
+        <i class="el-icon-plus" style="color: #bbb2a8;font-size: 34px;"></i>
+      </div>
     </div>
-
-    <div class="btn" :draggable="true">开始插入</div>
   </div>
 </template>
 <script>
-import sortElement from "./SortElement";
 import Manager from "./Manager";
 import {
   getElementMargin,
@@ -44,13 +57,20 @@ const DRAG_STATUS = {
 
 const MAX_NUMBER = Number.MAX_SAFE_INTEGER;
 export default {
-  components: {
-    sortElement
-  },
   provide() {
     return {
       manager: this.manager
     };
+  },
+  props: {
+    BmSortContainerData: {
+      type: Array,
+      default: () => []
+    },
+    BmSortContainerHeight: {
+      type: String,
+      default: "auto"
+    }
   },
   data() {
     this.container = null;
@@ -58,26 +78,12 @@ export default {
     this.ghostTranslate = null;
     this.sortingNode = null;
     this.sortIndex = -1;
-    this.newIndex = -1;
+    this.newSortIndex = -1;
     this.sortStatus = 0;
     this.dragStatus = 0;
     this.manager = new Manager();
     this.autoScrollInterval = null;
-    return {
-      dataList: [
-        { name: "name_000" },
-        { name: "name_001" },
-        { name: "name_002" },
-        { name: "name_003" },
-        { name: "name_004" },
-        { name: "name_005" },
-        { name: "name_006" },
-        { name: "name_007" },
-        { name: "name_008" },
-        { name: "name_009" },
-        { name: "name_010" }
-      ]
-    };
+    return {};
   },
   mounted() {
     this.initEvent();
@@ -89,10 +95,7 @@ export default {
       this.container.addEventListener("mouseup", this.handleEnd);
       document.addEventListener("mouseup", this.handleEnd);
       this.container.addEventListener("dragenter", this.handleDragenter);
-      document.addEventListener("drop", this.handleDrop);
       document.addEventListener("dragover", throttle(this.handleDragover, 16));
-      this.container.addEventListener("dragleave", this.handleDragleave);
-      this.container.addEventListener("dragend", this.handleDragend);
     },
     cancelEvent(e) {
       e.stopImmediatePropagation();
@@ -104,13 +107,15 @@ export default {
       const placeholder = this.$refs.placeholder;
       this.placeholderGhostNode = clonePressGhogNodeNode(placeholder);
       this.sortingNode = this.placeholderGhostNode;
-      this.sortIndex = 14;
+      this.sortIndex = this.BmSortContainerData.length;
       this.sortingNodeHeight = placeholder.offsetHeight;
       this.sortingNodeWidth = placeholder.offsetWidth;
-      const offsetY = e.pageY - this.sortingNodeHeight * 1.5;
+      const offsetY =
+        e.pageY - this.sortingNodeHeight + this.container.scrollTop;
+
       placeholder.style.top = `${offsetY}px`;
-      console.log(offsetY);
       const wrap = this.$refs.wrap;
+      wrap.style.paddingBottom = `${this.sortingNodeHeight}px`;
       const boundingClientRect = placeholder.getBoundingClientRect();
       const containerBoundingRect = this.container.getBoundingClientRect();
       this.placeholderGhostNode.style.visibility = "";
@@ -121,7 +126,6 @@ export default {
       this.placeholderGhostNode.style.height = `${this.sortingNodeHeight}px`;
       this.placeholderGhostNode.style.outline = `1px dashed rgb(125, 0, 0)`;
       this.placeholderGhostNode.style.boxSizing = "border-box";
-      wrap.style.paddingBottom = `${this.sortingNodeHeight}px`;
       // 开始拖拽初始的容器滚动了多少
       this.pressStartScroll = {
         top: this.container.scrollTop,
@@ -142,9 +146,10 @@ export default {
         this.sortingNodeHeight / 2;
 
       // 开始拖拽元素初始距离容器上边的距离
-      this.pressStartEdgeOffse = getEdgeOffset(this.placeholderGhostNode);
+      this.pressStartEdgeOffse = getEdgeOffset(placeholder);
       this.pressStartOffset = getOffset(e);
       console.log("handleDragenter");
+      this.$emit("insert-start");
       this.cancelEvent(e);
     },
     handleDragover(e) {
@@ -153,33 +158,34 @@ export default {
       const translate = {
         y: offset.y - this.pressStartOffset.y
       };
+      translate.y = limit(this.minTranslateY, this.maxTranslateY, translate.y);
       this.placeholderGhostNode.style.transform = `translate3d(0,${translate.y}px, 0)`;
       this.animateOtherNodes(translate);
       this.autoScroll(translate);
       this.cancelEvent(e);
     },
-    autoDragScroll(translate) {},
-    handleDrop(e) {
-      if (this.dragStatus === DRAG_STATUS.DRAG_END) return;
+    handleDragend() {
+      if (this.dragStatus !== DRAG_STATUS.DRAG_START) return;
       this.dragStatus = DRAG_STATUS.DRAG_END;
       const wrap = this.$refs.wrap;
-      this.animateOtherNodes({
-        y: 0
-      });
+      const placeholder = this.$refs.placeholder;
       wrap.style.paddingBottom = `${0}px`;
+      placeholder.style.top = `${0}px`;
       this.placeholderGhostNode.parentNode.removeChild(
         this.placeholderGhostNode
       );
+      this.$emit("insert-end", this.newSortIndex);
+      console.log("handleDragend");
       this.cleanUp();
-      console.log("handleDrop");
     },
 
     handleStart(e) {
       console.log("handleStart");
       const node = closest(e.target, el => el.sortableInfo != null);
       if (node && node.sortableInfo) {
-        this.handlePress(e);
         this.sortStatus = SORT_STATUS.SORT_START;
+        this.handlePress(e);
+        this.$emit("sort-start");
       }
     },
     handleEnd(e) {
@@ -187,13 +193,12 @@ export default {
       console.log("handleEnd");
       this.ghostNode.parentNode.removeChild(this.ghostNode);
       this.cleanUp();
-      console.log(`this.newIndex-${this.newIndex}`);
-      if (this.newIndex === MAX_NUMBER) {
-        this.newIndex = this.sortIndex;
+      if (this.newSortIndex === MAX_NUMBER) {
+        this.newSortIndex = this.sortIndex;
       }
-      arrayMove(this.dataList, this.sortIndex, this.newIndex);
-      e.stopImmediatePropagation();
-      e.preventDefault();
+      this.$emit("sort-end", { old: this.sortIndex, new: this.newSortIndex });
+      arrayMove(this.BmSortContainerData, this.sortIndex, this.newSortIndex);
+      this.cancelEvent(e);
     },
     cleanUp() {
       this.sortStatus = SORT_STATUS.SORT_END;
@@ -259,8 +264,7 @@ export default {
         node.offsetHeight / 2;
 
       this.sortIndex = node.sortableInfo.index;
-      // debugger;
-      console.log(`this.sortIndex-${this.sortIndex}`);
+      // console.log(`this.sortIndex-${this.sortIndex}`);
       window.addEventListener("mousemove", this.handleSortMove, false);
       window.addEventListener("mouseup", this.handleSortEnd, false);
     },
@@ -283,7 +287,7 @@ export default {
       this.ghostNode.style.transform = `translate3d(0,${translate.y}px, 0)`;
     },
     animateOtherNodes(translate) {
-      this.newIndex = MAX_NUMBER;
+      this.newSortIndex = MAX_NUMBER;
       const nodeList = this.manager.getOrderedRefs();
       // 在拖拽移动中滚动了的差值
       const deltaScroll = {
@@ -309,8 +313,8 @@ export default {
           this.sortIndex > i
         ) {
           offsetY = this.sortingNode.offsetHeight;
-          if (i <= this.newIndex) {
-            this.newIndex = i; // fix: 滚动容器会直接调到最小值或最大值
+          if (i <= this.newSortIndex) {
+            this.newSortIndex = i;
           }
         }
         // 下移
@@ -319,7 +323,7 @@ export default {
           this.sortIndex < i
         ) {
           offsetY = -this.sortingNode.offsetHeight;
-          this.newIndex = i;
+          this.newSortIndex = i;
         }
         node.style.transitionDuration = `.2s`;
         node.style.transform = `translate3d(0,${offsetY}px, 0)`;
@@ -382,32 +386,10 @@ export default {
 
 <style lang="scss" scoped>
 .sort-container {
-  position: relative;
   width: 600px;
   margin: 0 auto;
-  height: 400px;
-  overflow: auto;
   outline: 1px solid red;
   margin-top: 50px;
-}
-.btn {
-  width: 200px;
-  height: 40px;
-  line-height: 40px;
-  text-align: center;
-  color: #fff;
-  cursor: pointer;
-  background-color: red;
-  margin: 0 auto;
-  margin-top: 40px;
-}
-.placeholder {
-  position: absolute;
-  top: 0px;
-  height: 60px;
-  width: 100%;
-  background-color: aquamarine;
-  z-index: 999;
 }
 </style>
 
