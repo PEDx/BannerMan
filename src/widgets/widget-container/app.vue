@@ -1,21 +1,16 @@
 <template>
   <div class="widget-container">
     <template v-if="inEditor">
-      <sortble-container
+      <sort-container
         ref="sortbleContainer"
-        v-model="dataModel"
-        :lock-to-container-edges="false"
-        :hide-sortable-ghost="true"
-        :use-window-as-scroll-container="true"
-        :distance="10"
-        axis="y"
-        lock-axis="y"
+        :bm-sort-container-data="dataModel"
         @sort-start="_handleSortStart"
         @sort-end="_handleSortEnd"
-        @input="_handleSortInput"
+        @insert-start="_handleInsertStart"
+        @insert-end="_handleInsertEnd"
       >
         <slot />
-      </sortble-container>
+      </sort-container>
     </template>
     <template v-else>
       <slot />

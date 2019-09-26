@@ -13,7 +13,13 @@
         :key="val.name"
       >{{ val.name }}</sort-element>
     </sort-container>
-    <div class="btn" :draggable="true" @dragend="handleDragend">开始插入</div>
+    <div
+      class="btn"
+      :draggable="true"
+      @dragstart="handleDragstart"
+      @dragend="handleDragend"
+      @drag="handleDrag"
+    >开始插入</div>
   </div>
 </template>
 <script>
@@ -42,10 +48,14 @@ export default {
     };
   },
   methods: {
+    handleDragstart(e) {},
     handleDragend(e) {
-      e.stopImmediatePropagation();
+      e.stopPropagation();
       e.preventDefault();
       this.$refs.sortContainer.handleDragend();
+    },
+    handleDrag(e) {
+      // this.$refs.sortContainer.handleDragover(e);
     },
     handleInsertEnd(index) {
       this.dataList.splice(index, 0, {
@@ -69,5 +79,8 @@ export default {
   background-color: red;
   margin: 0 auto;
   margin-top: 40px;
+}
+#sort-demo {
+  position: relative;
 }
 </style>

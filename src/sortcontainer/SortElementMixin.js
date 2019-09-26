@@ -1,5 +1,5 @@
 // Export Sortable Element Component Mixin
-export const SortElementMixin = {
+export default {
   inject: ['manager'],
   props: {
     BmSortElementMixinIndex: {

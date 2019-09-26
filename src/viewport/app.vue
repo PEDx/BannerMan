@@ -1,20 +1,14 @@
 <template>
-  <sortble-container
+  <sort-container
     ref="rootContainer"
-    v-model="componentsModelTree"
-    :lock-to-container-edges="false"
-    :hide-sortable-ghost="true"
-    :use-window-as-scroll-container="true"
-    :should-cancel-start="() => {}"
-    :distance="10"
-    axis="y"
-    lock-axis="y"
+    :bm-sort-container-data="componentsModelTree"
     @sort-start="_handleSortStart"
     @sort-end="_handleSortEnd"
-    @input="_handleSortInput"
+    @insert-start="_handleInsertStart"
+    @insert-end="_handleInsertEnd"
   >
     <components-wrap :components="componentsModelTree"></components-wrap>
-  </sortble-container>
+  </sort-container>
 </template>
 
 <script>
@@ -31,8 +25,9 @@ import {
 import storage from "@/storage";
 import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
-import { ElementMixin } from "./sortble";
+import SortElementMixin from "../sortcontainer/SortElementMixin";
 import sortbleContainer from "./components/sortble-container";
+import SortContainer from "../sortcontainer/SortContainer";
 import { WidgetContainerMixin } from "./components/widget-container-mixin";
 
 import widgets from "@/widgets";
@@ -54,7 +49,8 @@ window._BM_WIDGET_CONTAINER_MIXIN_ = WidgetContainerMixin; // 由编辑器提供
 
 export default {
   components: {
-    sortbleContainer
+    sortbleContainer,
+    SortContainer
   },
   data() {
     this.componentInstanceMap = {}; // id 对应实例
@@ -119,34 +115,9 @@ export default {
         selector.resetHighlight();
         this._setMeta(document.body.clientWidth);
       }, 150);
-      document.addEventListener("dragenter", e => {
-        if (this.dragingType === "drag_resource") return;
-        // 找到需要添加元素的容器
-        const container =
-          findRelatedContainerComponent(e.target) || this.$refs.rootContainer;
-        if (this.dragingContainer === container) return;
-        if (this.dragingContainer && this.dragingContainer.clearHackState) {
-          this.dragingContainer.clearHackState(e);
-        }
-        this.draging = true;
-        this.dragingContainer = container;
-        selector.clearContainerHighlight();
-        selector.highlighitContainerInstance(container);
-        this.dragingContainerId = container.$el.id;
-        container.hackState(e);
-        this.dropEndComponentName = "";
-        e.preventDefault();
-      });
-      document.addEventListener("dragover", e => {
-        if (this.dragingType === "drag_resource") return;
-        this.dragingContainer.palceholderMove(e);
-        e.preventDefault();
-      });
       document.addEventListener("drop", e => {
         const widgetName = e.dataTransfer.getData("WIDGET_NAME");
-        console.log("drop");
         if (!widgetName) return;
-        // debugger
         this.dropEndComponentName = widgetName;
         window.parent.postMessage(
           {
@@ -158,6 +129,7 @@ export default {
           },
           "*"
         );
+        e.preventDefault();
       });
       document.addEventListener(
         "scroll",
@@ -178,24 +150,41 @@ export default {
         }, 20)
       );
     },
-    _handleSortStart({ index }) {
-      selector.stopSelecting();
+    _handleSortStart(e) {
       this.sorting = true;
+      selector.stopSelecting();
     },
     // 排序完成后所有的排序元素实例都会销毁重建
-    _handleSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
+    _handleSortEnd(info) {
       selector.startSelecting();
-      if (this.draging) return;
-      this.newIndex = newIndex;
-      if (isPlaceholder) {
-        if (!this.dropEndComponentName) return;
-        this.sortingType = SORT_TYPE.ADD;
-        this._asyncAddComponent(this.dropEndComponentName, newIndex);
-        return;
-      } // 在指定位置添加新组件
-      this.sortingType = SORT_TYPE.SORT;
-      // 正常排序
-      if (newIndex === oldIndex && !isPlaceholder) return; // 没有移动过
+      this.$nextTick(() => {
+        const id = this.componentsModelTree[info.new].id;
+        this._generateComponentModelMap();
+        this._drawWidgetsTree();
+        this._selectComponentAndHighlightById(id);
+      });
+    },
+    _handleInsertEnd(index) {
+      selector.startSelecting();
+      this.sortingType = SORT_TYPE.ADD;
+      if (this.dropEndComponentName) {
+        this._asyncAddComponent(this.dropEndComponentName, index);
+      }
+    },
+    _handleInsertStart(e) {
+      selector.stopSelecting();
+      this.sorting = true;
+      if (this.dragingType === "drag_resource") return;
+      // 找到需要添加元素的容器
+      const container =
+        findRelatedContainerComponent(e.target) || this.$refs.rootContainer;
+      if (this.dragingContainer === container) return;
+      this.draging = true;
+      this.dragingContainer = container;
+      selector.clearContainerHighlight();
+      selector.highlighitContainerInstance(container);
+      this.dragingContainerId = container.$el.id;
+      this.dropEndComponentName = "";
     },
     _handleSortInput() {
       // 此时数据模型排序完毕
@@ -431,7 +420,7 @@ export default {
         widget().then(ins => {
           // 防止并发加载多次添加 mixin 到同一组件上
           if (!this.loadingCompleteStatusMap[name] && !!_BM_EDIT_RUNTIME_) {
-            ins.default.mixin(ElementMixin);
+            ins.default.mixin(SortElementMixin);
             this.loadingCompleteStatusMap[name] = true;
           }
           resolve(ins);
@@ -606,11 +595,12 @@ export default {
       this.draging = false;
       this.sorting = false;
       this.treeScrolling = false;
-      if (this.dragingContainer && this.dragingContainer.clearHackState) {
-        this.dragingContainer.clearHackState(e);
-        this.dragingContainer = null;
-        selector.clearContainerHighlight();
-      }
+      this.$refs.rootContainer.handleDragend();
+      // if (this.dragingContainer && this.dragingContainer.clearHackState) {
+      //   this.dragingContainer.clearHackState(e);
+      //   this.dragingContainer = null;
+      //   selector.clearContainerHighlight();
+      // }
     },
     highlighitInstance(id) {
       const instance = this.componentInstanceMap[id];

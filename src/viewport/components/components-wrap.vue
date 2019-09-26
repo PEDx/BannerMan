@@ -6,7 +6,7 @@
       :key="item.id"
       :id="item.id"
       :bm-id="idx"
-      :element-mixin-index="idx"
+      :bm-sort-element-mixin-index="idx"
       :element-mixin-disabled="isTabs"
       :child-components-model="item.children"
       :child-deep-level="level"

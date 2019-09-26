@@ -1,21 +1,20 @@
 <template>
-  <div class="sxp">
+  <div
+    ref="container"
+    class="sort-container"
+    :style="{
+      height: BmSortContainerHeight,
+      position: 'relative',
+      overflow: 'auto'
+    }"
+  >
+    <div class="sort-container-wrap" ref="wrap">
+      <slot />
+    </div>
     <div
-      ref="container"
-      class="sort-container"
-      :style="{
-        height: BmSortContainerHeight,
-        position: 'relative',
-        overflow: 'auto'
-      }"
-    >
-      <div class="sort-container-wrap" ref="wrap">
-        <slot />
-      </div>
-      <div
-        class="sort-container-placeholder"
-        ref="placeholder"
-        style="
+      class="sort-container-placeholder"
+      ref="placeholder"
+      style="
         transform: translate3d(0,0,0);
         position: absolute;
         top: 0;
@@ -26,9 +25,8 @@
         text-align: center;
         box-sizing: border-box;
         background-color: rgba(166, 160, 183, 0.16);"
-      >
-        <i class="el-icon-plus" style="color: #bbb2a8;font-size: 34px;"></i>
-      </div>
+    >
+      <i class="el-icon-plus" style="color: #bbb2a8;font-size: 34px;"></i>
     </div>
   </div>
 </template>
@@ -86,23 +84,30 @@ export default {
     return {};
   },
   mounted() {
+    setTimeout(() => {
+      console.log(this.BmSortContainerData);
+    }, 2000);
     this.initEvent();
+    this.dragMove = throttle(this._dragMove, 16);
   },
   methods: {
     initEvent() {
       this.container = this.$refs.container;
       this.container.addEventListener("mousedown", this.handleStart);
-      this.container.addEventListener("mouseup", this.handleEnd);
-      document.addEventListener("mouseup", this.handleEnd);
       this.container.addEventListener("dragenter", this.handleDragenter);
-      document.addEventListener("dragover", throttle(this.handleDragover, 16));
     },
     cancelEvent(e) {
-      e.stopImmediatePropagation();
+      e.stopPropagation();
       e.preventDefault();
     },
+    handleDragleave(e) {
+      console.log("handleDragleave");
+      this.cancelEvent(e);
+    },
     handleDragenter(e) {
-      if (this.dragStatus === DRAG_STATUS.DRAG_START) return;
+      console.log("handleDragenter");
+      this.cancelEvent(e);
+      if (this.dragStatus === DRAG_STATUS.DRAG_START) return false;
       this.dragStatus = DRAG_STATUS.DRAG_START;
       const placeholder = this.$refs.placeholder;
       this.placeholderGhostNode = clonePressGhogNodeNode(placeholder);
@@ -111,7 +116,7 @@ export default {
       this.sortingNodeHeight = placeholder.offsetHeight;
       this.sortingNodeWidth = placeholder.offsetWidth;
       const offsetY =
-        e.pageY - this.sortingNodeHeight + this.container.scrollTop;
+        e.pageY - this.sortingNodeHeight / 2 + this.container.scrollTop;
 
       placeholder.style.top = `${offsetY}px`;
       const wrap = this.$refs.wrap;
@@ -126,6 +131,7 @@ export default {
       this.placeholderGhostNode.style.height = `${this.sortingNodeHeight}px`;
       this.placeholderGhostNode.style.outline = `1px dashed rgb(125, 0, 0)`;
       this.placeholderGhostNode.style.boxSizing = "border-box";
+      this.placeholderGhostNode.style.willChange = "transform";
       // 开始拖拽初始的容器滚动了多少
       this.pressStartScroll = {
         top: this.container.scrollTop,
@@ -148,11 +154,15 @@ export default {
       // 开始拖拽元素初始距离容器上边的距离
       this.pressStartEdgeOffse = getEdgeOffset(placeholder);
       this.pressStartOffset = getOffset(e);
-      console.log("handleDragenter");
-      this.$emit("insert-start");
-      this.cancelEvent(e);
+      this.$emit("insert-start", e);
+      this.container.removeEventListener("dragenter", this.handleDragenter);
+      this.container.addEventListener("dragover", this.handleDragover, false);
     },
     handleDragover(e) {
+      this.dragMove(e);
+      this.cancelEvent(e);
+    },
+    _dragMove(e) {
       if (this.dragStatus !== DRAG_STATUS.DRAG_START) return;
       const offset = getOffset(e);
       const translate = {
@@ -162,10 +172,10 @@ export default {
       this.placeholderGhostNode.style.transform = `translate3d(0,${translate.y}px, 0)`;
       this.animateOtherNodes(translate);
       this.autoScroll(translate);
-      this.cancelEvent(e);
     },
     handleDragend() {
       if (this.dragStatus !== DRAG_STATUS.DRAG_START) return;
+      this.container.addEventListener("dragenter", this.handleDragenter);
       this.dragStatus = DRAG_STATUS.DRAG_END;
       const wrap = this.$refs.wrap;
       const placeholder = this.$refs.placeholder;
@@ -174,9 +184,10 @@ export default {
       this.placeholderGhostNode.parentNode.removeChild(
         this.placeholderGhostNode
       );
+      this.cleanUp();
       this.$emit("insert-end", this.newSortIndex);
       console.log("handleDragend");
-      this.cleanUp();
+      console.log(this.newSortIndex);
     },
 
     handleStart(e) {
@@ -185,19 +196,20 @@ export default {
       if (node && node.sortableInfo) {
         this.sortStatus = SORT_STATUS.SORT_START;
         this.handlePress(e);
-        this.$emit("sort-start");
+        this.$emit("sort-start", e);
       }
+      this.cancelEvent(e);
     },
     handleEnd(e) {
-      if (this.sortStatus !== SORT_STATUS.SORT_START) return;
       console.log("handleEnd");
+      if (this.sortStatus !== SORT_STATUS.SORT_START) return;
       this.ghostNode.parentNode.removeChild(this.ghostNode);
       this.cleanUp();
       if (this.newSortIndex === MAX_NUMBER) {
         this.newSortIndex = this.sortIndex;
       }
-      this.$emit("sort-end", { old: this.sortIndex, new: this.newSortIndex });
       arrayMove(this.BmSortContainerData, this.sortIndex, this.newSortIndex);
+      this.$emit("sort-end", { old: this.sortIndex, new: this.newSortIndex });
       this.cancelEvent(e);
     },
     cleanUp() {
@@ -206,7 +218,9 @@ export default {
       this.sortingNode.style.visibility = "";
       this.sortingNode.style.opacity = "";
 
+      this.container.removeEventListener("dragover", this.handleDragover);
       window.removeEventListener("mousemove", this.handleSortMove);
+      window.removeEventListener("mouseup", this.handleEnd);
 
       this.manager.getRefs().forEach((val, idx) => {
         val.node.style.transitionDuration = "";
@@ -219,11 +233,11 @@ export default {
     },
     // 选中的移动的元素
     handlePress(e) {
-      const node = e.target;
+      console.log("handlePress");
+      const node = closest(e.target, el => el.sortableInfo != null);
       const margin = getElementMargin(node);
       const boundingClientRect = node.getBoundingClientRect();
       const containerBoundingRect = this.container.getBoundingClientRect();
-
       this.sortingNode = node;
       this.sortingNodeWidth = node.offsetWidth;
       this.sortingNodeHeight = node.offsetHeight;
@@ -262,19 +276,19 @@ export default {
         containerBoundingRect.top -
         boundingClientRect.top -
         node.offsetHeight / 2;
-
       this.sortIndex = node.sortableInfo.index;
       // console.log(`this.sortIndex-${this.sortIndex}`);
+      this.newSortIndex = MAX_NUMBER;
+      // debugger
       window.addEventListener("mousemove", this.handleSortMove, false);
-      window.addEventListener("mouseup", this.handleSortEnd, false);
+      window.addEventListener("mouseup", this.handleEnd, false);
     },
     handleSortMove(e) {
-      e.preventDefault();
       this.updateGhostPosition(e);
       this.animateOtherNodes(this.ghostTranslate);
       this.autoScroll(this.ghostTranslate);
+      this.cancelEvent(e);
     },
-    handleSortEnd() {},
     updateGhostPosition(e) {
       const offset = getOffset(e);
       const translate = {
@@ -287,6 +301,7 @@ export default {
       this.ghostNode.style.transform = `translate3d(0,${translate.y}px, 0)`;
     },
     animateOtherNodes(translate) {
+      // debugger;
       this.newSortIndex = MAX_NUMBER;
       const nodeList = this.manager.getOrderedRefs();
       // 在拖拽移动中滚动了的差值
@@ -296,16 +311,22 @@ export default {
       };
       const sortingMoveY =
         translate.y + this.pressStartEdgeOffse.top + deltaScroll.top;
-
       for (let i = 0, len = nodeList.length; i < len; i++) {
         const { node } = nodeList[i];
 
         if (i === this.sortIndex) continue;
         let offsetY = 0;
-        let { edgeOffset } = getEdgeOffset(node);
+        let { edgeOffset } = nodeList[i];
 
         if (!edgeOffset) {
           nodeList[i].edgeOffset = edgeOffset = getEdgeOffset(node);
+        }
+        const nextNode = i < nodeList.length - 1 && nodeList[i + 1];
+
+        // Also cache the next node's edge offset if needed.
+        // We need this for calculating the animation in a grid setup
+        if (nextNode && !nextNode.edgeOffset) {
+          nextNode.edgeOffset = getEdgeOffset(nextNode.node);
         }
         // 上移
         if (
@@ -319,7 +340,8 @@ export default {
         }
         // 下移
         if (
-          sortingMoveY >= edgeOffset.top - node.offsetHeight / 2 &&
+          sortingMoveY >=
+            edgeOffset.top + node.offsetHeight / 2 - this.sortingNodeHeight &&
           this.sortIndex < i
         ) {
           offsetY = -this.sortingNode.offsetHeight;
@@ -383,13 +405,4 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.sort-container {
-  width: 600px;
-  margin: 0 auto;
-  outline: 1px solid red;
-  margin-top: 50px;
-}
-</style>
 

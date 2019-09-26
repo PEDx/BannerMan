@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import { SortElementMixin } from "./SortElementMixin";
+import SortElementMixin from "./SortElementMixin";
 export default {
   mixins: [SortElementMixin]
 };

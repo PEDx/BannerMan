@@ -1,8 +1,8 @@
 import clonedeep from 'lodash.clonedeep';
-import sortbleContainer from '../components/sortble-container';
+import SortContainer from '../../sortcontainer/SortContainer';
 export const WidgetContainerMixin = {
   components: {
-    sortbleContainer
+    SortContainer
   },
   props: {
     childComponentsModel: {
@@ -30,34 +30,9 @@ export const WidgetContainerMixin = {
     }
   },
   methods: {
-    _handleSortStart() {
-      this.$emit('contianer-sort-start', this);
-    },
-    _handleSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
-      this.wcm_newIndex = newIndex;
-      this.$emit('contianer-sort-end', {
-        newIndex,
-        oldIndex,
-        isPlaceholder,
-        collection
-      });
-      if (newIndex === oldIndex && !isPlaceholder) return; // 没有移动过
-    },
-    _handleSortInput() {
-      // 此时数据模型排序完毕
-      this.$nextTick(() => {
-        this.$emit('children-changed', clonedeep(this.dataModel));
-      });
-    },
-    hackState(e) {
-      // debugger;
-      this.$refs.sortbleContainer.hackState(e);
-    },
-    clearHackState(e) {
-      this.$refs.sortbleContainer.clearHackState(e);
-    },
-    palceholderMove(e) {
-      this.$refs.sortbleContainer.palceholderMove(e);
-    }
+    _handleSortStart() {},
+    _handleSortEnd() {},
+    _handleInsertStart(e) {},
+    _handleInsertEnd(e) {}
   }
 };
