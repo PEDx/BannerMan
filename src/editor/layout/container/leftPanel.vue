@@ -34,6 +34,7 @@
             style="overflow: hidden"
             :tabindex="-1"
             @dragstart="handleWidgetDragstart(...arguments, item)"
+            @drag="handleDrag"
             @dragend="handleDragend"
           >
             <i :class="item.icon" v-if="!item.svg"></i>
@@ -264,6 +265,11 @@ export default {
     handleDragend(e) {
       getViewportVueInstance().then(ins => {
         ins.onDragend(e);
+      });
+    },
+    handleDrag(e) {
+      getViewportVueInstance().then(ins => {
+        ins.onDrag(e);
       });
     },
     handleResDragend(e) {

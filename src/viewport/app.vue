@@ -1,18 +1,21 @@
 <template>
-  <div
-    class="viewport"
-    :style="{width: `${viewSize.width || 375}px`,height: `${viewSize.height || 667}px`,transform: `scale(${1})`,transformOrigin: 'top'}"
-  >
-    <sort-container
-      ref="rootContainer"
-      :bm-sort-container-data="componentsModelTree"
-      @sort-start="_handleSortStart"
-      @sort-end="_handleSortEnd"
-      @insert-start="_handleInsertStart"
-      @insert-end="_handleInsertEnd"
+  <div class="viewport-wrap">
+    <div
+      id="viewport"
+      class="viewport"
+      :style="{width: `${viewSize.width || 375}px`,height: `${viewSize.height || 667}px`,transform: `scale(${viewScale})`,transformOrigin: 'top'}"
     >
-      <components-wrap :components="componentsModelTree"></components-wrap>
-    </sort-container>
+      <sort-container
+        ref="rootContainer"
+        :bm-sort-container-data="componentsModelTree"
+        @sort-start="_handleSortStart"
+        @sort-end="_handleSortEnd"
+        @insert-start="_handleInsertStart"
+        @insert-end="_handleInsertEnd"
+      >
+        <components-wrap :components="componentsModelTree"></components-wrap>
+      </sort-container>
+    </div>
   </div>
 </template>
 
@@ -41,7 +44,7 @@ const MutationObserver =
   window.MutationObserver ||
   window.WebKitMutationObserver ||
   window.MozMutationObserver;
-const selector = new ComponentSelector();
+const selector = new ComponentSelector(document.getElementById("viewport"));
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const AUTO_SAVE_TIME = 5 * 60 * 1000;
 const SORT_TYPE = {
@@ -71,8 +74,10 @@ export default {
     this.sorting = false;
     this.sortingType = SORT_TYPE.SORT;
     this.dragingContainer = null;
+    this.prevDragingContainer = null;
     return {
       viewSize: {},
+      viewScale: 1,
       componentsModelTree: [] // 组件数据模型, 在此分发传入各个组件的 props
     };
   },
@@ -121,11 +126,11 @@ export default {
       // document.addEventListener("mouseenter", () => {
       //   selector.startSelecting();
       // });
-      window.onresize = debounce(() => {
-        console.log("viewport resize");
-        selector.resetHighlight();
-        this._setMeta(document.body.clientWidth);
-      }, 150);
+      // window.onresize = debounce(() => {
+      //   console.log("viewport resize");
+      //   selector.resetHighlight();
+      //   this._setMeta(document.body.clientWidth);
+      // }, 150);
       document.addEventListener("drop", e => {
         const widgetName = e.dataTransfer.getData("WIDGET_NAME");
         if (!widgetName) return;
@@ -151,50 +156,41 @@ export default {
         }, 20)
       );
     },
-    _handleSortStart(e) {
-      this.sorting = true;
+    _handleInsertStart(e) {
       selector.stopSelecting();
-    },
-    // 排序完成后所有的排序元素实例都会销毁重建
-    _handleSortEnd(info) {
-      selector.startSelecting();
-      setTimeout(() => {
-        const id = info.id;
-        this._generateComponentModelMap();
-        this._drawWidgetsTree();
-        this._selectComponentAndHighlightById(id);
-      });
+      this.sorting = true;
+      if (this.dragingType === "drag_resource") return;
+      // // 找到需要添加元素的容器
+      const container =
+        findRelatedContainerComponent(e.target) || this.$refs.rootContainer;
+      if (this.dragingContainer === container) return;
+      this.draging = true;
+      if (this.prevDragingContainer) this.prevDragingContainer.triggerDragEnd();
+      this.dragingContainer = container;
+      this.prevDragingContainer = container;
+      // console.log(container);
+      // selector.clearContainerHighlight();
+      // selector.highlighitContainerInstance(container);
+      // this.dragingContainerId = container.$el.id;
+      // this.dropEndComponentName = "";
     },
     _handleInsertEnd(index) {
-      console.log("root-_handleInsertEnd");
       selector.startSelecting();
       this.sortingType = SORT_TYPE.ADD;
       if (this.dropEndComponentName) {
         this._asyncAddComponent(this.dropEndComponentName, index);
       }
     },
-    _handleInsertStart(e) {
-      console.log("root-_handleInsertStart");
-      selector.stopSelecting();
+    _handleSortStart(e) {
       this.sorting = true;
-      if (this.dragingType === "drag_resource") return;
-      // 找到需要添加元素的容器
-      const container =
-        findRelatedContainerComponent(e.target) || this.$refs.rootContainer;
-      if (this.dragingContainer === container) return;
-      this.draging = true;
-      this.dragingContainer = container;
-      selector.clearContainerHighlight();
-      selector.highlighitContainerInstance(container);
-      this.dragingContainerId = container.$el.id;
-      this.dropEndComponentName = "";
+      selector.stopSelecting();
     },
-    _handleSortInput() {
-      // 此时数据模型排序完毕
+    // 排序完成后所有的排序元素实例都会销毁重建
+    _handleSortEnd(info) {
       if (this.draging) return;
-      if (this.sortingType === SORT_TYPE.ADD) return;
-      this.$nextTick(() => {
-        const id = this.componentsModelTree[this.newIndex].id;
+      selector.startSelecting();
+      setTimeout(() => {
+        const id = info.id;
         this._generateComponentModelMap();
         this._drawWidgetsTree();
         this._selectComponentAndHighlightById(id);
@@ -557,16 +553,23 @@ export default {
       this.viewSize = size;
     },
     // 改变页面缩放比
-    changeViewScale() {},
+    changeViewScale(scale) {
+      this.viewScale = (scale / 100).toFixed(2);
+    },
     onDragend(e) {
       this.draging = false;
       this.sorting = false;
       this.treeScrolling = false;
-      // debugger;
       if (this.dragingContainer) {
-        this.dragingContainer.handleDragend();
+        this.dragingContainer.handleDropEnd(e);
         this.dragingContainer = null;
+        this.prevDragingContainer = null;
         selector.clearContainerHighlight();
+      }
+    },
+    onDrag(e) {
+      if (this.dragingContainer) {
+        this.dragingContainer.handleDrag(e);
       }
     },
     highlighitInstance(id) {
@@ -597,14 +600,23 @@ export default {
 html,
 body {
   height: 100%;
-  background: transparent !important;
 }
 </style>
 <style lang="scss" scoped>
+.viewport-wrap {
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 60px;
+}
 .viewport {
+  position: relative;
   margin: 0 auto;
   background: #fff;
-  margin-top: 60px;
+  overflow: hidden;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.42), 0 0 24px rgba(0, 0, 0, 0.04);
+  border-radius: 2px;
+  transition: all 0.3s ease;
 }
 </style>
 

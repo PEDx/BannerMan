@@ -30,8 +30,14 @@ export const WidgetContainerMixin = {
       this.$emit('contianer-insert-end', idx);
       console.log('widget-container-_handleInsertEnd');
     },
-    handleDragend() {
-      this.$refs.sortbleContainer.handleDragend();
+    handleDropEnd(e) {
+      this.$refs.sortbleContainer.handleDropEnd(e);
+    },
+    handleDrag(e) {
+      this.$refs.sortbleContainer.handleDrag(e);
+    },
+    triggerDragEnd(e) {
+      this.$refs.sortbleContainer.triggerDragEnd(e);
     }
   }
 };

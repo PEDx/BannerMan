@@ -95,20 +95,36 @@ export default {
       this.container.addEventListener("mousedown", this.handleStart);
       this.container.addEventListener("mousemove", this.handleMove);
       this.container.addEventListener("mouseup", this.handleEnd);
-      this.container.addEventListener("dragenter", this.handleDragenter);
+      this.container.addEventListener("dragenter", this.handleDragStart);
+      this.container.addEventListener("dragover", this.handleDragOver);
+      // this.container.addEventListener("dragleave", this.handleDragEnd, false);
     },
     cancelEvent(e) {
       e.stopPropagation();
       e.preventDefault();
+      return false;
     },
-    handleDragleave(e) {
-      console.log("handleDragleave");
+    handleDragStart(e) {
+      this.cancelEvent(e);
+      if (this.dragStatus === DRAG_STATUS.DRAG_START) return;
+      this.dragStatus = DRAG_STATUS.DRAG_START;
+      this.handleDragenter(e);
+      this.$emit("insert-start", e);
+      console.log("handleDragStart");
+    },
+    handleDragOver(e) {},
+    handleDrag(e) {},
+    triggerDragEnd() {
+      this.handleDragend();
+      this.dragStatus = DRAG_STATUS.DRAG_END;
+      console.log("triggerDragEnd");
+    },
+    handleDropEnd(e) {
+      console.log("handleDropEnd");
       this.cancelEvent(e);
     },
     handleDragenter(e) {
       console.log("handleDragenter");
-      this.cancelEvent(e);
-      if (this.dragStatus === DRAG_STATUS.DRAG_START) return false;
       this.dragStatus = DRAG_STATUS.DRAG_START;
       const placeholder = this.$refs.placeholder;
       this.placeholderGhostNode = clonePressGhogNodeNode(placeholder);
@@ -117,13 +133,15 @@ export default {
       this.sortingNodeHeight = placeholder.offsetHeight;
       this.sortingNodeWidth = placeholder.offsetWidth;
       const offsetY =
-        e.pageY - this.sortingNodeHeight / 2 + this.container.scrollTop;
+        e.layerY - this.sortingNodeHeight / 2 + this.container.scrollTop;
 
       placeholder.style.top = `${offsetY}px`;
+
       const wrap = this.$refs.wrap;
       wrap.style.paddingBottom = `${this.sortingNodeHeight}px`;
       const boundingClientRect = placeholder.getBoundingClientRect();
       const containerBoundingRect = this.container.getBoundingClientRect();
+      // console.log(containerBoundingRect);
       this.placeholderGhostNode.style.visibility = "";
       this.placeholderGhostNode.style.position = "fixed";
       this.placeholderGhostNode.style.top = `${boundingClientRect.top}px`;
@@ -133,6 +151,7 @@ export default {
       this.placeholderGhostNode.style.outline = `1px dashed rgb(125, 0, 0)`;
       this.placeholderGhostNode.style.boxSizing = "border-box";
       this.placeholderGhostNode.style.willChange = "transform";
+      this.placeholderGhostNode.style.pointerEvents = "none";
       // 开始拖拽初始的容器滚动了多少
       this.pressStartScroll = {
         top: this.container.scrollTop,
@@ -156,11 +175,9 @@ export default {
       this.pressStartEdgeOffse = getEdgeOffset(placeholder);
       this.pressStartOffset = getOffset(e);
       this.$emit("insert-start", e);
-      window.removeEventListener("dragenter", this.handleDragenter);
+      this.container.removeEventListener("dragenter", this.handleDragenter);
       window.addEventListener("dragover", this.handleDragover, false);
-      window.addEventListener("drop", e => {
-        // console.log(e);
-      });
+      return this.cancelEvent(e);
     },
     handleDragover(e) {
       this.dragMove(e);
@@ -172,6 +189,7 @@ export default {
       const translate = {
         y: offset.y - this.pressStartOffset.y
       };
+      // console.log(translate);
       translate.y = limit(this.minTranslateY, this.maxTranslateY, translate.y);
       this.placeholderGhostNode.style.transform = `translate3d(0,${translate.y}px, 0)`;
       this.animateOtherNodes(translate);
@@ -179,7 +197,6 @@ export default {
     },
     handleDragend() {
       if (this.dragStatus !== DRAG_STATUS.DRAG_START) return;
-      this.container.addEventListener("dragenter", this.handleDragenter);
       this.dragStatus = DRAG_STATUS.DRAG_END;
       const wrap = this.$refs.wrap;
       const placeholder = this.$refs.placeholder;
@@ -193,15 +210,16 @@ export default {
       console.log("handleDragend");
       console.log(this.newSortIndex);
     },
-
+    nodeIsChild(node) {
+      return node.sortableInfo.manager === this.manager;
+    },
     handleStart(e) {
       console.log("handleStart");
       const node = closest(e.target, el => el.sortableInfo != null);
-      if (node && node.sortableInfo) {
+      if (node && node.sortableInfo && this.nodeIsChild(node)) {
         this.mouseStart = true;
         this.startPos = { y: e.pageY, x: e.pageX };
       }
-      this.cancelEvent(e);
     },
     handleMove(e) {
       if (this.sortStatus === SORT_STATUS.SORT_START || !this.mouseStart) {
@@ -219,7 +237,6 @@ export default {
     handleEnd(e) {
       this.mouseStart = false;
       console.log("handleEnd");
-      this.cancelEvent(e);
     },
     handleSortEnd(e) {
       console.log("handleSortEnd");
@@ -277,6 +294,7 @@ export default {
       this.ghostNode.style.height = `${this.sortingNodeHeight}px`;
       this.ghostNode.style.outline = `1px dashed rgb(125, 0, 0)`;
       this.ghostNode.style.boxSizing = "border-box";
+      this.ghostNode.style.pointerEvents = "none";
 
       // 隐藏原 node
       this.sortingNode.style.visibility = "hidden";
@@ -374,7 +392,7 @@ export default {
           offsetY = -this.sortingNode.offsetHeight;
           this.newSortIndex = i;
         }
-        node.style.transitionDuration = `.2s`;
+        // node.style.transitionDuration = `.2s`;
         node.style.transform = `translate3d(0,${offsetY}px, 0)`;
       }
     },

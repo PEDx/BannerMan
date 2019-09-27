@@ -11,8 +11,9 @@ import { findRelatedComponent } from '@utils/index';
 const isBrowser = true;
 
 export default class ComponentSelector {
-  constructor() {
+  constructor(container) {
     const self = this;
+    this.container = container || window;
     self.bindMethods();
   }
 
@@ -21,10 +22,10 @@ export default class ComponentSelector {
    */
   startSelecting() {
     if (!isBrowser) return;
-    window.addEventListener('mouseover', this.elementMouseOver, true);
-    window.addEventListener('click', this.elementClicked, true);
-    window.addEventListener('mouseout', this.cancelEvent, true);
-    window.addEventListener('mouseenter', this.cancelEvent, true);
+    this.container.addEventListener('mouseover', this.elementMouseOver, true);
+    this.container.addEventListener('click', this.elementClicked, true);
+    this.container.addEventListener('mouseout', this.cancelEvent, true);
+    this.container.addEventListener('mouseenter', this.cancelEvent, true);
     // window.addEventListener('mouseleave', this.cancelEvent, true);
     // window.addEventListener('mousedown', this.cancelEvent, true);
     // window.addEventListener('mouseup', this.cancelEvent, true);
@@ -35,10 +36,14 @@ export default class ComponentSelector {
    */
   stopSelecting() {
     if (!isBrowser) return;
-    window.removeEventListener('mouseover', this.elementMouseOver, true);
-    window.removeEventListener('click', this.elementClicked, true);
-    window.removeEventListener('mouseout', this.cancelEvent, true);
-    window.removeEventListener('mouseenter', this.cancelEvent, true);
+    this.container.removeEventListener(
+      'mouseover',
+      this.elementMouseOver,
+      true
+    );
+    this.container.removeEventListener('click', this.elementClicked, true);
+    this.container.removeEventListener('mouseout', this.cancelEvent, true);
+    this.container.removeEventListener('mouseenter', this.cancelEvent, true);
     // window.removeEventListener('mouseleave', this.cancelEvent, true);
     // window.removeEventListener('mousedown', this.cancelEvent, true);
     // window.removeEventListener('mouseup', this.cancelEvent, true);
