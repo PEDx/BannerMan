@@ -10,11 +10,10 @@
       :element-mixin-disabled="isTabs"
       :child-components-model="item.children"
       :child-deep-level="level"
-      @change-prop="rootContainer._componentPropsChanged(...arguments ,item.id)"
-      @children-changed="rootContainer._componentChildrenChanged(...arguments, item.id)"
-      @contianer-sort-start="rootContainer._contianerSortStart"
-      @contianer-sort-end="rootContainer._contianerSortEnd"
-      @tabs-count-changed="rootContainer._tabsCountChanged(...arguments ,item.id)"
+      @contianer-sort-start="rootContainer._handleSortStart"
+      @contianer-sort-end="rootContainer._handleSortEnd"
+      @contianer-insert-end="rootContainer._handleInsertEnd"
+      @contianer-insert-start="rootContainer._handleInsertStart"
       v-bind="item.props"
     >
       <template v-if="item.multContainer">

@@ -3,7 +3,7 @@
     <template v-if="inEditor">
       <sort-container
         ref="sortbleContainer"
-        :bm-sort-container-data="dataModel"
+        :bm-sort-container-data="childComponentsModel"
         @sort-start="_handleSortStart"
         @sort-end="_handleSortEnd"
         @insert-start="_handleInsertStart"
@@ -34,8 +34,7 @@ export default {
 <style lang="scss" scoped>
 .widget-container {
   box-sizing: border-box;
-  overflow: auto;
-  min-height: 300px;
+  height: 300px;
 }
 </style>
 

@@ -52,7 +52,7 @@ const DRAG_STATUS = {
   DRAG_MOVE: 2,
   DRAG_END: 3
 };
-
+const DISTANCE = 8;
 const MAX_NUMBER = Number.MAX_SAFE_INTEGER;
 export default {
   provide() {
@@ -67,7 +67,7 @@ export default {
     },
     BmSortContainerHeight: {
       type: String,
-      default: "auto"
+      default: "100%"
     }
   },
   data() {
@@ -79,14 +79,13 @@ export default {
     this.newSortIndex = -1;
     this.sortStatus = 0;
     this.dragStatus = 0;
+    this.startPosY = 0;
+    this.mouseStart = false;
     this.manager = new Manager();
     this.autoScrollInterval = null;
     return {};
   },
   mounted() {
-    setTimeout(() => {
-      console.log(this.BmSortContainerData);
-    }, 2000);
     this.initEvent();
     this.dragMove = throttle(this._dragMove, 16);
   },
@@ -94,6 +93,8 @@ export default {
     initEvent() {
       this.container = this.$refs.container;
       this.container.addEventListener("mousedown", this.handleStart);
+      this.container.addEventListener("mousemove", this.handleMove);
+      this.container.addEventListener("mouseup", this.handleEnd);
       this.container.addEventListener("dragenter", this.handleDragenter);
     },
     cancelEvent(e) {
@@ -155,8 +156,11 @@ export default {
       this.pressStartEdgeOffse = getEdgeOffset(placeholder);
       this.pressStartOffset = getOffset(e);
       this.$emit("insert-start", e);
-      this.container.removeEventListener("dragenter", this.handleDragenter);
-      this.container.addEventListener("dragover", this.handleDragover, false);
+      window.removeEventListener("dragenter", this.handleDragenter);
+      window.addEventListener("dragover", this.handleDragover, false);
+      window.addEventListener("drop", e => {
+        // console.log(e);
+      });
     },
     handleDragover(e) {
       this.dragMove(e);
@@ -194,22 +198,37 @@ export default {
       console.log("handleStart");
       const node = closest(e.target, el => el.sortableInfo != null);
       if (node && node.sortableInfo) {
-        this.sortStatus = SORT_STATUS.SORT_START;
-        this.handlePress(e);
-        this.$emit("sort-start", e);
+        this.mouseStart = true;
+        this.startPosY = e.pageY;
       }
       this.cancelEvent(e);
     },
+    handleMove(e) {
+      if (this.sortStatus === SORT_STATUS.SORT_START) return;
+      const _deltaY = e.y - this.startPosY;
+      if (Math.abs(_deltaY) >= DISTANCE && this.mouseStart) {
+        this.handlePress(e);
+      }
+    },
     handleEnd(e) {
+      this.mouseStart = false;
       console.log("handleEnd");
+    },
+    handleSortEnd(e) {
+      console.log("handleSortEnd");
       if (this.sortStatus !== SORT_STATUS.SORT_START) return;
-      this.ghostNode.parentNode.removeChild(this.ghostNode);
+      this.mouseStart = false;
       this.cleanUp();
+      this.ghostNode.parentNode.removeChild(this.ghostNode);
       if (this.newSortIndex === MAX_NUMBER) {
         this.newSortIndex = this.sortIndex;
       }
+      this.$emit("sort-end", {
+        old: this.sortIndex,
+        new: this.newSortIndex,
+        id: this.BmSortContainerData[this.sortIndex].id
+      });
       arrayMove(this.BmSortContainerData, this.sortIndex, this.newSortIndex);
-      this.$emit("sort-end", { old: this.sortIndex, new: this.newSortIndex });
       this.cancelEvent(e);
     },
     cleanUp() {
@@ -218,9 +237,9 @@ export default {
       this.sortingNode.style.visibility = "";
       this.sortingNode.style.opacity = "";
 
-      this.container.removeEventListener("dragover", this.handleDragover);
+      window.removeEventListener("dragover", this.handleDragover);
       window.removeEventListener("mousemove", this.handleSortMove);
-      window.removeEventListener("mouseup", this.handleEnd);
+      window.removeEventListener("mouseup", this.handleSortEnd);
 
       this.manager.getRefs().forEach((val, idx) => {
         val.node.style.transitionDuration = "";
@@ -234,6 +253,7 @@ export default {
     // 选中的移动的元素
     handlePress(e) {
       console.log("handlePress");
+      this.sortStatus = SORT_STATUS.SORT_START;
       const node = closest(e.target, el => el.sortableInfo != null);
       const margin = getElementMargin(node);
       const boundingClientRect = node.getBoundingClientRect();
@@ -277,11 +297,11 @@ export default {
         boundingClientRect.top -
         node.offsetHeight / 2;
       this.sortIndex = node.sortableInfo.index;
-      // console.log(`this.sortIndex-${this.sortIndex}`);
+
       this.newSortIndex = MAX_NUMBER;
-      // debugger
+      this.$emit("sort-start", e);
       window.addEventListener("mousemove", this.handleSortMove, false);
-      window.addEventListener("mouseup", this.handleEnd, false);
+      window.addEventListener("mouseup", this.handleSortEnd);
     },
     handleSortMove(e) {
       this.updateGhostPosition(e);

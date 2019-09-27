@@ -1,4 +1,3 @@
-import clonedeep from 'lodash.clonedeep';
 import SortContainer from '../../sortcontainer/SortContainer';
 export const WidgetContainerMixin = {
   components: {
@@ -14,25 +13,25 @@ export const WidgetContainerMixin = {
       default: 1
     }
   },
-  data() {
-    this.wcm_newIndex = 0;
-    return {
-      dataModel: []
-    };
-  },
-  watch: {
-    childComponentsModel: {
-      deep: true,
-      immediate: true,
-      handler: function(val) {
-        this.dataModel = clonedeep(val);
-      }
-    }
-  },
   methods: {
-    _handleSortStart() {},
-    _handleSortEnd() {},
-    _handleInsertStart(e) {},
-    _handleInsertEnd(e) {}
+    _handleSortStart() {
+      this.$emit('contianer-sort-start');
+      console.log('widget-container-_handleSortStart');
+    },
+    _handleSortEnd(info) {
+      this.$emit('contianer-sort-end', info);
+      console.log('widget-container-_handleSortEnd');
+    },
+    _handleInsertStart(e) {
+      this.$emit('contianer-insert-start', e);
+      console.log('widget-container-_handleInsertStart');
+    },
+    _handleInsertEnd(idx) {
+      this.$emit('contianer-insert-end', idx);
+      console.log('widget-container-_handleInsertEnd');
+    },
+    handleDragend() {
+      this.$refs.sortbleContainer.handleDragend();
+    }
   }
 };

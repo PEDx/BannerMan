@@ -119,16 +119,6 @@ export default {
         const widgetName = e.dataTransfer.getData("WIDGET_NAME");
         if (!widgetName) return;
         this.dropEndComponentName = widgetName;
-        window.parent.postMessage(
-          {
-            type: "drag-end",
-            axis: {
-              x: e.x,
-              y: e.y
-            }
-          },
-          "*"
-        );
         e.preventDefault();
       });
       document.addEventListener(
@@ -157,14 +147,15 @@ export default {
     // 排序完成后所有的排序元素实例都会销毁重建
     _handleSortEnd(info) {
       selector.startSelecting();
-      this.$nextTick(() => {
-        const id = this.componentsModelTree[info.new].id;
+      setTimeout(() => {
+        const id = info.id;
         this._generateComponentModelMap();
         this._drawWidgetsTree();
         this._selectComponentAndHighlightById(id);
       });
     },
     _handleInsertEnd(index) {
+      console.log("root-_handleInsertEnd");
       selector.startSelecting();
       this.sortingType = SORT_TYPE.ADD;
       if (this.dropEndComponentName) {
@@ -172,6 +163,7 @@ export default {
       }
     },
     _handleInsertStart(e) {
+      console.log("root-_handleInsertStart");
       selector.stopSelecting();
       this.sorting = true;
       if (this.dragingType === "drag_resource") return;
@@ -307,30 +299,6 @@ export default {
       ret = this.componentModelMap[id];
       return ret;
     },
-    _componentPropsChanged(obj, id) {
-      // 监听组件更新自己 props 事件
-      const props = this._findComponentModelById[id].props;
-      Object.keys(obj).forEach(key => (props[key] = obj[key]));
-      window.parent.postMessage(
-        {
-          type: "flush-controller-value"
-        },
-        "*"
-      );
-    },
-    _componentChildrenChanged(sortedArr, id) {
-      if (this.draging) return;
-      // 监听组件更新自己 child 事件
-      this._findComponentModelById(id).children = sortedArr;
-      if (this.sortingType === SORT_TYPE.ADD) return;
-      selector.clearContainerHighlight();
-      this.$nextTick(() => {
-        this._generateComponentModelMap();
-        const _id = this._findComponentModelById(id).children[this.newIndex].id;
-        this._drawWidgetsTree();
-        this._selectComponentAndHighlightById(_id);
-      });
-    },
     // tab 容器专用 api
     _tabsCountChanged(count, id) {
       this.dragingContainerId = id;
@@ -344,24 +312,6 @@ export default {
         // increase
         this._asyncAddComponent("widget-container", containersArr.length);
       }
-    },
-    _contianerSortStart(container) {
-      selector.stopSelecting();
-      this.sorting = true;
-      selector.clearContainerHighlight();
-      selector.highlighitContainerInstance(container);
-    },
-    _contianerSortEnd({ newIndex, oldIndex, isPlaceholder, collection }) {
-      selector.startSelecting();
-      this.newIndex = newIndex;
-      selector.clearContainerHighlight();
-      if (isPlaceholder) {
-        if (!this.dropEndComponentName) return;
-        this.sortingType = SORT_TYPE.ADD;
-        this._asyncAddComponent(this.dropEndComponentName, newIndex);
-        return;
-      } // 在指定位置添加新组件
-      this.sortingType = SORT_TYPE.SORT;
     },
     _test_() {
       const promiseArr = [
@@ -595,12 +545,12 @@ export default {
       this.draging = false;
       this.sorting = false;
       this.treeScrolling = false;
-      this.$refs.rootContainer.handleDragend();
-      // if (this.dragingContainer && this.dragingContainer.clearHackState) {
-      //   this.dragingContainer.clearHackState(e);
-      //   this.dragingContainer = null;
-      //   selector.clearContainerHighlight();
-      // }
+      // debugger;
+      if (this.dragingContainer) {
+        this.dragingContainer.handleDragend();
+        this.dragingContainer = null;
+        selector.clearContainerHighlight();
+      }
     },
     highlighitInstance(id) {
       const instance = this.componentInstanceMap[id];
