@@ -88,13 +88,15 @@ export function clamp(x, min, max) {
 export const getViewportVueInstance = (() => {
   let _ins = null;
   return () => {
-    if (_ins) return _ins;
-    _ins = window.frames.viewport._CURRENT_VIEWPORT_VUE_INSTANCE_;
-    if (!_ins) {
-      console.error('错误: 拿不到 iframe 中 vue 实例, 请检查服务器路由配置');
-      return {};
-    }
-    return _ins;
+    if (_ins) return Promise.resolve(_ins);
+    return new Promise((resolve, reject) => {
+      window.addEventListener('message', e => {
+        if (e.data.type === 'viewportLoaded') {
+          _ins = window.frames.viewport._CURRENT_VIEWPORT_VUE_INSTANCE_;
+          resolve(_ins);
+        }
+      });
+    });
   };
 })();
 

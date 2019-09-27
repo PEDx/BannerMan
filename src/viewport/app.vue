@@ -1,14 +1,19 @@
 <template>
-  <sort-container
-    ref="rootContainer"
-    :bm-sort-container-data="componentsModelTree"
-    @sort-start="_handleSortStart"
-    @sort-end="_handleSortEnd"
-    @insert-start="_handleInsertStart"
-    @insert-end="_handleInsertEnd"
+  <div
+    class="viewport"
+    :style="{width: `${viewSize.width || 375}px`,height: `${viewSize.height || 667}px`,transform: `scale(${1})`,transformOrigin: 'top'}"
   >
-    <components-wrap :components="componentsModelTree"></components-wrap>
-  </sort-container>
+    <sort-container
+      ref="rootContainer"
+      :bm-sort-container-data="componentsModelTree"
+      @sort-start="_handleSortStart"
+      @sort-end="_handleSortEnd"
+      @insert-start="_handleInsertStart"
+      @insert-end="_handleInsertEnd"
+    >
+      <components-wrap :components="componentsModelTree"></components-wrap>
+    </sort-container>
+  </div>
 </template>
 
 <script>
@@ -67,13 +72,19 @@ export default {
     this.sortingType = SORT_TYPE.SORT;
     this.dragingContainer = null;
     return {
+      viewSize: {},
       componentsModelTree: [] // 组件数据模型, 在此分发传入各个组件的 props
     };
   },
   mounted() {
     this.pageId = parseQueryString(location.href).id;
     window._CURRENT_VIEWPORT_VUE_INSTANCE_ = this;
-
+    window.parent.postMessage(
+      {
+        type: "viewportLoaded"
+      },
+      "*"
+    );
     selector.startSelecting();
 
     EventBus.$on("element-selected", instance => {
@@ -541,6 +552,12 @@ export default {
     autoSave() {
       setInterval(this.savePage, AUTO_SAVE_TIME);
     },
+    // 改变页面分辨率
+    changeViewSize(size) {
+      this.viewSize = size;
+    },
+    // 改变页面缩放比
+    changeViewScale() {},
     onDragend(e) {
       this.draging = false;
       this.sorting = false;
@@ -576,4 +593,18 @@ export default {
   }
 };
 </script>
+<style>
+html,
+body {
+  height: 100%;
+  background: transparent !important;
+}
+</style>
+<style lang="scss" scoped>
+.viewport {
+  margin: 0 auto;
+  background: #fff;
+  margin-top: 60px;
+}
+</style>
 

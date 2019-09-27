@@ -2,6 +2,7 @@
   <div id="sort-demo">
     <sort-container
       :bm-sort-container-data="dataList"
+      bm-sort-container-height="400px"
       ref="sortContainer"
       @insert-end="handleInsertEnd"
       @sort-end="handleSortEnd"

@@ -10,10 +10,7 @@
     </div>
     <div class="mid">
       <div :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content">
-        <div
-          :style="{width: `${viewSize.width}px`,height: `${viewSize.height}px`,transform: `scale(${viewScale})`,transformOrigin: 'top'}"
-          class="viewport"
-        >
+        <div :style="{width: `100%`,height: `100%`}" class="viewport">
           <transition name="fade">
             <div v-if="viewportLoading" class="mask">
               <div class="loading"></div>
@@ -247,7 +244,7 @@ export default {
     .mid-content {
       height: 100%;
       box-sizing: border-box;
-      padding: 30px 0;
+      // padding: 30px 0;
       overflow-y: auto;
       overflow-x: hidden;
       // transition: all 0.5s;
@@ -255,7 +252,7 @@ export default {
     .viewport {
       position: relative;
       margin: 0 auto;
-      background: rgb(73, 69, 69);
+      // background: rgb(73, 69, 69);
       overflow: hidden;
       box-shadow: 0 2px 20px rgba(0, 0, 0, 0.42), 0 0 24px rgba(0, 0, 0, 0.04);
       border-radius: 2px;

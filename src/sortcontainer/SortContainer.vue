@@ -199,20 +199,27 @@ export default {
       const node = closest(e.target, el => el.sortableInfo != null);
       if (node && node.sortableInfo) {
         this.mouseStart = true;
-        this.startPosY = e.pageY;
+        this.startPos = { y: e.pageY, x: e.pageX };
       }
       this.cancelEvent(e);
     },
     handleMove(e) {
-      if (this.sortStatus === SORT_STATUS.SORT_START) return;
-      const _deltaY = e.y - this.startPosY;
-      if (Math.abs(_deltaY) >= DISTANCE && this.mouseStart) {
+      if (this.sortStatus === SORT_STATUS.SORT_START || !this.mouseStart) {
+        return;
+      }
+      const _delta = {
+        y: this.startPos.y - e.pageY,
+        x: this.startPos.x - e.pageX
+      };
+      const delta = Math.abs(_delta.x) + Math.abs(_delta.y);
+      if (delta >= DISTANCE) {
         this.handlePress(e);
       }
     },
     handleEnd(e) {
       this.mouseStart = false;
       console.log("handleEnd");
+      this.cancelEvent(e);
     },
     handleSortEnd(e) {
       console.log("handleSortEnd");
