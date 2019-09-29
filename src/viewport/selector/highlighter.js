@@ -91,7 +91,7 @@ export function highlight(instance) {
   if (!instance) return;
   const rect = getInstanceOrVnodeRect(instance);
   if (isInvisible(rect)) {
-    if (!overlay.style) return;
+    if (!overlay || !overlay.style) return;
     overlay.style.display = 'none';
     return;
   }

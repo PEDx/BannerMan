@@ -33,6 +33,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .widget-container {
+  // box-shadow: inset 0px 5px 5px -5px #000, inset 0px -5px 5px -5px #000;
   position: relative;
   box-sizing: border-box;
   height: 300px;

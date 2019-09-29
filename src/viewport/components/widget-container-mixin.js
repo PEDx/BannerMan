@@ -1,4 +1,4 @@
-import SortContainer from '../../sortcontainer/SortContainer';
+import SortContainer from '../sortble/SortContainer';
 export const WidgetContainerMixin = {
   components: {
     SortContainer

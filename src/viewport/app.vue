@@ -33,9 +33,8 @@ import {
 import storage from "@/storage";
 import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
-import SortElementMixin from "../sortcontainer/SortElementMixin";
-import sortbleContainer from "./components/sortble-container";
-import SortContainer from "../sortcontainer/SortContainer";
+import SortElementMixin from "./sortble/SortElementMixin";
+import SortContainer from "./sortble/SortContainer";
 import { WidgetContainerMixin } from "./components/widget-container-mixin";
 
 import widgets from "@/widgets";
@@ -57,7 +56,6 @@ window._BM_WIDGET_CONTAINER_MIXIN_ = WidgetContainerMixin; // 由编辑器提供
 
 export default {
   components: {
-    sortbleContainer,
     SortContainer
   },
   data() {
