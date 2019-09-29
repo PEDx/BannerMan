@@ -21,13 +21,13 @@
         visibility: hidden;
         width: 100%;
         height: 80px;
-        line-height: 80px;
+        line-height: 76px;
+        color: #bbb2a8;
+        font-size: 34px;
         text-align: center;
         box-sizing: border-box;
         background-color: rgba(166, 160, 183, 0.16);"
-    >
-      <i class="el-icon-plus" style="color: #bbb2a8;font-size: 34px;"></i>
-    </div>
+    >+</div>
   </div>
 </template>
 <script>
