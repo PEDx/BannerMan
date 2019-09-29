@@ -2,7 +2,6 @@ import EventBus from '@/bus';
 import {
   highlight,
   unHighlight,
-  unHighlightSelected,
   highlightContainer,
   unHighlightContainer,
   highlightSelected
@@ -49,7 +48,6 @@ export default class ComponentSelector {
     // window.removeEventListener('mouseup', this.cancelEvent, true);
 
     unHighlight();
-    unHighlightSelected();
   }
 
   /**
@@ -101,7 +99,6 @@ export default class ComponentSelector {
   }
   clearHighlight() {
     unHighlight();
-    unHighlightSelected();
   }
   clearHoverHighlight() {
     this.mouseOverInstance = null;

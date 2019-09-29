@@ -52,7 +52,7 @@ export default {
     handleDragend(e) {
       e.stopPropagation();
       e.preventDefault();
-      this.$refs.sortContainer.handleDragend();
+      this.$refs.sortContainer.handleDropEnd(e);
     },
     handleDrag(e) {
       // this.$refs.sortContainer.handleDragover(e);

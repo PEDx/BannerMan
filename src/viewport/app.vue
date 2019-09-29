@@ -67,7 +67,6 @@ export default {
     this.pageId = null;
     this.dragingContainerId = null;
     this.dropEndComponentName = "";
-    this.selectedId = "";
     this.treeScrolling = false;
     this.resourceDraging = false;
     this.draging = false;
@@ -78,6 +77,7 @@ export default {
     return {
       viewSize: {},
       viewScale: 1,
+      selectedId: "",
       componentsModelTree: [] // 组件数据模型, 在此分发传入各个组件的 props
     };
   },
@@ -186,6 +186,7 @@ export default {
     },
     _handleSortStart(e) {
       this.sorting = true;
+      this.selectedId = "";
       selector.stopSelecting();
     },
     // 排序完成后所有的排序元素实例都会销毁重建
@@ -572,6 +573,8 @@ export default {
       selector.highlighitMouseoverInstance(instance);
     },
     highlighitSelectedInstance(id) {
+      // debugger;
+      this.selectedId = id;
       selector.clearHighlight();
       this._selectComponentAndHighlightById(id);
     },
@@ -603,6 +606,7 @@ body {
   width: 100%;
   box-sizing: border-box;
   padding-top: 60px;
+  overflow: hidden;
 }
 .viewport {
   position: relative;

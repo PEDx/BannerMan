@@ -87,7 +87,5 @@ export default {
       }
     }
   }
-  .widget-tabs-content {
-  }
 }
 </style>

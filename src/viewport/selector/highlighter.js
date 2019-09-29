@@ -60,23 +60,6 @@ function initOverlay() {
   overlay.appendChild(overlayContent);
 }
 
-let selectedOverlay;
-function initSelectedOverlay() {
-  if (selectedOverlay) {
-    selectedOverlay.style.display = 'block';
-    return;
-  }
-  selectedOverlay = document.createElement('div');
-  selectedOverlay.style.position = 'absolute';
-  selectedOverlay.style.zIndex = '9998';
-  selectedOverlay.style.boxSizing = 'border-box';
-  selectedOverlay.style.border = '1px dashed #ff5500';
-  selectedOverlay.style.pointerEvents = 'none';
-  selectedOverlay.style.display = 'block';
-  selectedOverlay.style.alignItems = 'center';
-  selectedOverlay.style.justifyContent = 'center';
-  selectedOverlay.style.borderRadius = '3px';
-}
 let containerOverlay;
 function initContainerOverlay(level) {
   if (containerOverlay) {
@@ -108,6 +91,7 @@ export function highlight(instance) {
   if (!instance) return;
   const rect = getInstanceOrVnodeRect(instance);
   if (isInvisible(rect)) {
+    if (!overlay.style) return;
     overlay.style.display = 'none';
     return;
   }
@@ -133,22 +117,8 @@ export function highlight(instance) {
   }
 }
 
-export function highlightSelected(instance) {
-  if (!instance) return;
-  const rect = getInstanceOrVnodeRect(instance);
-  if (isInvisible(rect)) {
-    overlay.style.display = 'none';
-    return;
-  }
-  if (!isBrowser) {
-    return;
-  }
+export function highlightSelected(instance) {}
 
-  initSelectedOverlay();
-  if (rect) {
-    showOverlay(selectedOverlay, rect);
-  }
-}
 export function highlightContainer(instance) {
   if (!instance) return;
   const rect = getInstanceOrVnodeRect(instance);
@@ -167,11 +137,6 @@ export function highlightContainer(instance) {
 export function unHighlight() {
   if (overlay && overlay.parentNode) {
     overlay.style.display = 'none';
-  }
-}
-export function unHighlightSelected() {
-  if (selectedOverlay && selectedOverlay.parentNode) {
-    selectedOverlay.style.display = 'none';
   }
 }
 export function unHighlightContainer() {

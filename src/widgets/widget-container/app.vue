@@ -33,6 +33,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .widget-container {
+  position: relative;
   box-sizing: border-box;
   height: 300px;
 }

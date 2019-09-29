@@ -52,7 +52,7 @@ const DRAG_STATUS = {
   DRAG_MOVE: 2,
   DRAG_END: 3
 };
-const DISTANCE = 8;
+const DISTANCE = 6;
 const MAX_NUMBER = Number.MAX_SAFE_INTEGER;
 export default {
   provide() {
@@ -111,15 +111,15 @@ export default {
           this.handleDragenter(_e);
         }))(e);
       this.$emit("insert-start", e);
-      console.log("handleDragStart");
+      // console.log("handleDragStart");
     },
     triggerDragEnd() {
       this.handleDragleave();
       this.dragStatus = DRAG_STATUS.DRAG_END;
-      console.log("triggerDragEnd");
+      // console.log("triggerDragEnd");
     },
     handleDropEnd(e) {
-      console.log("handleDropEnd");
+      // console.log("handleDropEnd");
       if (this.newSortIndex === MAX_NUMBER) {
         this.newSortIndex = this.sortIndex;
       }
@@ -128,7 +128,7 @@ export default {
       this.cancelEvent(e);
     },
     handleDragenter(e) {
-      console.log("handleDragenter");
+      // console.log("handleDragenter");
       this.dragStatus = DRAG_STATUS.DRAG_START;
       const placeholder = this.$refs.placeholder;
       this.placeholderGhostNode = clonePressGhogNodeNode(placeholder);
@@ -136,8 +136,7 @@ export default {
       this.sortIndex = this.BmSortContainerData.length;
       this.sortingNodeHeight = placeholder.offsetHeight;
       this.sortingNodeWidth = placeholder.offsetWidth;
-      const offsetY =
-        e.layerY - this.sortingNodeHeight / 2 + this.container.scrollTop;
+      const offsetY = e.layerY - this.sortingNodeHeight / 2;
 
       placeholder.style.top = `${offsetY}px`;
 
@@ -206,13 +205,13 @@ export default {
       const placeholder = this.$refs.placeholder;
       wrap.style.paddingBottom = `${0}px`;
       placeholder.style.top = `${0}px`;
-      if (this.placeholderGhostNode.parentNode) {
+      if (this.placeholderGhostNode && this.placeholderGhostNode.parentNode) {
         this.placeholderGhostNode.parentNode.removeChild(
           this.placeholderGhostNode
         );
       }
       this.cleanUp();
-      console.log("handleDragleave");
+      // console.log("handleDragleave");
     },
     nodeIsChild(node) {
       return node.sortableInfo.manager === this.manager;
@@ -240,10 +239,10 @@ export default {
     },
     handleEnd(e) {
       this.mouseStart = false;
-      console.log("handleEnd");
+      // console.log("handleEnd");
     },
     handleSortEnd(e) {
-      console.log("handleSortEnd");
+      // console.log("handleSortEnd");
       if (this.sortStatus !== SORT_STATUS.SORT_START) return;
       this.mouseStart = false;
       this.cleanUp();
@@ -280,7 +279,7 @@ export default {
     },
     // 选中的移动的元素
     handlePress(e) {
-      console.log("handlePress");
+      // console.log("handlePress");
       this.sortStatus = SORT_STATUS.SORT_START;
       const node = closest(e.target, el => el.sortableInfo != null);
       const margin = getElementMargin(node);
