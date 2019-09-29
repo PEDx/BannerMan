@@ -169,10 +169,10 @@ export default {
       this.dragingContainer = container;
       this.prevDragingContainer = container;
       // console.log(container);
-      // selector.clearContainerHighlight();
-      // selector.highlighitContainerInstance(container);
-      // this.dragingContainerId = container.$el.id;
-      // this.dropEndComponentName = "";
+      selector.clearContainerHighlight();
+      selector.highlighitContainerInstance(container);
+      this.dragingContainerId = container.$el.id;
+      this.dropEndComponentName = "";
     },
     _handleInsertEnd(index) {
       selector.startSelecting();
@@ -567,11 +567,7 @@ export default {
         selector.clearContainerHighlight();
       }
     },
-    onDrag(e) {
-      if (this.dragingContainer) {
-        this.dragingContainer.handleDrag(e);
-      }
-    },
+    onDrag(e) {},
     highlighitInstance(id) {
       const instance = this.componentInstanceMap[id];
       selector.highlighitMouseoverInstance(instance);

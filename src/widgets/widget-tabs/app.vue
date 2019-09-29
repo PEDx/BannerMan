@@ -22,7 +22,7 @@
     </div>
     <div class="widget-tabs-content">
       <div class="container" v-for="(num, idx) in tabsCount" :key="num" v-show="selectIdx === num">
-        <slot :name="`slot_${idx}`"/>
+        <slot :name="`slot_${idx}`" />
       </div>
     </div>
   </div>
@@ -56,6 +56,9 @@ export default {
   },
   created() {
     this.$emit("tabs-count-changed", this.tabsCount);
+  },
+  mounted() {
+    this.$el._BM_CONTAINER_ = true;
   },
   methods: {
     handleClick(idx) {

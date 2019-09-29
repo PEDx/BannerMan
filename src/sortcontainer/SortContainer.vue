@@ -96,8 +96,6 @@ export default {
       this.container.addEventListener("mousemove", this.handleMove);
       this.container.addEventListener("mouseup", this.handleEnd);
       this.container.addEventListener("dragenter", this.handleDragStart);
-      this.container.addEventListener("dragover", this.handleDragOver);
-      // this.container.addEventListener("dragleave", this.handleDragEnd, false);
     },
     cancelEvent(e) {
       e.stopPropagation();
@@ -108,19 +106,25 @@ export default {
       this.cancelEvent(e);
       if (this.dragStatus === DRAG_STATUS.DRAG_START) return;
       this.dragStatus = DRAG_STATUS.DRAG_START;
-      this.handleDragenter(e);
+      (_e =>
+        setTimeout(() => {
+          this.handleDragenter(_e);
+        }))(e);
       this.$emit("insert-start", e);
       console.log("handleDragStart");
     },
-    handleDragOver(e) {},
-    handleDrag(e) {},
     triggerDragEnd() {
-      this.handleDragend();
+      this.handleDragleave();
       this.dragStatus = DRAG_STATUS.DRAG_END;
       console.log("triggerDragEnd");
     },
     handleDropEnd(e) {
       console.log("handleDropEnd");
+      if (this.newSortIndex === MAX_NUMBER) {
+        this.newSortIndex = this.sortIndex;
+      }
+      this.$emit("insert-end", this.newSortIndex);
+      this.handleDragleave();
       this.cancelEvent(e);
     },
     handleDragenter(e) {
@@ -195,7 +199,7 @@ export default {
       this.animateOtherNodes(translate);
       this.autoScroll(translate);
     },
-    handleDragend() {
+    handleDragleave() {
       if (this.dragStatus !== DRAG_STATUS.DRAG_START) return;
       this.dragStatus = DRAG_STATUS.DRAG_END;
       const wrap = this.$refs.wrap;
@@ -206,9 +210,7 @@ export default {
         this.placeholderGhostNode
       );
       this.cleanUp();
-      this.$emit("insert-end", this.newSortIndex);
-      console.log("handleDragend");
-      console.log(this.newSortIndex);
+      console.log("handleDragleave");
     },
     nodeIsChild(node) {
       return node.sortableInfo.manager === this.manager;
@@ -349,6 +351,7 @@ export default {
       // debugger;
       this.newSortIndex = MAX_NUMBER;
       const nodeList = this.manager.getOrderedRefs();
+      // console.log(nodeList);
       // 在拖拽移动中滚动了的差值
       const deltaScroll = {
         left: this.container.scrollLeft - this.pressStartScroll.left,
@@ -356,6 +359,7 @@ export default {
       };
       const sortingMoveY =
         translate.y + this.pressStartEdgeOffse.top + deltaScroll.top;
+
       for (let i = 0, len = nodeList.length; i < len; i++) {
         const { node } = nodeList[i];
 
@@ -392,7 +396,7 @@ export default {
           offsetY = -this.sortingNode.offsetHeight;
           this.newSortIndex = i;
         }
-        // node.style.transitionDuration = `.2s`;
+        node.style.transitionDuration = `.2s`;
         node.style.transform = `translate3d(0,${offsetY}px, 0)`;
       }
     },

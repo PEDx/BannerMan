@@ -33,9 +33,6 @@ export const WidgetContainerMixin = {
     handleDropEnd(e) {
       this.$refs.sortbleContainer.handleDropEnd(e);
     },
-    handleDrag(e) {
-      this.$refs.sortbleContainer.handleDrag(e);
-    },
     triggerDragEnd(e) {
       this.$refs.sortbleContainer.triggerDragEnd(e);
     }

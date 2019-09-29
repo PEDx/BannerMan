@@ -35,7 +35,6 @@ export default {
 .widget-container {
   box-sizing: border-box;
   height: 300px;
-  background-color: rgb(255, 255, 207);
 }
 </style>
 
