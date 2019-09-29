@@ -206,9 +206,11 @@ export default {
       const placeholder = this.$refs.placeholder;
       wrap.style.paddingBottom = `${0}px`;
       placeholder.style.top = `${0}px`;
-      this.placeholderGhostNode.parentNode.removeChild(
-        this.placeholderGhostNode
-      );
+      if (this.placeholderGhostNode.parentNode) {
+        this.placeholderGhostNode.parentNode.removeChild(
+          this.placeholderGhostNode
+        );
+      }
       this.cleanUp();
       console.log("handleDragleave");
     },

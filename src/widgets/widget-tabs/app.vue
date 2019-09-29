@@ -57,9 +57,6 @@ export default {
   created() {
     this.$emit("tabs-count-changed", this.tabsCount);
   },
-  mounted() {
-    this.$el._BM_CONTAINER_ = true;
-  },
   methods: {
     handleClick(idx) {
       this.selectIdx = idx;

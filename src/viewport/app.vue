@@ -165,7 +165,10 @@ export default {
         findRelatedContainerComponent(e.target) || this.$refs.rootContainer;
       if (this.dragingContainer === container) return;
       this.draging = true;
-      if (this.prevDragingContainer) this.prevDragingContainer.triggerDragEnd();
+      if (this.prevDragingContainer) {
+        if (!this.prevDragingContainer.triggerDragEnd) debugger;
+        this.prevDragingContainer.triggerDragEnd();
+      }
       this.dragingContainer = container;
       this.prevDragingContainer = container;
       // console.log(container);
@@ -191,7 +194,6 @@ export default {
       selector.startSelecting();
       setTimeout(() => {
         const id = info.id;
-        this._generateComponentModelMap();
         this._drawWidgetsTree();
         this._selectComponentAndHighlightById(id);
       });
@@ -308,6 +310,7 @@ export default {
     },
     // tab 容器专用 api
     _tabsCountChanged(count, id) {
+      this._generateComponentModelMap();
       this.dragingContainerId = id;
       const containersArr = this._findComponentModelById(id).children;
       // debugger
@@ -359,7 +362,6 @@ export default {
       this.componentModelMap[_id] = _obj;
       this.$nextTick(() => {
         const id = _containerModel.children[place].id;
-        this._generateComponentModelMap();
         this._drawWidgetsTree();
         this._setImageNodeUndraggable();
         this._selectComponentAndHighlightById(id);
@@ -403,7 +405,6 @@ export default {
       });
       Promise.all(_promiseArr).then(res => {
         this.componentsModelTree = componentsModelTree;
-        this._generateComponentModelMap();
         this.$nextTick(() => {
           console.timeEnd("renderPageFromLocal");
           this._setImageNodeUndraggable();
@@ -458,6 +459,7 @@ export default {
     },
     _drawWidgetsTree() {
       console.time("drawWidgetsTree");
+      this._generateComponentModelMap();
       const _tree = this._generateWidgetsTree();
       console.timeEnd("drawWidgetsTree");
       window.parent.postMessage(
@@ -502,9 +504,6 @@ export default {
       if (index >= 0) {
         if (list[index]) delete this.componentModelMap[list[index].id];
         list.splice(index, 1);
-        return;
-      }
-      if (index >= 0) {
         console.log("deleted");
         this.$nextTick(this._drawWidgetsTree);
         selector.clearHighlight();
