@@ -23,8 +23,8 @@
   </div>
 </template>
 <script>
-import SortContainer from "../sortcontainer/SortContainer";
-import SortElement from "../sortcontainer/SortElement";
+import SortContainer from "../viewport/sortble/SortContainer";
+import SortElement from "../viewport/sortble/SortElement";
 export default {
   components: {
     SortContainer,

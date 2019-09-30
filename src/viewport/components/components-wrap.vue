@@ -31,13 +31,12 @@
             :slot="`slot_${idx}`"
             :components="[val]"
             :level="deep_index"
-            :id="`slot_${idx}`"
             :is-mult-container="true"
           ></components-wrap>
         </template>
         <template v-else>
           <components-wrap
-            v-if="item.children.length > 0"
+            v-if="item.children && item.children.length > 0"
             :components="item.children"
             :level="deep_index"
           ></components-wrap>
@@ -47,6 +46,7 @@
   </div>
 </template>
 <script>
+// 由 components-wrap 来展开子元素数组
 export default {
   props: {
     components: {
