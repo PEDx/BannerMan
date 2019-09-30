@@ -1,52 +1,31 @@
 export default class Manager {
   constructor() {
-    this.refs = {};
+    this.refs = [];
   }
-
-  add(collection, ref) {
-    if (!this.refs[collection]) {
-      this.refs[collection] = [];
+  add(ref) {
+    if (!this.refs) {
+      this.refs = [];
     }
-
-    this.refs[collection].push(ref);
+    this.refs.push(ref);
   }
-
-  remove(collection, ref) {
-    const index = this.getIndex(collection, ref);
+  remove(ref) {
+    const index = this.getIndex(ref);
 
     if (index !== -1) {
-      this.refs[collection].splice(index, 1);
+      this.refs.splice(index, 1);
     }
   }
-
-  isActive() {
-    return this.active;
+  getRefs() {
+    return this.refs;
   }
-
-  getActive() {
-    return this.refs[this.active.collection].find(({ node }) => {
-      // debugger;
-      return node.sortableInfo.index === this.active.index;
-    });
+  getIndex(ref) {
+    return this.refs.indexOf(ref);
   }
-
-  getPlaceholder() {
-    return this.refs[this.active.collection].find(
-      ({ node }) => !!node.sortableInfo.isPlaceholder
-    );
-  }
-
-  getIndex(collection, ref) {
-    return this.refs[collection].indexOf(ref);
-  }
-
   getOrderedRefs() {
-    if (!this.active) {
-      // debugger;
+    if (!this.refs) {
       return null;
     }
-    const collection = this.active.collection;
-    return this.refs[collection].sort((a, b) => {
+    return this.refs.sort((a, b) => {
       return a.node.sortableInfo.index - b.node.sortableInfo.index;
     });
   }

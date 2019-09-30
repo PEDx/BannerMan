@@ -34,6 +34,7 @@
             style="overflow: hidden"
             :tabindex="-1"
             @dragstart="handleWidgetDragstart(...arguments, item)"
+            @drag="handleDrag"
             @dragend="handleDragend"
           >
             <i :class="item.icon" v-if="!item.svg"></i>
@@ -249,16 +250,27 @@ export default {
   mounted() {},
   methods: {
     handleWidgetDragstart(e, widget) {
-      getViewportVueInstance().setDragType("drag_widget");
+      getViewportVueInstance().then(ins => {
+        ins.setDragType("drag_widget");
+      });
       e.dataTransfer.setData("WIDGET_NAME", widget.widgetName);
     },
     handleResDragstart(e, file) {
-      getViewportVueInstance().setDragType("drag_resource");
+      getViewportVueInstance().then(ins => {
+        ins.setDragType("drag_resource");
+      });
       e.dataTransfer.setData("RESOURCE_TYPE", "image");
       e.dataTransfer.setData("RESOURCE_FILE", JSON.stringify(file));
     },
     handleDragend(e) {
-      getViewportVueInstance().onDragend(e);
+      getViewportVueInstance().then(ins => {
+        ins.onDragend(e);
+      });
+    },
+    handleDrag(e) {
+      getViewportVueInstance().then(ins => {
+        ins.onDrag(e);
+      });
     },
     handleResDragend(e) {
       EventBus.$emit("resource-dragend");

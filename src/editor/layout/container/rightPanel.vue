@@ -136,18 +136,19 @@ export default {
       e => {
         // 选定一个元素
         if (e.data.type === "select-component") {
-          const ins = getViewportVueInstance();
-          const profile = ins.getSelectWidgetProfile();
-          if (!profile.controllers) return;
-          profile.controllers.forEach(val => {
-            val.value = undefined;
-          });
-          this.controllerList = profile.controllers;
-          this.name = profile.name;
-          this.controllerList.forEach(val => {
-            val.value = ins.getWidgetDataValue(val.propName);
-            this.controllerMap[val.propName] = val;
-            val.id = getRandomStr(6);
+          getViewportVueInstance().then(ins => {
+            const profile = ins.getSelectWidgetProfile();
+            if (!profile.controllers) return;
+            profile.controllers.forEach(val => {
+              val.value = undefined;
+            });
+            this.controllerList = profile.controllers;
+            this.name = profile.name;
+            this.controllerList.forEach(val => {
+              val.value = ins.getWidgetDataValue(val.propName);
+              this.controllerMap[val.propName] = val;
+              val.id = getRandomStr(6);
+            });
           });
         }
       },
@@ -180,9 +181,10 @@ export default {
       e => {
         // 刷新控制器列表数值
         if (e.data.type === "flush-controller-value") {
-          const ins = getViewportVueInstance();
-          this.controllerList.forEach(val => {
-            val.value = ins.getWidgetDataValue(val.propName);
+          getViewportVueInstance().then(ins => {
+            this.controllerList.forEach(val => {
+              val.value = ins.getWidgetDataValue(val.propName);
+            });
           });
         }
       },
@@ -193,10 +195,14 @@ export default {
       this.instancesTree = [];
     });
     EventBus.$on("tree-enter-instance", id => {
-      getViewportVueInstance().highlighitInstance(id);
+      getViewportVueInstance().then(ins => {
+        ins.highlighitInstance(id);
+      });
     });
     EventBus.$on("tree-select-instance", id => {
-      getViewportVueInstance().highlighitSelectedInstance(id);
+      getViewportVueInstance().then(ins => {
+        ins.highlighitSelectedInstance(id);
+      });
     });
     this.scrollEnd = debounce(() => {
       this.viewportSrcolling = false;
@@ -208,30 +214,34 @@ export default {
       this.$store.dispatch("update_rt_spt_status", data.status);
     },
     handleSubmitUpdate(key, value) {
-      const ins = getViewportVueInstance();
-      ins.updateWidgetProp(clonedeep({ key, value }));
-      this.controllerMap[key].value = clonedeep(value);
+      getViewportVueInstance().then(ins => {
+        ins.updateWidgetProp(clonedeep({ key, value }));
+        this.controllerMap[key].value = clonedeep(value);
+      });
     },
     handleContentScroll(percent) {
       // 此处会相互触发 srcoll 事件, 需要防止
       if (this.viewportSrcolling) return;
-      const ins = getViewportVueInstance();
-      ins.viewportScrollTo(percent);
+      getViewportVueInstance().then(ins => {
+        ins.viewportScrollTo(percent);
+      });
     },
     handleResetClick() {
-      const ins = getViewportVueInstance();
-      ins.resetComponentPropData();
-      this.$nextTick(() =>
-        this.controllerList.forEach(val => {
-          val.value = ins.getWidgetDataValue(val.propName);
-          val.id = getRandomStr(6);
-        })
-      );
+      getViewportVueInstance().then(ins => {
+        ins.resetComponentPropData();
+        this.$nextTick(() =>
+          this.controllerList.forEach(val => {
+            val.value = ins.getWidgetDataValue(val.propName);
+            val.id = getRandomStr(6);
+          })
+        );
+      });
     },
     handleDeleteClick() {
       this.deleteConfirmVisible = false;
-      const ins = getViewportVueInstance();
-      ins.deleteComponentFromModel();
+      getViewportVueInstance().then(ins => {
+        ins.deleteComponentFromModel();
+      });
     },
     handleCopy() {
       storage.set("local_clipboard", {

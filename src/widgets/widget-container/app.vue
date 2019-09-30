@@ -1,21 +1,22 @@
 <template>
-  <div class="widget-container">
+  <div
+    class="widget-container"
+    :style="{
+      height: heightModel === 'px' ? `${height}px` : heightModel
+    }"
+  >
     <template v-if="inEditor">
-      <sortble-container
+      <sort-container
         ref="sortbleContainer"
-        v-model="dataModel"
-        :lock-to-container-edges="false"
-        :hide-sortable-ghost="true"
-        :use-window-as-scroll-container="true"
-        :distance="10"
-        axis="y"
-        lock-axis="y"
+        :bm-sort-container-data="childComponentsModel"
+        :bm-sort-container-height="'100%'"
         @sort-start="_handleSortStart"
         @sort-end="_handleSortEnd"
-        @input="_handleSortInput"
+        @insert-start="_handleInsertStart"
+        @insert-end="_handleInsertEnd"
       >
         <slot />
-      </sortble-container>
+      </sort-container>
     </template>
     <template v-else>
       <slot />
@@ -26,6 +27,20 @@
 const _BM_EDIT_RUNTIME_ = !!window._BM_EDIT_RUNTIME_;
 export default {
   mixins: [_BM_EDIT_RUNTIME_ ? window._BM_WIDGET_CONTAINER_MIXIN_ : ""],
+  props: {
+    width: {
+      default: 100,
+      type: Number
+    },
+    height: {
+      default: 200,
+      type: Number
+    },
+    heightModel: {
+      default: "px",
+      type: String
+    }
+  },
   data() {
     return {
       inEditor: _BM_EDIT_RUNTIME_
@@ -38,9 +53,9 @@ export default {
 </script>
 <style lang="scss" scoped>
 .widget-container {
+  // box-shadow: inset 0px 5px 5px -5px #000, inset 0px -5px 5px -5px #000;
+  position: relative;
   box-sizing: border-box;
-  overflow: auto;
-  min-height: 300px;
 }
 </style>
 

@@ -22,7 +22,7 @@
     </div>
     <div class="widget-tabs-content">
       <div class="container" v-for="(num, idx) in tabsCount" :key="num" v-show="selectIdx === num">
-        <slot :name="`slot_${idx}`"/>
+        <slot :name="`slot_${idx}`" />
       </div>
     </div>
   </div>
@@ -33,14 +33,6 @@ export default {
     tabsCount: {
       default: 1,
       type: Number
-    },
-    childComponentsModel: {
-      type: Array,
-      default: () => []
-    },
-    childDeepLevel: {
-      type: Number,
-      default: 1
     }
   },
   data() {
@@ -86,8 +78,6 @@ export default {
         background-color: antiquewhite;
       }
     }
-  }
-  .widget-tabs-content {
   }
 }
 </style>

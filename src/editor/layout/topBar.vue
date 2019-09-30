@@ -71,6 +71,7 @@ import floatWindow from "@editor/components/float-window";
 import themeColorPicker from "@editor/components/theme-color-picker";
 import deviceModelList from "./device";
 import EventBus from "@/bus";
+import clonedeep from "lodash.clonedeep";
 import { getViewportVueInstance } from "@utils/index";
 
 export default {
@@ -105,6 +106,11 @@ export default {
     handleChange() {
       this.value && this.$store.dispatch("update_device_type", this.value);
       EventBus.$emit("reload-viewport");
+      getViewportVueInstance().then(ins => {
+        ins.changeViewSize(
+          clonedeep(deviceModelList[this.value || "iphone6"].resolution)
+        );
+      });
     },
     handleShowThemeWindow() {
       this.showThemeWindow = !this.showThemeWindow;
@@ -114,11 +120,16 @@ export default {
     },
     clearViewportPage() {
       this.clearConfirmVisible = false;
-      getViewportVueInstance().clearPage();
+      getViewportVueInstance().then(ins => {
+        ins.clearPage();
+      });
+
       EventBus.$emit("clear-viewport");
     },
     saveViewportPage() {
-      getViewportVueInstance().savePage();
+      getViewportVueInstance().then(ins => {
+        ins.savePage();
+      });
     }
   }
 };

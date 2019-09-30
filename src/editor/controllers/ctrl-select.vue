@@ -26,6 +26,10 @@ export default {
       this.$emit("submit-update", this.input);
     }
   },
+  created() {
+    this.input = this.value;
+  },
+
   methods: {
     handleChange() {}
   }

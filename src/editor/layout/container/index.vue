@@ -10,20 +10,7 @@
     </div>
     <div class="mid">
       <div :style="{margin: `0 ${ rightWidth}px 0 ${leftWidth}px`}" class="mid-content">
-        <div
-          :style="{width: `${viewSize.width}px`,height: `${viewSize.height}px`,transform: `scale(${viewScale})`,transformOrigin: 'top'}"
-          class="viewport"
-        >
-          <transition name="fade">
-            <div v-if="viewportLoading" class="mask">
-              <div class="loading"></div>
-            </div>
-          </transition>
-          <transition name="fade">
-            <div v-show="shotAnim" class="screenshotMask">
-              <i class="el-icon-camera-solid"></i>
-            </div>
-          </transition>
+        <div class="viewport">
           <transition name="scale" @after-leave="afterLeave" @after-enter="afterEnter">
             <div
               v-show="dragAnim"
@@ -40,6 +27,22 @@
             frameborder="0"
             @load="handleLoad"
           ></iframe>
+          <div
+            class="fake-view"
+            v-show="viewportLoading"
+            :style="{width: `${viewSize.width || 375}px`,height: `${viewSize.height || 667}px`}"
+          >
+            <transition name="fade">
+              <div v-if="viewportLoading" class="mask">
+                <div class="loading"></div>
+              </div>
+            </transition>
+            <transition name="fade">
+              <div v-show="shotAnim" class="screenshotMask">
+                <i class="el-icon-camera-solid"></i>
+              </div>
+            </transition>
+          </div>
         </div>
       </div>
     </div>
@@ -247,19 +250,25 @@ export default {
     .mid-content {
       height: 100%;
       box-sizing: border-box;
-      padding: 30px 0;
+      // padding: 30px 0;
       overflow-y: auto;
       overflow-x: hidden;
       // transition: all 0.5s;
     }
     .viewport {
+      width: 100%;
+      height: 100%;
       position: relative;
-      margin: 0 auto;
-      background: rgb(73, 69, 69);
-      overflow: hidden;
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.42), 0 0 24px rgba(0, 0, 0, 0.04);
-      border-radius: 2px;
-      transition: all 0.3s ease;
+      .fake-view {
+        position: absolute;
+        top: 60px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        background: #fff;
+        overflow: hidden;
+        // box-shadow: 0 2px 20px rgba(0, 0, 0, 0.42), 0 0 24px rgba(0, 0, 0, 0.04);
+        border-radius: 2px;
+      }
       .screenshotMask,
       .mask {
         position: absolute;

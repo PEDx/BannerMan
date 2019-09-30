@@ -39,7 +39,7 @@
 <script>
 import * as rasterizeHTML from "rasterizehtml";
 import deviceModelList from "./device";
-import { throttle } from "@utils/index";
+import { throttle, getViewportVueInstance } from "@utils/index";
 import EventBus from "@/bus";
 export default {
   data() {
@@ -59,6 +59,7 @@ export default {
     this.handleClick = throttle(this.getScreenshot, 3000, {
       leading: true
     });
+    this.handleChange();
   },
   methods: {
     formatTooltip(val) {
@@ -66,6 +67,9 @@ export default {
     },
     handleChange() {
       this.$store.dispatch("update_viewport_scale", this.rangeValue);
+      getViewportVueInstance().then(ins => {
+        ins.changeViewScale(this.rangeValue);
+      });
     },
     handleInputChange() {
       if (this.rangeValue > 200) this.rangeValue = 200;
@@ -73,8 +77,8 @@ export default {
       this.handleChange();
     },
     initScale() {
-      this.$store.dispatch("update_viewport_scale", 100);
       this.rangeValue = 100;
+      this.handleChange();
     },
     getScreenshot() {
       if (!this.notfClose) return;
