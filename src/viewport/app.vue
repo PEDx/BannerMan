@@ -118,31 +118,24 @@ export default {
   methods: {
     getRandomStr,
     _initDocumentListener() {
+      const rootContainerEl = this.$refs.rootContainer.$el;
       document.addEventListener("mouseleave", () => {
         selector.clearHoverHighlight();
       });
-      // document.addEventListener("mouseenter", () => {
-      //   selector.startSelecting();
-      // });
-      // window.onresize = debounce(() => {
-      //   console.log("viewport resize");
-      //   selector.resetHighlight();
-      //   this._setMeta(document.body.clientWidth);
-      // }, 150);
       document.addEventListener("drop", e => {
         const widgetName = e.dataTransfer.getData("WIDGET_NAME");
         if (!widgetName) return;
         this.dropEndComponentName = widgetName;
         e.preventDefault();
       });
-      document.addEventListener(
+      rootContainerEl.addEventListener(
         "scroll",
         throttle(e => {
           if (this.treeScrolling) return;
           // 此处会相互触发 srcoll 事件
-          const scroll_top = document.documentElement.scrollTop;
-          const scroll_height = document.documentElement.scrollHeight;
-          const window_height = document.documentElement.clientHeight;
+          const scroll_top = rootContainerEl.scrollTop;
+          const scroll_height = rootContainerEl.scrollHeight;
+          const window_height = rootContainerEl.clientHeight;
           const percent = scroll_top / (scroll_height - window_height);
           window.parent.postMessage(
             {
@@ -187,7 +180,6 @@ export default {
       this.selectedId = "";
       selector.stopSelecting();
     },
-    // 排序完成后所有的排序元素实例都会销毁重建
     _handleSortEnd(info) {
       if (this.draging) return;
       selector.startSelecting();
@@ -201,8 +193,6 @@ export default {
     _selectComponentAndHighlightById(id) {
       if (!id) return;
       this.selectedId = id;
-      const instance = this.componentInstanceMap[id];
-      selector.highlighitSelectedInstance(instance);
       window.parent.postMessage(
         {
           type: "select-component",
@@ -245,7 +235,7 @@ export default {
         });
         if (!haveStyleLoad) return;
         // 非样式更改不重置 selecter
-        if (!this.sorting) {
+        if (!this.sorting && !this.selectedId) {
           console.log("mutations");
           selector.resetHighlight();
         }
@@ -573,15 +563,14 @@ export default {
     highlighitSelectedInstance(id) {
       // debugger;
       this.selectedId = id;
-      selector.clearHighlight();
-      this._selectComponentAndHighlightById(id);
     },
     viewportScrollTo(percent) {
       if (this.sorting) return;
+      const rootContainerEl = this.$refs.rootContainer.$el;
       this.treeScrolling = true;
-      const scroll_height = document.documentElement.scrollHeight;
-      const window_height = document.documentElement.clientHeight;
-      document.documentElement.scrollTo({
+      const scroll_height = rootContainerEl.scrollHeight;
+      const window_height = rootContainerEl.clientHeight;
+      rootContainerEl.scrollTo({
         top: (scroll_height - window_height) * percent
       });
       this.scrollEnd();

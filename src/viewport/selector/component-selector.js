@@ -112,10 +112,6 @@ export default class ComponentSelector {
     this.mouseOverInstance = instance;
     highlight(instance);
   }
-  highlighitSelectedInstance(instance) {
-    this.selectedInstance = instance;
-    highlightSelected(instance);
-  }
   highlighitContainerInstance(instance) {
     this.containerInstance = instance;
     highlightContainer(instance);

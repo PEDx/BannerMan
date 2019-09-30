@@ -178,8 +178,8 @@ export default {
       this.pressStartEdgeOffse = getEdgeOffset(placeholder);
       this.pressStartOffset = getOffset(e);
       this.$emit("insert-start", e);
-      this.container.removeEventListener("dragenter", this.handleDragenter);
-      window.addEventListener("dragover", this.handleDragover, false);
+      this.container.removeEventListener("dragenter", this.handleDragStart);
+      this.container.addEventListener("dragover", this.handleDragover, false);
       return this.cancelEvent(e);
     },
     handleDragover(e) {
@@ -264,7 +264,7 @@ export default {
       this.sortingNode.style.visibility = "";
       this.sortingNode.style.opacity = "";
 
-      window.removeEventListener("dragover", this.handleDragover);
+      this.container.removeEventListener("dragover", this.handleDragover);
       window.removeEventListener("mousemove", this.handleSortMove);
       window.removeEventListener("mouseup", this.handleSortEnd);
 
