@@ -1,9 +1,15 @@
 <template>
-  <div class="widget-container">
+  <div
+    class="widget-container"
+    :style="{
+      height: heightModel === 'px' ? `${height}px` : heightModel
+    }"
+  >
     <template v-if="inEditor">
       <sort-container
         ref="sortbleContainer"
         :bm-sort-container-data="childComponentsModel"
+        :bm-sort-container-height="'100%'"
         @sort-start="_handleSortStart"
         @sort-end="_handleSortEnd"
         @insert-start="_handleInsertStart"
@@ -21,6 +27,20 @@
 const _BM_EDIT_RUNTIME_ = !!window._BM_EDIT_RUNTIME_;
 export default {
   mixins: [_BM_EDIT_RUNTIME_ ? window._BM_WIDGET_CONTAINER_MIXIN_ : ""],
+  props: {
+    width: {
+      default: 100,
+      type: Number
+    },
+    height: {
+      default: 200,
+      type: Number
+    },
+    heightModel: {
+      default: "px",
+      type: String
+    }
+  },
   data() {
     return {
       inEditor: _BM_EDIT_RUNTIME_
@@ -36,7 +56,6 @@ export default {
   // box-shadow: inset 0px 5px 5px -5px #000, inset 0px -5px 5px -5px #000;
   position: relative;
   box-sizing: border-box;
-  height: 300px;
 }
 </style>
 

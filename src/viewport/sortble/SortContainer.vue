@@ -110,8 +110,6 @@ export default {
         setTimeout(() => {
           this.handleDragenter(_e);
         }))(e);
-      this.$emit("insert-start", e);
-      // console.log("handleDragStart");
     },
     triggerDragEnd() {
       this.handleDragleave();
@@ -123,11 +121,13 @@ export default {
       if (this.newSortIndex === MAX_NUMBER) {
         this.newSortIndex = this.sortIndex;
       }
-      this.$emit("insert-end", this.newSortIndex);
       this.handleDragleave();
+      this.$emit("insert-end", this.newSortIndex);
       this.cancelEvent(e);
     },
     handleDragenter(e) {
+      this.cancelEvent(e);
+      this.$emit("insert-start", e);
       // console.log("handleDragenter");
       this.dragStatus = DRAG_STATUS.DRAG_START;
       const placeholder = this.$refs.placeholder;
@@ -178,9 +178,7 @@ export default {
       this.pressStartEdgeOffse = getEdgeOffset(placeholder);
       this.pressStartOffset = getOffset(e);
       this.$emit("insert-start", e);
-      this.container.removeEventListener("dragenter", this.handleDragStart);
       this.container.addEventListener("dragover", this.handleDragover, false);
-      return this.cancelEvent(e);
     },
     handleDragover(e) {
       this.dragMove(e);
@@ -217,7 +215,7 @@ export default {
       return node.sortableInfo.manager === this.manager;
     },
     handleStart(e) {
-      console.log("handleStart");
+      // console.log("handleStart");
       const node = closest(e.target, el => el.sortableInfo != null);
       if (node && node.sortableInfo && this.nodeIsChild(node)) {
         this.mouseStart = true;

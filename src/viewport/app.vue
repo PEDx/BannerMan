@@ -105,6 +105,7 @@ export default {
     this.scrollEnd = debounce(() => {
       this.treeScrolling = false;
     }, 500);
+    this.updateWidgetProp = throttle(this._updateWidgetProp, 500);
     this._initDocumentListener();
     this._observerGeometric();
     this._observerStyle();
@@ -150,6 +151,7 @@ export default {
     _handleInsertStart(e) {
       selector.stopSelecting();
       this.sorting = true;
+      this.selectedId = "";
       if (this.dragingType === "drag_resource") return;
       // // 找到需要添加元素的容器
       const container =
@@ -234,11 +236,6 @@ export default {
           }
         });
         if (!haveStyleLoad) return;
-        // 非样式更改不重置 selecter
-        if (!this.sorting && !this.selectedId) {
-          console.log("mutations");
-          selector.resetHighlight();
-        }
       });
       mutationObserver.observe(this.$refs.rootContainer.$el, {
         characterData: true,
@@ -502,14 +499,23 @@ export default {
       const compObj = this._findComponentModelById(this.selectedId);
       Object.keys(compObj.props).forEach(key => (compObj.props[key] = void 0));
     },
-    updateWidgetProp(data) {
+    refreshSelectedId() {
+      const _id = this.selectedId;
+      this.selectedId = "";
+      this.$nextTick(() => {
+        this.selectedId = _id;
+      });
+    },
+    _updateWidgetProp(data) {
       // 注意: 此时更新 props 必须是组件声明过的 props 才能得到更新,
       // 动态添加的 props 无法更新
       // 譬如读取历史生成的组件, 开发过程中再更改组件的 props 会出现此 bug
       const compObj = this._findComponentModelById(this.selectedId);
+      this.selectedId = this.selectedId;
       if (!compObj) return;
       compObj.props[data.key] = data.value;
       selector.resetHighlight();
+      this.refreshSelectedId();
     },
     getWidgetDataValue(key) {
       const vm = this.componentInstanceMap[this.selectedId];
@@ -561,8 +567,7 @@ export default {
       selector.highlighitMouseoverInstance(instance);
     },
     highlighitSelectedInstance(id) {
-      // debugger;
-      this.selectedId = id;
+      this._selectComponentAndHighlightById(id);
     },
     viewportScrollTo(percent) {
       if (this.sorting) return;

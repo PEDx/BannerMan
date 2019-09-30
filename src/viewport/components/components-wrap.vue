@@ -83,13 +83,11 @@ export default {
     }
   },
   watch: {
-    selectedId: function(nv) {
+    selectedId: function(nv, ov) {
+      if (ov === nv) return;
       this.hideOverlay();
       if (this.haveSelectedId) this.showSelectedOverlay(nv);
     }
-  },
-  mounted() {
-    console.log("components-wrap");
   },
   methods: {
     getSelectedOverlay() {
@@ -123,7 +121,9 @@ export default {
       }
     },
     hideOverlay() {
-      if (this.selectedOverlay) this.selectedOverlay.style.display = "none";
+      if (this.selectedOverlay) {
+        this.selectedOverlay.style.display = "none";
+      }
     },
     getInstanceOrVnodeRect(instance) {
       const el = instance.$el || instance.elm;
@@ -134,6 +134,9 @@ export default {
         top: el.offsetTop,
         left: el.offsetLeft
       };
+    },
+    refreshOverlay() {
+      this.showSelectedOverlay(this.selectedId);
     }
   }
 };
