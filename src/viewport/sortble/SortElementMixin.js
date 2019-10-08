@@ -11,6 +11,10 @@ export default {
       type: Boolean,
       required: false
     },
+    BmSortElementMixinHandle: {
+      type: Boolean,
+      default: false
+    },
     BmSortElementMixinCollection: {
       type: [String, Number],
       default: 'default'

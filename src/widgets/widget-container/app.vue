@@ -10,6 +10,7 @@
         ref="sortbleContainer"
         :bm-sort-container-data="childComponentsModel"
         :bm-sort-container-height="'100%'"
+        :bm-sort-container-handle="true"
         @sort-start="_handleSortStart"
         @sort-end="_handleSortEnd"
         @insert-start="_handleInsertStart"

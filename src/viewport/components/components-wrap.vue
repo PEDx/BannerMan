@@ -8,7 +8,6 @@
         'component-item': true
       }"
     >
-      <div class="container-mark" v-if="isMultContainer || item.children.length > 0"></div>
       <component
         :id="item.id"
         :is="item.name"
@@ -104,6 +103,7 @@ export default {
       selectedOverlay.style.alignItems = "center";
       selectedOverlay.style.justifyContent = "center";
       selectedOverlay.style.borderRadius = "3px";
+
       this.selectedOverlay = selectedOverlay;
       return selectedOverlay;
     },
@@ -146,8 +146,13 @@ export default {
 .components-wrap {
   position: relative;
 }
+</style>
+<style lang="scss">
 .selected {
   box-sizing: border-box;
+  .sort-container-mark {
+    display: block!important;
+  }
   // border: 1px dashed #ff5500;
 }
 </style>
