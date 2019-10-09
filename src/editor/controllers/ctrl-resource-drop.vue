@@ -21,6 +21,13 @@
           @click.native.stop="handleClick"
           v-show="droped"
         ></el-button>
+        <el-cascader
+          v-show="droped"
+          v-model="mode"
+          :options="options"
+          @change="handleChange"
+          placeholder="请选择显示模式"
+        ></el-cascader>
       </div>
     </el-tooltip>
   </div>
@@ -37,7 +44,39 @@ export default {
       disabledTooltop: false,
       draging: false,
       droped: false,
-      resource: null
+      resource: null,
+      mode: [],
+      options: [
+        {
+          value: "scroll",
+          label: "跟随内容滚动",
+          children: [
+            {
+              value: "full",
+              label: "铺满"
+            },
+            {
+              value: "repeat",
+              label: "重复"
+            }
+          ]
+        },
+
+        {
+          value: "fixed",
+          label: "不跟随内容滚动",
+          children: [
+            {
+              value: "full",
+              label: "铺满"
+            },
+            {
+              value: "repeat",
+              label: "重复"
+            }
+          ]
+        }
+      ]
     };
   },
   watch: {
@@ -45,11 +84,19 @@ export default {
       this.$emit("submit-update", this.resource);
     }
   },
-  mounted() {
-    if (this.value) {
+  created() {
+    if (this.value.url) {
       this.resource = this.value;
+      this.mode = [this.resource.imgMode];
+      if (this.resource.imgSize === "100% 100%") {
+        this.mode[1] = "full";
+      } else {
+        this.mode[1] = "repeat";
+      }
       this.droped = true;
     }
+  },
+  mounted() {
     EventBus.$on("resource-dragend", () => {
       this.draging = false;
     });
@@ -72,12 +119,27 @@ export default {
     });
   },
   methods: {
-    handleChange() {},
+    handleChange() {
+      if (this.mode[1] === "full") {
+        this.resource.imgRepeat = "no-repeat";
+        this.resource.imgSize = "100% 100%";
+      } else {
+        this.resource.imgRepeat = "";
+        this.resource.imgSize = "";
+      }
+      this.resource.imgMode = this.mode[0];
+      this.$emit("submit-update", this.resource);
+    },
     clearRes() {},
     handleClick() {
       this.droped = false;
-      this.resource = null;
+      this.resource = {};
     }
+    // handleChange() {
+    //   this.resource.imgSize = "100% 100%";
+    //   this.resource.imgRepeat = "no-repeat";
+    //   this.$emit("submit-update", this.resource);
+    // }
   }
 };
 </script>

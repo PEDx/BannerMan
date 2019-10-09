@@ -18,6 +18,9 @@ export default {
       this.$emit("submit-update", this.color);
     }
   },
+  created() {
+    this.color = this.value;
+  },
   methods: {
     handleChange() {}
   }

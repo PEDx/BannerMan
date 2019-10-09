@@ -22,6 +22,10 @@ export const WidgetContainerMixin = {
       this.$emit('contianer-sort-end', info);
       // console.log('widget-container-_handleSortEnd');
     },
+    _handleDragStart(ins) {
+      this.$emit('contianer-drag-start', ins);
+      // console.log('widget-container-_handleInsertStart');
+    },
     _handleInsertStart(e) {
       this.$emit('contianer-insert-start', e);
       // console.log('widget-container-_handleInsertStart');

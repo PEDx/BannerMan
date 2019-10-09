@@ -2,7 +2,11 @@
   <div
     class="widget-container"
     :style="{
-      height: heightModel === 'px' ? `${height}px` : heightModel
+      height: heightModel === 'px' ? `${height}px` : heightModel,
+      ...(bgImg.imgMode !== 'scroll' ? {
+        background: bgImg.url ? `url(${bgImg.url}) ${bgImg.imgRepeat || ''}` : bgColor,
+        backgroundSize: bgImg.imgSize || ''
+      } : {})
     }"
   >
     <template v-if="inEditor">
@@ -13,14 +17,51 @@
         :bm-sort-container-handle="true"
         @sort-start="_handleSortStart"
         @sort-end="_handleSortEnd"
+        @drag-start="_handleDragStart"
         @insert-start="_handleInsertStart"
         @insert-end="_handleInsertEnd"
       >
-        <slot />
+        <div
+          class="bg-box"
+          :style="bgImg.imgMode === 'scroll' ? {
+            background: bgImg.url ? `url(${bgImg.url}) ${bgImg.imgRepeat || ''}` : bgColor,
+            backgroundSize: bgImg.imgSize || ''
+          } : {}"
+        >
+          <slot />
+        </div>
       </sort-container>
     </template>
     <template v-else>
-      <slot />
+      <div
+        class="container"
+        :style="{
+          height: '100%',
+          position: 'relative',
+          overflow: 'hidden'
+        }"
+      >
+        <div
+          class="container-wrap"
+          :style="{
+            position: 'relative',
+            height: '100%',
+            overflow: 'auto'
+          }"
+        >
+          <div class="container-scroll-container">
+            <div
+              class="bg-box"
+              :style="bgImg.imgMode === 'scroll' ? {
+                background: bgImg.url ? `url(${bgImg.url}) ${bgImg.imgRepeat || ''}` : bgColor,
+                backgroundSize: bgImg.imgSize || ''
+              } : {}"
+            >
+              <slot />
+            </div>
+          </div>
+        </div>
+      </div>
     </template>
   </div>
 </template>
@@ -32,6 +73,13 @@ export default {
     width: {
       default: 100,
       type: Number
+    },
+    bgColor: {
+      type: String
+    },
+    bgImg: {
+      type: Object,
+      default: () => ({})
     },
     height: {
       default: 200,

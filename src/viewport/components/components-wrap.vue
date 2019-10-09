@@ -20,6 +20,7 @@
         @contianer-sort-end="rootContainer._handleSortEnd"
         @contianer-insert-end="rootContainer._handleInsertEnd"
         @contianer-insert-start="rootContainer._handleInsertStart"
+        @contianer-drag-start="rootContainer._handleDragStart"
         @tabs-count-changed="rootContainer._tabsCountChanged(...arguments, item.id)"
         v-bind="item.props"
       >

@@ -1,11 +1,10 @@
 <template>
   <div
-    ref="container"
     class="sort-container"
     :style="{
       height: BmSortContainerHeight,
       position: 'relative',
-      overflow: 'auto'
+      overflow: 'hidden'
     }"
   >
     <div
@@ -41,8 +40,18 @@
         />
       </svg>
     </div>
-    <div class="sort-container-wrap" ref="wrap">
-      <slot />
+    <div
+      class="sort-container-wrap"
+      ref="container"
+      :style="{
+        position: 'relative',
+        height: '100%',
+        overflow: 'auto'
+      }"
+    >
+      <div class="sort-container-scroll-container" ref="wrap">
+        <slot />
+      </div>
     </div>
     <div
       class="sort-container-placeholder"
@@ -120,6 +129,7 @@ export default {
     this.mouseStart = false;
     this.manager = new Manager();
     this.autoScrollInterval = null;
+    this.cancelDrag = false;
     return {};
   },
   mounted() {
@@ -145,6 +155,7 @@ export default {
       this.dragStatus = DRAG_STATUS.DRAG_START;
       (_e =>
         setTimeout(() => {
+          this.$emit("drag-start", this);
           this.handleDragenter(_e);
         }))(e);
     },
@@ -163,10 +174,12 @@ export default {
       this.cancelEvent(e);
     },
     handleDragenter(e) {
+      if (this.cancelDrag) {
+        this.dragStatus = DRAG_STATUS.DRAG_END
+        return;
+      }
       this.cancelEvent(e);
       this.$emit("insert-start", e);
-      // console.log("handleDragenter");
-      this.dragStatus = DRAG_STATUS.DRAG_START;
       const placeholder = this.$refs.placeholder;
       this.placeholderGhostNode = clonePressGhogNodeNode(placeholder);
       this.sortingNode = this.placeholderGhostNode;

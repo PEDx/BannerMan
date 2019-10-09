@@ -4,6 +4,16 @@ export default {
   description: '描述',
   controllers: [
     {
+      propName: 'bgColor',
+      controllerType: 'CTRL_COLOR_PICKER',
+      label: '容器背景颜色'
+    },
+    {
+      propName: 'bgImg',
+      controllerType: 'CTRL_RESOURCE_DROP',
+      label: '容器背景图片'
+    },
+    {
       propName: 'width',
       controllerType: 'CTRL_NUMBER_INPUT',
       label: '宽度'

@@ -76,6 +76,7 @@
   background-color: #252525;
   border: 1px solid #898989;
   padding: 0 8px;
+  padding-right: 25px;
 }
 
 .el-textarea__inner {
@@ -359,4 +360,30 @@
 
 .el-menu-item.is-active {
   background-color: #252525 !important;
+}
+
+.el-cascader__dropdown {
+
+  .el-scrollbar__wrap {
+    height: auto;
+  }
+
+  .el-cascader-node {
+    font-size: 12px;
+    height: 28px;
+    padding: 0 10px;
+  }
+
+  .el-cascader-node.in-active-path,
+  .el-cascader-node.is-selectable.in-checked-path,
+  .el-cascader-node.is-active {
+    color: #fd9527;
+  }
+
+  .el-cascader-node:not(.is-disabled):hover,
+  .el-cascader-node:not(.is-disabled):focus,
+  .el-cascader-node.hover {
+    background-color: #252525;
+    color: #fd9527;
+  }
 }

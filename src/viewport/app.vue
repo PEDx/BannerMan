@@ -10,6 +10,7 @@
         :bm-sort-container-data="componentsModelTree"
         @sort-start="_handleSortStart"
         @sort-end="_handleSortEnd"
+        @drag-start="_handleDragStart"
         @insert-start="_handleInsertStart"
         @insert-end="_handleInsertEnd"
       >
@@ -148,11 +149,13 @@ export default {
         }, 20)
       );
     },
+    _handleDragStart(ins) {
+      ins.cancelDrag = this.dragingType === "drag_resource";
+    },
     _handleInsertStart(e) {
       selector.stopSelecting();
       this.sorting = true;
       this.selectedId = "";
-      if (this.dragingType === "drag_resource") return;
       // // 找到需要添加元素的容器
       const container =
         findRelatedContainerComponent(e.target) || this.$refs.rootContainer;
