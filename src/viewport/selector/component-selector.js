@@ -80,8 +80,8 @@ export default class ComponentSelector {
     // 选中编辑元素
     unHighlight();
     this.selectedInstance = this.mouseOverInstance;
+    this.mouseOverInstance = null;
     EventBus.$emit('element-selected', this.selectedInstance);
-    highlightSelected(this.selectedInstance);
   }
 
   /**

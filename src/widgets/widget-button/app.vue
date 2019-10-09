@@ -1,6 +1,26 @@
 <template>
   <div class="widget-button">
-    <button class="el-button" @click="handleClick">el-button</button>
+    <button
+      class="button"
+      @click="handleClick"
+      :style="{
+        borderRadius: `${borderRadius}px`,
+      }"
+    >
+      <div
+        class="wrap"
+        :style="{
+          width: `${width}px`,
+          height: `${height}px`,
+          lineHeight: `${height}px`,
+          background: btnBgImg.url ? `url(${btnBgImg.url}) ${btnBgImg.imgRepeat || ''}` : btnBgColor,
+          backgroundSize: btnBgImg.imgSize || '',
+          color: btnTextColor,
+          borderRadius: `${borderRadius}px`,
+          border: `${borderObj.width}px solid ${borderObj.color}`
+        }"
+      >{{ btnText }}</div>
+    </button>
   </div>
 </template>
 <script>
@@ -21,6 +41,30 @@ export default {
     height: {
       default: 40,
       type: Number
+    },
+    borderRadius: {
+      default: 4,
+      type: Number
+    },
+    borderObj: {
+      default: () => ({}),
+      type: Object
+    },
+    btnBgImg: {
+      default: () => ({}),
+      type: Object
+    },
+    btnBgColor: {
+      default: "#fff",
+      type: String
+    },
+    btnTextColor: {
+      default: "#333",
+      type: String
+    },
+    btnText: {
+      default: "按钮",
+      type: String
     }
   },
   data() {
@@ -28,34 +72,29 @@ export default {
       value: ""
     };
   },
-  mounted() {
-    // setTimeout(() => {
-    //   this.$emit("change-prop", {
-    //     width: 134
-    //   });
-    // }, 4000);
-  },
+  mounted() {},
   methods: {
-    handleClick() {}
+    handleClick() {
+      console.log("widget click!");
+    }
   }
 };
 </script>
 <style lang="scss" scoped>
 .widget-button {
-  box-sizing: border-box;
   padding: 0 10px;
+  text-align: center;
 }
-.el-button {
+.button {
+  position: relative;
   display: inline-block;
-  line-height: 1;
+  background-color: #fff;
   white-space: nowrap;
   cursor: pointer;
-  background: #fff;
-  border: 1px solid #dcdfe6;
+  border: 0;
   color: #606266;
   -webkit-appearance: none;
   text-align: center;
-  box-sizing: border-box;
   outline: none;
   margin: 0;
   transition: 0.1s;
@@ -63,9 +102,13 @@ export default {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
-  padding: 12px 20px;
-  font-size: 14px;
-  border-radius: 4px;
+  font-size: 0;
+  .wrap {
+    font-size: 14px;
+    &:active {
+      opacity: 0.9;
+    }
+  }
 }
 </style>
 

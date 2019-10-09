@@ -8,7 +8,6 @@
       :max="400"
       label="描述文字"
     >
-      <template slot="prepend">Http://</template>
     </el-input-number>
   </div>
 </template>

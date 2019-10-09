@@ -10,7 +10,7 @@ export default {
   },
   data() {
     return {
-      color: "#fd9527"
+      color: "#fff"
     };
   },
   watch: {

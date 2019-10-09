@@ -173,8 +173,13 @@ const widgets = [
         name: "按钮",
         widgetName: "widget-button",
         widget: "",
-        icon: "el-icon-aim",
         svg: "button"
+      },
+      {
+        name: "示例",
+        widgetName: "widget-example",
+        widget: "",
+        icon: "el-icon-guide"
       }
     ]
   },
@@ -216,24 +221,6 @@ export default {
         url: ""
       },
       fileList: [
-        {
-          name: "food.jpeg",
-          url:
-            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
-        },
-        {
-          name: "lizhi.png",
-          url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
-        },
-        {
-          name: "food.jpeg",
-          url:
-            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
-        },
-        {
-          name: "lizhi.png",
-          url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
-        },
         {
           name: "food.jpeg",
           url:

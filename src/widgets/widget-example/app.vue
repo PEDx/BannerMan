@@ -1,11 +1,15 @@
 <template>
-  <div class="widget-search">
-    <input
-      v-model="value"
-      type="text"
-      :style="{width: `${width}px`, height: `${height}px`}"
-      @click="handleClick"
-    />
+  <div
+    class="widget-example"
+    :style="{
+      background: image.url ? `url(${image.url}) ${image.imgRepeat || ''}` : color,
+      backgroundSize: image.imgSize || '',
+      width: `${width}px`,
+      height: `${height}px`
+    }"
+  >
+    <p v-html="richText"></p>
+    <p>{{ custom }}</p>
   </div>
 </template>
 <script>
@@ -26,6 +30,30 @@ export default {
     height: {
       default: 40,
       type: Number
+    },
+    color: {
+      default: "",
+      type: String
+    },
+    select: {
+      default: "0",
+      type: String
+    },
+    richText: {
+      default: "",
+      type: String
+    },
+    text: {
+      default: "",
+      type: String
+    },
+    custom: {
+      default: 0,
+      type: Number
+    },
+    image: {
+      default: () => ({}),
+      type: Object
     }
   },
   data() {

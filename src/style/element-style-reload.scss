@@ -76,7 +76,6 @@
   background-color: #252525;
   border: 1px solid #898989;
   padding: 0 8px;
-  padding-right: 25px;
 }
 
 .el-textarea__inner {
@@ -362,6 +361,12 @@
   background-color: #252525 !important;
 }
 
+.el-cascader {
+  .el-input .el-input__inner {
+    padding-right: 25px;
+  }
+}
+
 .el-cascader__dropdown {
 
   .el-scrollbar__wrap {
@@ -386,4 +391,5 @@
     background-color: #252525;
     color: #fd9527;
   }
+
 }
