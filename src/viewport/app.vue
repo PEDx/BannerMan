@@ -54,7 +54,7 @@ const SORT_TYPE = {
 const _BM_EDIT_RUNTIME_ = true; // 全局变量, 告诉各个容器控件此时在编辑器内
 window._BM_EDIT_RUNTIME_ = _BM_EDIT_RUNTIME_;
 window._BM_WIDGET_CONTAINER_MIXIN_ = WidgetContainerMixin; // 由编辑器提供容器的可拖拽功能
-
+let widget_count = 0;
 export default {
   components: {
     SortContainer
@@ -148,6 +148,10 @@ export default {
           );
         }, 20)
       );
+    },
+    _handleWidgetEvent(event, id) {
+      console.log(event.type);
+      console.log(id);
     },
     _handleDragStart(ins) {
       ins.cancelDrag = this.dragingType === "drag_resource";
@@ -336,7 +340,7 @@ export default {
       });
     },
     _addComponent({ name, propsObj, id }, place) {
-      const _id = id || `${getRandomStr(6)}-${name}`;
+      const _id = id || `${getRandomStr(6)}${widget_count++}-${name}`;
       const _containerModel = this._findComponentModelById(
         this.dragingContainerId
       ) || { children: this.componentsModelTree };
@@ -383,6 +387,7 @@ export default {
       const _promiseArr = [];
       const _promiseMap = {};
       traversal(componentsModelTree, node => {
+        if (!node.props) return;
         Object.keys(node.props).forEach(key => {
           const _val = node.props[key];
           node.props[key] = _val === UNDEFINED ? undefined : _val;
@@ -527,7 +532,7 @@ export default {
     getSelectWidgetProfile() {
       if (!this.selectedId) return;
       const instance = this.componentInstanceMap[this.selectedId];
-      return getProfileByInstance(instance) || {};
+      return { ...getProfileByInstance(instance), id: this.selectedId } || {};
     },
     // 清空编辑页面
     clearPage() {

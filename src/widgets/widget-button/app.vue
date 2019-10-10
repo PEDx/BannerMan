@@ -5,14 +5,15 @@
       @click="handleClick"
       :style="{
         borderRadius: `${borderRadius}px`,
+        backgroundColor: btnBgImg.url ? 'transparent' : '#fff'
       }"
     >
       <div
         class="wrap"
         :style="{
-          width: `${width}px`,
-          height: `${height}px`,
-          lineHeight: `${height}px`,
+          width: `${size[0]}px`,
+          height: `${size[1]}px`,
+          lineHeight: `${size[1]}px`,
           background: btnBgImg.url ? `url(${btnBgImg.url}) ${btnBgImg.imgRepeat || ''}` : btnBgColor,
           backgroundSize: btnBgImg.imgSize || '',
           color: btnTextColor,
@@ -34,13 +35,9 @@
 
 export default {
   props: {
-    width: {
-      default: 100,
-      type: Number
-    },
-    height: {
-      default: 40,
-      type: Number
+    size: {
+      default: () => [200, 40],
+      type: Array
     },
     borderRadius: {
       default: 4,
@@ -75,7 +72,9 @@ export default {
   mounted() {},
   methods: {
     handleClick() {
-      console.log("widget click!");
+      this.$emit("widget-event", {
+        type: "WIDGET_BUTTON_CLICK"
+      });
     }
   }
 };
@@ -84,11 +83,11 @@ export default {
 .widget-button {
   padding: 0 10px;
   text-align: center;
+  font-size: 0;
 }
 .button {
   position: relative;
   display: inline-block;
-  background-color: #fff;
   white-space: nowrap;
   cursor: pointer;
   border: 0;
@@ -104,6 +103,7 @@ export default {
   -ms-user-select: none;
   font-size: 0;
   .wrap {
+    display: inline-block;
     font-size: 14px;
     &:active {
       opacity: 0.9;

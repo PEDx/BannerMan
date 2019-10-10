@@ -4,8 +4,8 @@
     :style="{
       background: image.url ? `url(${image.url}) ${image.imgRepeat || ''}` : color,
       backgroundSize: image.imgSize || '',
-      width: `${width}px`,
-      height: `${height}px`
+      width: `${size[0]}px`,
+      height: `${size[1]}px`
     }"
   >
     <p v-html="richText"></p>
@@ -23,11 +23,11 @@
 
 export default {
   props: {
-    width: {
-      default: 100,
-      type: Number
+    size: {
+      default: () => [200, 40],
+      type: Array
     },
-    height: {
+    number: {
       default: 40,
       type: Number
     },

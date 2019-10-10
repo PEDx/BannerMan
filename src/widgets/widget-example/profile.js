@@ -6,19 +6,17 @@ export default {
   description: '描述',
   controllers: [
     {
-      propName: 'width',
-      controllerType: 'CTRL_NUMBER_INPUT',
-      label: '宽度'
-    },
-    {
       propName: 'size',
       controllerType: 'CTRL_SIZE_INPUT',
-      label: '尺寸'
+      label: '尺寸',
+      setting: {
+        label: ['宽', '高']
+      }
     },
     {
-      propName: 'height',
+      propName: 'number',
       controllerType: 'CTRL_NUMBER_INPUT',
-      label: '高度'
+      label: '数字'
     },
     {
       propName: 'image',

@@ -9,6 +9,7 @@
         <div slot="prefix" class="component-info" v-if="controllerList.length">
           <div class="box">
             <span class="name">{{ name }}</span>
+            <span class="id">[ {{ id }} ]</span>
             <div class="btn f-fr">
               <el-button
                 type="text"
@@ -127,7 +128,8 @@ export default {
       controllerList: [],
       instancesTree: [],
       deleteConfirmVisible: false,
-      name: ""
+      name: "",
+      id: ""
     };
   },
   mounted() {
@@ -144,6 +146,7 @@ export default {
             });
             this.controllerList = profile.controllers;
             this.name = profile.name;
+            this.id = profile.id;
             this.controllerList.forEach(val => {
               val.value = ins.getWidgetDataValue(val.propName);
               this.controllerMap[val.propName] = val;
@@ -279,6 +282,11 @@ export default {
       /* padding-bottom: 0; */
       background-color: #252525;
       border-radius: 4px;
+      overflow: hidden;
+      .id{
+        font-size: 12px;
+        color: #7f7c87;
+      }
     }
     .btn {
       margin-right: -8px;

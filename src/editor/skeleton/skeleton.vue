@@ -147,8 +147,8 @@ body {
 }
 .g-sd52 {
   float: right;
-  width: 300px;
-  margin: 0 0 0 -300px;
+  width: 400px;
+  margin: 0 0 0 -400px;
 }
 .g-mn5 {
   float: left;

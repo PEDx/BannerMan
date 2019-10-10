@@ -9,14 +9,12 @@ export default {
       label: '按钮文本'
     },
     {
-      propName: 'width',
-      controllerType: 'CTRL_NUMBER_INPUT',
-      label: '宽度'
-    },
-    {
-      propName: 'height',
-      controllerType: 'CTRL_NUMBER_INPUT',
-      label: '高度'
+      propName: 'size',
+      controllerType: 'CTRL_SIZE_INPUT',
+      label: '尺寸',
+      setting: {
+        label: ['宽', '高']
+      }
     },
     {
       propName: 'borderRadius',
@@ -37,17 +35,24 @@ export default {
     {
       propName: 'btnBgColor',
       controllerType: 'CTRL_COLOR_PICKER',
-      label: '按钮背景颜色'
+      label: '背景颜色'
     },
     {
       propName: 'btnTextColor',
       controllerType: 'CTRL_COLOR_PICKER',
-      label: '按钮文本颜色'
+      label: '文本颜色'
     },
     {
       propName: 'btnBgImg',
       controllerType: 'CTRL_RESOURCE_DROP',
-      label: '按钮背景图片'
+      label: '背景图片'
+    },
+    {
+      controllerType: 'CTRL_DESCRIPTION',
+      label: '其他信息',
+      setting: {
+        description: '此组件可发射点击事件'
+      }
     }
   ]
 };

@@ -63,7 +63,7 @@ import deviceModelList from "../device";
 import { throttle, clamp } from "@utils/index";
 import EventBus from "@/bus";
 const EDITER_LEFT_PANEL_MIN_WIDTH = 260;
-const EDITER_RIGHT_PANEL_MIN_WIDTH = 300;
+const EDITER_RIGHT_PANEL_MIN_WIDTH = 400;
 export default {
   components: {
     "right-panel": rightPanel,
@@ -133,7 +133,7 @@ export default {
           const _wid = document.body.clientWidth - e.clientX;
           this.rightWidth = clamp(
             _wid,
-            EDITER_LEFT_PANEL_MIN_WIDTH,
+            EDITER_RIGHT_PANEL_MIN_WIDTH,
             this.maxPanelWidth
           );
         }

@@ -16,6 +16,7 @@
         :bm-sort-element-mixin-disabled="isMultContainer"
         :child-components-model="item.children"
         :child-deep-level="level"
+        @widget-event="rootContainer._handleWidgetEvent(...arguments, item.id)"
         @contianer-sort-start="rootContainer._handleSortStart"
         @contianer-sort-end="rootContainer._handleSortEnd"
         @contianer-insert-end="rootContainer._handleInsertEnd"
@@ -152,7 +153,7 @@ export default {
 .selected {
   box-sizing: border-box;
   .sort-container-mark {
-    display: block!important;
+    display: block !important;
   }
   // border: 1px dashed #ff5500;
 }
