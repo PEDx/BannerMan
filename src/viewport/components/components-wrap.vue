@@ -47,6 +47,8 @@
   </div>
 </template>
 <script>
+// const emitEventsMap = {}
+// const onEventsMap = {}
 // 由 components-wrap 来展开子元素数组
 export default {
   props: {
@@ -89,6 +91,9 @@ export default {
       this.hideOverlay();
       if (this.haveSelectedId) this.showSelectedOverlay(nv);
     }
+  },
+  mounted() {
+    // console.log(this.components);
   },
   methods: {
     getSelectedOverlay() {

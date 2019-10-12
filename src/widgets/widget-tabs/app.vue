@@ -4,7 +4,7 @@
       <ul>
         <li
           class="tab"
-          v-for="idx in tabsCount"
+          v-for="(num, idx) in tabsCount"
           :key="idx"
           :style="{
             width: `${(100 / tabsCount).toFixed(2)}%`
@@ -16,12 +16,12 @@
             :class="{
               selected: selectIdx === idx
             }"
-          >标签{{ idx }}</span>
+          >标签{{ num }}</span>
         </li>
       </ul>
     </div>
     <div class="widget-tabs-content">
-      <div class="container" v-for="(num, idx) in tabsCount" :key="num" v-show="selectIdx === num">
+      <div class="container" v-for="(num, idx) in tabsCount" :key="num" v-show="selectIdx === idx">
         <slot :name="`slot_${idx}`" />
       </div>
     </div>
@@ -33,12 +33,16 @@ export default {
     tabsCount: {
       default: 1,
       type: Number
+    },
+    event: {
+      default: () => [],
+      type: Array
     }
   },
   data() {
     return {
       value: "",
-      selectIdx: 1
+      selectIdx: 0
     };
   },
   watch: {
@@ -50,6 +54,9 @@ export default {
     this.$emit("tabs-count-changed", this.tabsCount);
   },
   methods: {
+    switchTab() {
+      this.selectIdx = (this.selectIdx + 1) % this.tabsCount;
+    },
     handleClick(idx) {
       this.selectIdx = idx;
     }

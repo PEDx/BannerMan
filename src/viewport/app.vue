@@ -60,7 +60,8 @@ export default {
     SortContainer
   },
   data() {
-    this.componentInstanceMap = {}; // id 对应实例
+    this.emitEventMap = {};
+    this.onEventList = [];
     this.componentModelMap = {}; // id 对应数据模型
     this.loadingCompleteStatusMap = {};
     this.pageId = null;
@@ -77,6 +78,7 @@ export default {
       viewSize: {},
       viewScale: 1,
       selectedId: "",
+      componentInstanceMap: {}, // id 对应实例
       componentsModelTree: [] // 组件数据模型, 在此分发传入各个组件的 props
     };
   },
@@ -117,6 +119,7 @@ export default {
       rootContainer: this
     };
   },
+
   methods: {
     getRandomStr,
     _initDocumentListener() {
@@ -150,8 +153,13 @@ export default {
       );
     },
     _handleWidgetEvent(event, id) {
-      console.log(event.type);
-      console.log(id);
+      const emitEventName = id + event.type;
+      this.onEventList.forEach(val => {
+        const ins = val.ins;
+        if (ins[val.propName].join("") === emitEventName) {
+          ins[val.handleName] && ins[val.handleName]();
+        }
+      });
     },
     _handleDragStart(ins) {
       ins.cancelDrag = this.dragingType === "drag_resource";
@@ -333,14 +341,17 @@ export default {
       this._asyncLoadComponent(widgetName).then(ins => {
         const profile = ins.default.extendOptions._profile_;
         const _obj = {};
+        const _id = `${getRandomStr(6)}${widget_count++}-${name}`;
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
         });
-        this._addComponent({ name: widgetName, propsObj: _obj }, place);
+        this._addComponent(
+          { name: widgetName, propsObj: _obj, id: _id },
+          place
+        );
       });
     },
     _addComponent({ name, propsObj, id }, place) {
-      const _id = id || `${getRandomStr(6)}${widget_count++}-${name}`;
       const _containerModel = this._findComponentModelById(
         this.dragingContainerId
       ) || { children: this.componentsModelTree };
@@ -349,10 +360,10 @@ export default {
         props: propsObj,
         children: [],
         multContainer: name === "widget-tabs",
-        id: _id
+        id: id
       };
       _containerModel.children.splice(place, 0, _obj);
-      this.componentModelMap[_id] = _obj;
+      this.componentModelMap[id] = _obj;
       this.$nextTick(() => {
         const id = _containerModel.children[place].id;
         this._drawWidgetsTree();
@@ -418,6 +429,7 @@ export default {
       const _root = {
         children: []
       };
+      const _map = {};
       const walk = function(parent, componentModel) {
         if (Array.isArray(componentModel)) {
           componentModel.forEach(val => {
@@ -431,31 +443,55 @@ export default {
         const instance = element.__vue__;
         const rect = getInstanceOrVnodeRect(instance);
         const top = rect ? rect.top : Infinity;
+        const _profile = getProfileByInstance(instance);
         const _obj = {
           children: [],
           top,
-          name: getProfileByInstance(instance).name,
+          name: _profile.name,
           id: _id
         };
+        // 事件收集
+        this.collectEvent(_profile.controllers, _id, instance);
+
         parent.children.push(_obj);
         componentModel.children &&
           componentModel.children.forEach(val => {
             walk(_obj, val);
           });
 
-        this.componentInstanceMap[_id] = instance;
+        _map[_id] = instance;
       }.bind(this);
+      this.componentInstanceMap = _map;
       // debugger;
       this.componentsModelTree.forEach(val => {
         walk(_root, val);
       });
       return _root;
     },
+    collectEvent(controllers, id, ins) {
+      controllers.forEach(val => {
+        if (val.controllerType === "CTRL_EMIT_EVENT") {
+          this.emitEventMap[id] = ins[val.propName];
+        }
+        if (val.controllerType === "CTRL_ON_EVENT") {
+          this.onEventList.push({
+            propName: val.propName,
+            handleName: val.handleName,
+            ins
+          });
+          // if (!this.onEventList[id]) this.onEventList[id] = [];
+          // this.onEventList[id].push({
+          //   propName: val.propName,
+          //   handleName: val.handleName
+          // });
+        }
+      });
+    },
     _drawWidgetsTree() {
-      console.time("drawWidgetsTree");
+      console.time("_generateWidgetsTree");
       this._generateComponentModelMap();
       const _tree = this._generateWidgetsTree();
-      console.timeEnd("drawWidgetsTree");
+      console.timeEnd("_generateWidgetsTree");
       window.parent.postMessage(
         {
           type: "flush-component-tree",
@@ -528,6 +564,19 @@ export default {
     getWidgetDataValue(key) {
       const vm = this.componentInstanceMap[this.selectedId];
       return vm[key];
+    },
+    getWidgetEmitEventMap() {
+      return this.emitEventMap;
+    },
+    bindEventRelation(key, event) {
+      // const profile = this.getSelectWidgetProfile();
+      // profile.controllers.forEach(val => {
+      //   if (val.propName === key) {
+      //     // 绑定
+      //   }
+      // });
+      // console.log(this.emitEventMap);
+      // console.log(this.onEventList);
     },
     getSelectWidgetProfile() {
       if (!this.selectedId) return;

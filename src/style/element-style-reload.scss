@@ -104,7 +104,9 @@
     color: #aaa;
   }
 }
-
+.el-select-dropdown__empty{
+  font-size: 12px;
+}
 .el-input-number--mini {
   line-height: 20px;
   width: 100px;
@@ -370,7 +372,7 @@
 .el-cascader__dropdown {
 
   .el-scrollbar__wrap {
-    height: auto;
+    overflow: auto;
   }
 
   .el-cascader-node {

@@ -59,21 +59,20 @@ export default {
       default: "#333",
       type: String
     },
+    events: {
+      default: () => ["WIDGET_BUTTON_CLICK"],
+      type: Array
+    },
     btnText: {
       default: "按钮",
       type: String
     }
   },
-  data() {
-    return {
-      value: ""
-    };
-  },
   mounted() {},
   methods: {
     handleClick() {
       this.$emit("widget-event", {
-        type: "WIDGET_BUTTON_CLICK"
+        type: this.events[0]
       });
     }
   }

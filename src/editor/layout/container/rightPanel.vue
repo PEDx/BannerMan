@@ -63,6 +63,7 @@
               :is="controllerTypeMap[val.controllerType]"
               slot="ctrl"
               :value="val.value"
+              :events="val.events"
               :setting="val.setting"
               @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
             ></component>
@@ -143,11 +144,15 @@ export default {
             if (!profile.controllers) return;
             profile.controllers.forEach(val => {
               val.value = undefined;
+              val.events = undefined;
             });
             this.controllerList = profile.controllers;
             this.name = profile.name;
             this.id = profile.id;
             this.controllerList.forEach(val => {
+              if (val.controllerType === "CTRL_ON_EVENT") {
+                val.events = clonedeep(ins.getWidgetEmitEventMap());
+              }
               val.value = ins.getWidgetDataValue(val.propName);
               this.controllerMap[val.propName] = val;
               val.id = getRandomStr(6);
@@ -216,8 +221,11 @@ export default {
       this.$store.dispatch("update_rt_spt", data.split);
       this.$store.dispatch("update_rt_spt_status", data.status);
     },
-    handleSubmitUpdate(key, value) {
+    handleSubmitUpdate(key, value, event) {
       getViewportVueInstance().then(ins => {
+        if (event) {
+          ins.bindEventRelation(key, value);
+        }
         ins.updateWidgetProp(clonedeep({ key, value }));
         this.controllerMap[key].value = clonedeep(value);
       });
@@ -283,7 +291,7 @@ export default {
       background-color: #252525;
       border-radius: 4px;
       overflow: hidden;
-      .id{
+      .id {
         font-size: 12px;
         color: #7f7c87;
       }

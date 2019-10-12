@@ -48,6 +48,11 @@ export default {
       label: '背景图片'
     },
     {
+      propName: 'events',
+      controllerType: 'CTRL_EMIT_EVENT',
+      label: '发射事件'
+    },
+    {
       controllerType: 'CTRL_DESCRIPTION',
       label: '其他信息',
       setting: {
