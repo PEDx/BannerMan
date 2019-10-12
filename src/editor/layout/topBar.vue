@@ -69,28 +69,34 @@
     <float-window :show.sync="showThemeWindow" :position="nodePos" :size="nodeSize" title="主题调色板">
       <theme-color-picker></theme-color-picker>
     </float-window>
-    <template v-if="showPreviewWindow">
-      <float-window
-        :show.sync="showPreviewWindow"
-        :position="nodePos"
-        :size="{
-          width: options[value].resolution.width,
-          minWidth: options[value].resolution.width,
-          minHeight: options[value].resolution.height,
-          height: options[value].resolution.height
-        }"
-        title="预览窗口"
-      >
-        <iframe
-          id="iframe-preview"
-          ref="iframe"
-          name="preview"
-          :style="`width: 100%;height: 100%;`"
-          src="/render?id=a09w3jfa9w0fjaw9ej"
-          frameborder="0"
-        ></iframe>
-      </float-window>
-    </template>
+    <float-window
+      :show.sync="showPreviewWindow"
+      :position="nodePos"
+      :hide-resizable="true"
+      :size="{
+        width: options[value].resolution.width,
+        minWidth: options[value].resolution.width,
+        minHeight: options[value].resolution.height,
+        height: options[value].resolution.height
+      }"
+      title="预览窗口"
+    >
+      <el-button
+        slot="btn"
+        type="text"
+        icon="el-icon-refresh"
+        style="float: left;padding-right: 4px;"
+        @click="refreshPreviewFrame"
+      ></el-button>
+      <iframe
+        id="iframe-preview"
+        ref="preview"
+        name="preview"
+        :style="`width: 100%;height: 100%;`"
+        src="/render?id=a09w3jfa9w0fjaw9ej"
+        frameborder="0"
+      ></iframe>
+    </float-window>
   </div>
 </template>
 <script>
@@ -161,6 +167,9 @@ export default {
     },
     handlePreviewPage() {
       this.showPreviewWindow = true;
+    },
+    refreshPreviewFrame() {
+      this.$refs.preview.contentWindow.location.reload(true);
     }
   }
 };

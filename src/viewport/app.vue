@@ -175,7 +175,7 @@ export default {
       if (this.dragingContainer === container) return;
       this.draging = true;
       if (this.prevDragingContainer) {
-        if (!this.prevDragingContainer.triggerDragEnd) debugger;
+        if (!this.prevDragingContainer.triggerDragEnd) return;
         this.prevDragingContainer.triggerDragEnd();
       }
       this.dragingContainer = container;
@@ -480,11 +480,6 @@ export default {
             handleName: val.handleName,
             ins
           });
-          // if (!this.onEventList[id]) this.onEventList[id] = [];
-          // this.onEventList[id].push({
-          //   propName: val.propName,
-          //   handleName: val.handleName
-          // });
         }
       });
     },
@@ -568,16 +563,6 @@ export default {
     },
     getWidgetEmitEventMap() {
       return this.emitEventMap;
-    },
-    bindEventRelation(key, event) {
-      // const profile = this.getSelectWidgetProfile();
-      // profile.controllers.forEach(val => {
-      //   if (val.propName === key) {
-      //     // 绑定
-      //   }
-      // });
-      // console.log(this.emitEventMap);
-      // console.log(this.onEventList);
     },
     getSelectWidgetProfile() {
       if (!this.selectedId) return;

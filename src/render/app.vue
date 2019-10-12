@@ -16,7 +16,6 @@ import widgets from "@/widgets";
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 export default {
   data() {
-    this.emitEventMap = {};
     this.onEventList = [];
     return {
       componentsModelTree: []
@@ -28,8 +27,8 @@ export default {
     };
   },
   mounted() {
-    this.pageId = parseQueryString(location.href).id;
-    this._renderPageFromLocal();
+    const pageId = parseQueryString(location.href).id;
+    this._renderPageFromLocal(pageId);
   },
   methods: {
     _handleWidgetEvent(event, id) {
@@ -41,19 +40,8 @@ export default {
         }
       });
     },
-    _asyncLoadComponent(name) {
-      const widget = widgets[name];
-      return new Promise((resolve, reject) => {
-        widget().then(ins => {
-          resolve(ins);
-        });
-      });
-    },
     collectEvent(controllers, id, ins) {
       controllers.forEach(val => {
-        if (val.controllerType === "CTRL_EMIT_EVENT") {
-          this.emitEventMap[id] = ins[val.propName];
-        }
         if (val.controllerType === "CTRL_ON_EVENT") {
           this.onEventList.push({
             propName: val.propName,
@@ -63,11 +51,11 @@ export default {
         }
       });
     },
-    _renderPageFromLocal() {
-      if (!this.pageId) return;
+    _renderPageFromLocal(pageId) {
+      if (!pageId) return;
       console.time("renderPageFromLocal");
       const componentsModelTree =
-        storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
+        storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${pageId}`) || [];
       const _promiseArr = [];
       const _promiseMap = {};
       traversal(componentsModelTree, node => {
@@ -77,7 +65,7 @@ export default {
           node.props[key] = _val === UNDEFINED ? undefined : _val;
         });
         if (_promiseMap[node.name]) return;
-        const promise = this._asyncLoadComponent(node.name);
+        const promise = widgets[node.name]();
         _promiseMap[node.name] = true;
         _promiseArr.push(promise);
       });

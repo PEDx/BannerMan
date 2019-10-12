@@ -21,7 +21,14 @@
       <div class="title-bar draggable-resizable-handle">
         <span class="title">{{ title }}</span>
         <span class="custom-right">
-          <el-button type="text" class="btn" icon="el-icon-crop" @click.stop="handleResizable"></el-button>
+          <slot name="btn" />
+          <el-button
+            type="text"
+            class="btn"
+            icon="el-icon-crop"
+            @click.stop="handleResizable"
+            v-if="!hideResizable"
+          ></el-button>
           <el-button type="text" class="btn" icon="el-icon-minus" @click.stop="handleMinimize"></el-button>
           <el-button type="text" class="btn" icon="el-icon-close" @click.stop="handleClose"></el-button>
         </span>
@@ -52,6 +59,10 @@ export default {
     position: {
       default: () => ({ x: 0, y: 0 }),
       type: Object
+    },
+    hideResizable: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
