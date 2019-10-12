@@ -2,7 +2,7 @@
   <div class="widget-button">
     <button
       class="button"
-      @click="handleClick"
+      @click.prevent="handleClick"
       :style="{
         borderRadius: `${borderRadius}px`,
         backgroundColor: btnBgImg.url ? 'transparent' : '#fff'

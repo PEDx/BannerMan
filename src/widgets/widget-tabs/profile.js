@@ -13,7 +13,7 @@ export default {
       propName: 'event', // 用作记录选中的监听事件
       handleName: 'switchTab', // 声明用作事件调用的函数
       controllerType: 'CTRL_ON_EVENT',
-      label: '切换标签'
+      label: '切换标签监听'
     }
   ]
 };

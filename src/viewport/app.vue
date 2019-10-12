@@ -153,6 +153,7 @@ export default {
       );
     },
     _handleWidgetEvent(event, id) {
+      // console.log(event);
       const emitEventName = id + event.type;
       this.onEventList.forEach(val => {
         const ins = val.ins;
