@@ -51,6 +51,10 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           to: path.posix.join(config.dev.assetsPublicPath, 'index.html')
         },
         {
+          from: 'render',
+          to: path.posix.join(config.dev.assetsPublicPath, 'render.html')
+        },
+        {
           from: 'manager',
           to: path.posix.join(config.dev.assetsPublicPath, 'manager.html')
         },

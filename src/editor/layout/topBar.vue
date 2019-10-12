@@ -35,7 +35,12 @@
             >清空</el-button>
           </el-popover>
 
-          <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">预览</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-mobile-phone"
+            style="margin-left: 10px;"
+            @click="handlePreviewPage"
+          >预览</el-button>
           <el-button
             type="primary"
             icon="el-icon-document-checked"
@@ -64,6 +69,28 @@
     <float-window :show.sync="showThemeWindow" :position="nodePos" :size="nodeSize" title="主题调色板">
       <theme-color-picker></theme-color-picker>
     </float-window>
+    <template v-if="showPreviewWindow">
+      <float-window
+        :show.sync="showPreviewWindow"
+        :position="nodePos"
+        :size="{
+          width: options[value].resolution.width,
+          minWidth: options[value].resolution.width,
+          minHeight: options[value].resolution.height,
+          height: options[value].resolution.height
+        }"
+        title="预览窗口"
+      >
+        <iframe
+          id="iframe-preview"
+          ref="iframe"
+          name="preview"
+          :style="`width: 100%;height: 100%;`"
+          src="/render?id=a09w3jfa9w0fjaw9ej"
+          frameborder="0"
+        ></iframe>
+      </float-window>
+    </template>
   </div>
 </template>
 <script>
@@ -77,20 +104,21 @@ import { getViewportVueInstance } from "@utils/index";
 export default {
   components: { floatWindow, themeColorPicker },
   data() {
+    this.nodeSize = {
+      width: 1040,
+      minWidth: 1040,
+      minHeight: 400,
+      height: 400
+    };
     return {
       clearConfirmVisible: false,
       showThemeWindow: false,
+      showPreviewWindow: false,
       options: deviceModelList,
       value: this.$store.state.editor.setting.deviceType || "iphone6",
       nodePos: {
         x: 0,
         y: 0
-      },
-      nodeSize: {
-        width: 1040,
-        minWidth: 1040,
-        minHeight: 400,
-        height: 400
       }
     };
   },
@@ -130,6 +158,9 @@ export default {
       getViewportVueInstance().then(ins => {
         ins.savePage();
       });
+    },
+    handlePreviewPage() {
+      this.showPreviewWindow = true;
     }
   }
 };

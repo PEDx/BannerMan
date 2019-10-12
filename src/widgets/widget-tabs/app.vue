@@ -76,6 +76,7 @@ export default {
       text-align: center;
       box-sizing: border-box;
       padding: 0 4px;
+      cursor: pointer;
       .txt {
         display: inline-block;
         width: 100%;
