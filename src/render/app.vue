@@ -16,7 +16,7 @@ import widgets from "@/widgets";
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 export default {
   data() {
-    this.onEventList = [];
+    this.onEventMap = {};
     return {
       componentsModelTree: []
     };
@@ -32,22 +32,18 @@ export default {
   },
   methods: {
     _handleWidgetEvent(event, id) {
-      const emitEventName = id + event.type;
-      this.onEventList.forEach(val => {
-        const ins = val.ins;
-        if (ins[val.propName].join("") === emitEventName) {
-          ins[val.handleName] && ins[val.handleName]();
-        }
-      });
+      const emitEventName = `${id}|${event.type}`;
+      const eventHandleList = this.onEventMap[emitEventName];
+      eventHandleList && eventHandleList.forEach(handle => handle());
     },
     collectEvent(controllers, id, ins) {
       controllers.forEach(val => {
         if (val.controllerType === "CTRL_ON_EVENT") {
-          this.onEventList.push({
-            propName: val.propName,
-            handleName: val.handleName,
-            ins
-          });
+          const name = ins[val.propName].join("|");
+          if (!this.onEventMap[name]) {
+            this.onEventMap[name] = [];
+          }
+          this.onEventMap[name].push(ins[val.handleName]);
         }
       });
     },

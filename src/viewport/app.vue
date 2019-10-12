@@ -154,10 +154,10 @@ export default {
     },
     _handleWidgetEvent(event, id) {
       // console.log(event);
-      const emitEventName = id + event.type;
+      const emitEventName = `${id}|${event.type}`;
       this.onEventList.forEach(val => {
         const ins = val.ins;
-        if (ins[val.propName].join("") === emitEventName) {
+        if (ins[val.propName].join("|") === emitEventName) {
           ins[val.handleName] && ins[val.handleName]();
         }
       });
