@@ -34,19 +34,22 @@
               style="margin-left: 10px;"
             >清空</el-button>
           </el-popover>
-
-          <el-button
-            type="primary"
-            icon="el-icon-mobile-phone"
-            style="margin-left: 10px;"
-            @click="handlePreviewPage"
-          >预览</el-button>
           <el-button
             type="primary"
             icon="el-icon-document-checked"
             style="margin-left: 10px;"
             @click="saveViewportPage"
           >保存</el-button>
+          <el-dropdown trigger="click">
+            <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">
+              预览
+              <i class="el-icon-caret-bottom el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-files" @click.native="handlePreviewPage">本地预览</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-s-grid" @click.native="handleScanPreview">扫码预览</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
           <el-dropdown trigger="click">
             <el-button type="primary" style="margin-left: 10px;">
               更多
@@ -97,14 +100,17 @@
         frameborder="0"
       ></iframe>
     </float-window>
+    <div id="qrcode" ref="qrcode"></div>
   </div>
 </template>
 <script>
+// import { reqGetPageById } from "@api/page";
 import floatWindow from "@editor/components/float-window";
 import themeColorPicker from "@editor/components/theme-color-picker";
 import deviceModelList from "./device";
 import EventBus from "@/bus";
 import clonedeep from "lodash.clonedeep";
+import QRCode from "qrcodejs2";
 import { getViewportVueInstance } from "@utils/index";
 
 export default {
@@ -135,6 +141,14 @@ export default {
       x: rect.width / 2 - this.nodeSize.width / 2,
       y: 150
     };
+    new QRCode(document.getElementById("qrcode"), {
+      text: "http://192.168.27.234:8080/render",
+      width: 128,
+      height: 128,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
   },
   methods: {
     handleChange() {
@@ -167,6 +181,18 @@ export default {
     },
     handlePreviewPage() {
       this.showPreviewWindow = true;
+    },
+    handleScanPreview() {
+      this.$notify({
+        title: "预览二维码",
+        message: this.$refs.qrcode.innerHTML,
+        duration: 0,
+        dangerouslyUseHTMLString: true
+      });
+      // console.log(qrcode);
+      // reqGetPageById("5d4abd630b241bb098cb5452").then(res => {
+      //   console.log(res);
+      // });
     },
     refreshPreviewFrame() {
       this.$refs.preview.contentWindow.location.reload(true);

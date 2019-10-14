@@ -32,6 +32,7 @@ import {
   traversal
 } from "@utils/index";
 import storage from "@/storage";
+import { reqUpdatePage } from "@/api/page";
 import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
 import SortElementMixin from "./sortble/SortElementMixin";
@@ -63,6 +64,7 @@ export default {
     this.emitEventMap = {};
     this.onEventList = [];
     this.componentModelMap = {}; // id 对应数据模型
+    this.componentProfileMap = {}; //  组件名对应 Profile
     this.loadingCompleteStatusMap = {};
     this.pageId = null;
     this.dragingContainerId = null;
@@ -360,7 +362,6 @@ export default {
         name: name,
         props: propsObj,
         children: [],
-        multContainer: name === "widget-tabs",
         id: id
       };
       _containerModel.children.splice(place, 0, _obj);
@@ -386,6 +387,10 @@ export default {
           if (!this.loadingCompleteStatusMap[name] && !!_BM_EDIT_RUNTIME_) {
             ins.default.mixin(SortElementMixin);
             this.loadingCompleteStatusMap[name] = true;
+          }
+          if (!this.componentProfileMap[name]) {
+            const profile = ins.default.extendOptions._profile_;
+            this.componentProfileMap[name] = profile;
           }
           resolve(ins);
         });
@@ -569,6 +574,10 @@ export default {
       const instance = this.componentInstanceMap[this.selectedId];
       return { ...getProfileByInstance(instance), id: this.selectedId } || {};
     },
+    getWidgetProfileByName(name) {
+      if (!name) return;
+      return this.componentProfileMap[name] || {};
+    },
     // 清空编辑页面
     clearPage() {
       this.componentsModelTree = [];
@@ -579,6 +588,14 @@ export default {
       storage.set(
         `${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`,
         this.componentsModelTree
+      );
+      reqUpdatePage("5d4abd630b241bb098cb5452", this.componentsModelTree).then(
+        res => {
+          this.$message({
+            message: "保存成功",
+            type: "success"
+          });
+        }
       );
     },
     // 自动保存

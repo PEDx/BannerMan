@@ -1,25 +1,22 @@
 import request from '../request';
 
-export function reqGetUserByName(username) {
+export function reqGetPageById(id) {
   return request({
-    url: `/api/articulation/queryAuditList`,
-    method: 'get',
-    params: {
-      username
-    }
+    url: `/api/v1/page/${id}`,
+    method: 'get'
   });
 }
-export function reqCreateUser(option) {
+export function reqCreatePage(data) {
   return request({
     url: `/api/articulation/queryAuditList`,
     method: 'post',
-    data: option
+    data: data
   });
 }
-export function reqUpdateUser(option) {
+export function reqUpdatePage(id, data) {
   return request({
-    url: `/api/articulation/queryAuditList`,
+    url: `/api/v1/page/${id}`,
     method: 'put',
-    data: option
+    data: { data }
   });
 }

@@ -2,6 +2,7 @@ export default {
   name: '标签容器',
   icon: '',
   description: '描述',
+  multContainer: true,
   controllers: [
     {
       propName: 'tabsCount',

@@ -12,7 +12,7 @@
         :child-deep-level="level"
         v-bind="item.props"
       >
-        <template v-if="item.multContainer">
+        <template v-if="rootRender.getProfileByName(item.name).multContainer">
           <components-wrap
             v-for="(val, idx) in item.children"
             :key="idx"
@@ -59,7 +59,6 @@ export default {
       deep_index: this.level + 1
     };
   },
-  mounted() {
-  }
+  mounted() {}
 };
 </script>

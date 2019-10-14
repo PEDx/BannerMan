@@ -41,6 +41,7 @@ module.exports = {
     alias: {
       '@': resolve('src'),
       '@editor': resolve('src/editor'),
+      '@api': resolve('src/api'),
       '@viewport': resolve('src/viewport'),
       '@manager': resolve('src/manager'),
       '@style': resolve('src/style'),

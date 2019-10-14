@@ -25,7 +25,7 @@
         @tabs-count-changed="rootContainer._tabsCountChanged(...arguments, item.id)"
         v-bind="item.props"
       >
-        <template v-if="item.multContainer">
+        <template v-if="rootContainer.getWidgetProfileByName(item.name).multContainer">
           <components-wrap
             v-for="(val, idx) in item.children"
             :key="idx"
