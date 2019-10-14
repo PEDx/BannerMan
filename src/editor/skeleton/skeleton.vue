@@ -157,14 +157,15 @@ body {
 }
 .g-mn5c {
   height: 100%;
-  margin: 0 310 0 310;
+  box-sizing: border-box;
+  padding: 0 410px 0 310px;
 }
 .viewport {
   width: 375px;
   height: 667px;
   margin: 0 auto;
   position: relative;
-  top: 20px;
+  top: 60px;
 }
 .item-list {
   overflow: hidden;

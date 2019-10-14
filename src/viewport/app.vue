@@ -344,7 +344,7 @@ export default {
       this._asyncLoadComponent(widgetName).then(ins => {
         const profile = ins.default.extendOptions._profile_;
         const _obj = {};
-        const _id = `${getRandomStr(6)}${widget_count++}-${name}`;
+        const _id = `${getRandomStr(6)}-${widget_count++}-${widgetName}`;
         profile.controllers.forEach(val => {
           _obj[val.propName] = void 0;
         });
