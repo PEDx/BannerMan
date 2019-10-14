@@ -589,13 +589,9 @@ export default {
         `${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`,
         this.componentsModelTree
       );
-      reqUpdatePage("5d4abd630b241bb098cb5452", this.componentsModelTree).then(
-        res => {
-          this.$message({
-            message: "保存成功",
-            type: "success"
-          });
-        }
+      return reqUpdatePage(
+        "5d4abd630b241bb098cb5452",
+        this.componentsModelTree
       );
     },
     // 自动保存

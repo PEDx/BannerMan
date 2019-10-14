@@ -23,7 +23,7 @@
             ref="iframe"
             name="viewport"
             :style="`width: 100%;height: 100%;pointer-events: ${draging ? 'none': 'auto'};outline: 1px solid #6b6b6b;box-sizing: border-box;`"
-            src="/viewport?id=a09w3jfa9w0fjaw9ej"
+            :src="`/viewport?id=${editPageId}`"
             frameborder="0"
             @load="handleLoad"
           ></iframe>
@@ -60,7 +60,7 @@
 import rightPanel from "./rightPanel";
 import leftPanel from "./leftPanel";
 import deviceModelList from "../device";
-import { throttle, clamp } from "@utils/index";
+import { throttle, clamp, parseQueryString } from "@utils/index";
 import EventBus from "@/bus";
 const EDITER_LEFT_PANEL_MIN_WIDTH = 260;
 const EDITER_RIGHT_PANEL_MIN_WIDTH = 400;
@@ -71,6 +71,7 @@ export default {
   },
   data() {
     const editorSetting = this.$store.state.editor.setting;
+    this.editPageId = "";
     return {
       leftWidth: +editorSetting.leftPanelWidth || EDITER_LEFT_PANEL_MIN_WIDTH,
       rightWidth:
@@ -99,6 +100,9 @@ export default {
       return (editorSetting.viewportScale / 100).toFixed(2);
     }
   },
+  created() {
+    this.editPageId = parseQueryString(location.href).id;
+  },
   mounted() {
     EventBus.$on("screenshot-start", () => {
       this.shotAnim = true;
@@ -106,19 +110,7 @@ export default {
         this.shotAnim = false;
       }, 500);
     });
-    window.addEventListener(
-      "message",
-      e => {
-        if (e.data.type === "drag-end") {
-          // this.percentage.x =
-          //   (e.data.axis.x / this.viewSize.width).toFixed(6) * 100;
-          // this.percentage.y =
-          //   (e.data.axis.y / this.viewSize.height).toFixed(6) * 100;
-          // this.dragAnim = true;
-        }
-      },
-      false
-    );
+    window.addEventListener("message", e => {}, false);
     document.addEventListener(
       "mousemove",
       throttle(e => {

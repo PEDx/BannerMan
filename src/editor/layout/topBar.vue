@@ -92,15 +92,16 @@
         @click="refreshPreviewFrame"
       ></el-button>
       <iframe
+        v-if="showPreviewWindow"
         id="iframe-preview"
         ref="preview"
         name="preview"
         :style="`width: 100%;height: 100%;`"
-        src="/render?id=a09w3jfa9w0fjaw9ej"
+        :src="renderPageUrl"
         frameborder="0"
       ></iframe>
     </float-window>
-    <div id="qrcode" ref="qrcode"></div>
+    <div id="qrcode" ref="qrcode" style="display: none;"></div>
   </div>
 </template>
 <script>
@@ -111,7 +112,7 @@ import deviceModelList from "./device";
 import EventBus from "@/bus";
 import clonedeep from "lodash.clonedeep";
 import QRCode from "qrcodejs2";
-import { getViewportVueInstance } from "@utils/index";
+import { getViewportVueInstance, parseQueryString } from "@utils/index";
 
 export default {
   components: { floatWindow, themeColorPicker },
@@ -122,6 +123,7 @@ export default {
       minHeight: 400,
       height: 400
     };
+    this.renderPageUrl = "";
     return {
       clearConfirmVisible: false,
       showThemeWindow: false,
@@ -134,6 +136,10 @@ export default {
       }
     };
   },
+  created() {
+    const id = parseQueryString(location.href).id;
+    this.renderPageUrl = `http://192.168.27.234:8080/render?id=${id}`;
+  },
   mounted() {
     this.handleChange();
     const rect = this.$el.getBoundingClientRect();
@@ -142,11 +148,11 @@ export default {
       y: 150
     };
     new QRCode(document.getElementById("qrcode"), {
-      text: "http://192.168.27.234:8080/render",
+      text: this.renderPageUrl,
       width: 128,
       height: 128,
-      colorDark: "#000000",
-      colorLight: "#ffffff",
+      colorDark: "#343438",
+      colorLight: "#fd9527",
       correctLevel: QRCode.CorrectLevel.H
     });
   },
@@ -176,7 +182,13 @@ export default {
     },
     saveViewportPage() {
       getViewportVueInstance().then(ins => {
-        ins.savePage();
+        ins.savePage().then(res => {
+          res.code === 0 &&
+            this.$message({
+              message: "保存成功",
+              type: "success"
+            });
+        });
       });
     },
     handlePreviewPage() {
@@ -189,10 +201,6 @@ export default {
         duration: 0,
         dangerouslyUseHTMLString: true
       });
-      // console.log(qrcode);
-      // reqGetPageById("5d4abd630b241bb098cb5452").then(res => {
-      //   console.log(res);
-      // });
     },
     refreshPreviewFrame() {
       this.$refs.preview.contentWindow.location.reload(true);

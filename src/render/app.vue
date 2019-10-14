@@ -13,7 +13,6 @@ import {
 } from "@utils/index";
 import { reqGetPageById } from "@api/page";
 import widgets from "@/widgets";
-// const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
 const EVENT_CONTROLLER_TYPE = "CTRL_ON_EVENT";
 export default {
   data() {
@@ -50,8 +49,10 @@ export default {
       });
     },
     _renderPageFromLocal(pageId) {
-      reqGetPageById("5d4abd630b241bb098cb5452").then(res => {
+      console.time("renderPageFromRemote");
+      reqGetPageById(pageId).then(res => {
         console.log(res);
+        document.title = res.data.name;
         const componentsModelTree = res.data.data;
         const _promiseArr = [];
         const _promiseMap = {};
@@ -84,7 +85,7 @@ export default {
               this.collectEvent(_profile.controllers, node.id, instance);
             });
           });
-          console.timeEnd("renderPageFromLocal");
+          console.timeEnd("renderPageFromRemote");
         });
       });
     },
