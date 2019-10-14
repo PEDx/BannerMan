@@ -2,7 +2,7 @@
   <div class="widget-button">
     <button
       class="button"
-      @click.prevent="handleClick"
+      v-tap="{methods: handleClick}"
       :style="{
         borderRadius: `${borderRadius}px`,
         backgroundColor: btnBgImg.url ? 'transparent' : '#fff'

@@ -2,11 +2,15 @@
   <div
     class="widget-container"
     :style="{
-      height: heightModel === 'px' ? `${height}px` : heightModel,
+      width: '100%',
+      height: heightModel === 'px' ? `${size[1]}px` : heightModel,
       ...(bgImg.imgMode !== 'scroll' ? {
         background: bgImg.url ? `url(${bgImg.url}) ${bgImg.imgRepeat || ''}` : bgColor,
         backgroundSize: bgImg.imgSize || ''
-      } : {})
+      } : {}),
+      position: positionModel,
+      bottom: `${position[0]}px`,
+      left: `${position[1]}px`,
     }"
   >
     <template v-if="inEditor">
@@ -70,9 +74,9 @@ const _BM_EDIT_RUNTIME_ = !!window._BM_EDIT_RUNTIME_;
 export default {
   mixins: [_BM_EDIT_RUNTIME_ ? window._BM_WIDGET_CONTAINER_MIXIN_ : ""],
   props: {
-    width: {
-      default: 100,
-      type: Number
+    size: {
+      default: () => [100, 300],
+      type: Array
     },
     bgColor: {
       type: String
@@ -81,13 +85,21 @@ export default {
       type: Object,
       default: () => ({})
     },
-    height: {
-      default: 200,
-      type: Number
-    },
     heightModel: {
       default: "px",
       type: String
+    },
+    positionModel: {
+      default: "static",
+      type: String
+    },
+    position: {
+      default: () => [0, 0],
+      type: Array
+    },
+    zIndex: {
+      default: 9,
+      type: Number
     }
   },
   data() {

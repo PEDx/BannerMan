@@ -14,16 +14,6 @@ export default {
       label: '容器背景图片'
     },
     {
-      propName: 'width',
-      controllerType: 'CTRL_NUMBER_INPUT',
-      label: '宽度'
-    },
-    {
-      propName: 'height',
-      controllerType: 'CTRL_NUMBER_INPUT',
-      label: '高度值'
-    },
-    {
       propName: 'heightModel',
       controllerType: 'CTRL_SELECT',
       label: '高度模式',
@@ -39,6 +29,49 @@ export default {
           }
         ]
       }
+    },
+    {
+      propName: 'size',
+      controllerType: 'CTRL_SIZE_INPUT',
+      label: '尺寸',
+      setting: {
+        label: ['宽', '高']
+      }
+    },
+
+    {
+      propName: 'positionModel',
+      controllerType: 'CTRL_SELECT',
+      label: '定位模式',
+      setting: {
+        options: [
+          {
+            value: 'static',
+            label: '正常定位'
+          },
+          {
+            value: 'absolute',
+            label: '绝对定位'
+          },
+          {
+            value: 'fixed',
+            label: '固定定位'
+          }
+        ]
+      }
+    },
+    {
+      propName: 'position',
+      controllerType: 'CTRL_SIZE_INPUT',
+      label: '定位',
+      setting: {
+        label: ['上', '左']
+      }
+    },
+    {
+      propName: 'zIndex',
+      controllerType: 'CTRL_NUMBER_INPUT',
+      label: '层级'
     }
   ]
 };

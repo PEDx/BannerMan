@@ -150,11 +150,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.components-wrap {
-  position: relative;
-}
-</style>
-<style lang="scss">
 .selected {
   box-sizing: border-box;
   .sort-container-mark {
