@@ -221,11 +221,8 @@ export default {
       this.$store.dispatch("update_rt_spt", data.split);
       this.$store.dispatch("update_rt_spt_status", data.status);
     },
-    handleSubmitUpdate(key, value, event) {
+    handleSubmitUpdate(key, value) {
       getViewportVueInstance().then(ins => {
-        if (event) {
-          ins.bindEventRelation(key, value);
-        }
         ins.updateWidgetProp(clonedeep({ key, value }));
         this.controllerMap[key].value = clonedeep(value);
       });

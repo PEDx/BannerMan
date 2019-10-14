@@ -14,6 +14,7 @@ import {
 import storage from "@/storage";
 import widgets from "@/widgets";
 const LOCAL_SAVE_KEY_PREFIX = "current_viewport_data";
+const EVENT_CONTROLLER_TYPE = "CTRL_ON_EVENT";
 export default {
   data() {
     this.onEventMap = {};
@@ -38,7 +39,7 @@ export default {
     },
     collectEvent(controllers, id, ins) {
       controllers.forEach(val => {
-        if (val.controllerType === "CTRL_ON_EVENT") {
+        if (val.controllerType === EVENT_CONTROLLER_TYPE) {
           const name = ins[val.propName].join("|");
           if (!this.onEventMap[name]) {
             this.onEventMap[name] = [];

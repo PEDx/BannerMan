@@ -41,7 +41,7 @@ export default {
   },
   watch: {
     input() {
-      this.$emit("submit-update", this.input, true);
+      this.$emit("submit-update", this.input);
     }
   },
   created() {
