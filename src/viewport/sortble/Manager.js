@@ -10,7 +10,6 @@ export default class Manager {
   }
   remove(ref) {
     const index = this.getIndex(ref);
-
     if (index !== -1) {
       this.refs.splice(index, 1);
     }

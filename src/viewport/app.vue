@@ -370,7 +370,8 @@ export default {
         const id = _containerModel.children[place].id;
         this._drawWidgetsTree();
         this._setImageNodeUndraggable();
-        if (!this.getSelectWidgetProfile().multContainer) {
+        if (_containerModel.name !== "widget-tabs") {
+          // fix: 特殊处理, 待重构
           this._selectComponentAndHighlightById(id);
         }
       });

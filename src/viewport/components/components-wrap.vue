@@ -13,7 +13,7 @@
         :is="item.name"
         :ref="item.id"
         :bm-sort-element-mixin-index="idx"
-        :bm-sort-element-mixin-disabled="isMultContainer"
+        :bm-sort-element-mixin-disabled="isMultContainer || !!disabledWidgetMap[item.id]"
         :child-components-model="item.children"
         :child-deep-level="level"
         @widget-event="rootContainer._handleWidgetEvent(...arguments, item.id)"
@@ -23,6 +23,8 @@
         @contianer-insert-start="rootContainer._handleInsertStart"
         @contianer-drag-start="rootContainer._handleDragStart"
         @tabs-count-changed="rootContainer._tabsCountChanged(...arguments, item.id)"
+        @disable-widget-sort="disableWidget(...arguments, item.id)"
+        @active-widget-sort="activeWidget(...arguments, item.id)"
         v-bind="item.props"
       >
         <template v-if="rootContainer.getWidgetProfileByName(item.name).multContainer">
@@ -50,6 +52,7 @@
 // const emitEventsMap = {}
 // const onEventsMap = {}
 // 由 components-wrap 来展开子元素数组
+// 已经不在正常流里的容器不能再拖动
 export default {
   props: {
     components: {
@@ -69,7 +72,8 @@ export default {
   data() {
     return {
       deep_index: this.level + 1,
-      selectedOverlay: null
+      selectedOverlay: null,
+      disabledWidgetMap: {}
     };
   },
   inject: ["rootContainer"],
@@ -92,10 +96,14 @@ export default {
       if (this.haveSelectedId) this.showSelectedOverlay(nv);
     }
   },
-  mounted() {
-    // console.log(this.components);
-  },
+  mounted() {},
   methods: {
+    disableWidget(id) {
+      this.disabledWidgetMap[id] = true;
+    },
+    activeWidget(id) {
+      this.disabledWidgetMap[id] = false;
+    },
     getSelectedOverlay() {
       if (this.selectedOverlay) {
         return this.selectedOverlay;
@@ -149,7 +157,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .selected {
   box-sizing: border-box;
   .sort-container-mark {

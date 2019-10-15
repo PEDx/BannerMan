@@ -107,6 +107,17 @@ export default {
       inEditor: _BM_EDIT_RUNTIME_
     };
   },
+  watch: {
+    positionModel: {
+      handler: function(nv) {
+        this.$emit("activee-widget-sort");
+        if (nv === "absolute" || nv === "fixed") {
+          this.$emit("disable-widget-sort");
+        }
+      },
+      immediate: true
+    }
+  },
   mounted() {
     this.$el._BM_CONTAINER_ = true;
   }

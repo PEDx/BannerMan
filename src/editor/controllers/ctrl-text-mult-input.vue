@@ -1,11 +1,15 @@
 <template>
-  <div class="ctrl-text-input">
-    <el-input
-      v-model="input[idx]"
-      placeholder="请输入内容"
-      v-for="(num, idx) in relationValue"
-      :key="idx"
-    ></el-input>
+  <div class="ctrl-text-mult-input">
+    <template v-for="(num, idx) in relationValue">
+      <div :key="idx">
+        <span class="num">{{ num }}.</span>
+        <el-input
+          v-model="input[idx]"
+          placeholder="请输入内容"
+          style="display: inline-block;width: auto;"
+        ></el-input>
+      </div>
+    </template>
   </div>
 </template>
 <script>
@@ -48,8 +52,11 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.ctrl-text-input {
+.ctrl-text-mult-input {
   height: 100%;
+  .num {
+    color: #7f7c87;
+  }
 }
 </style>
 

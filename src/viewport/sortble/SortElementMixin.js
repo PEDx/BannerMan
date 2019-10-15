@@ -28,9 +28,12 @@ export default {
     },
     BmSortElementMixinDisabled(isDisabled) {
       if (isDisabled) {
-        this.removeDraggable(this.ElementMixinCollection);
+        this.removeDraggable(this.BmSortElementMixinCollection);
       } else {
-        this.setDraggable(this.ElementMixinCollection, this.ElementMixinIndex);
+        this.setDraggable(
+          this.BmSortElementMixinCollection,
+          this.BmSortElementMixinIndex
+        );
       }
     }
   },
@@ -45,8 +48,8 @@ export default {
     }
   },
   methods: {
-    removeDraggable(collection) {
-      this.manager.remove(collection, this.ref);
+    removeDraggable() {
+      this.manager.remove(this.ref);
     },
     setDraggable(collection, index) {
       // debugger;
