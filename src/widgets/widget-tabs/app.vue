@@ -16,6 +16,11 @@
             :class="{
               selected: selectIdx === idx
             }"
+            :style="{
+              fontSize: `${computeFont(idx).size}px`,
+              fontWeight: `${computeFont(idx).weight}`,
+              color: computeFont(idx).color
+            }"
           >{{ tabsTextArr[idx] }}</span>
         </li>
       </ul>
@@ -41,6 +46,14 @@ export default {
     event: {
       default: () => [],
       type: Array
+    },
+    fontObj: {
+      default: () => ({ color: "#000", size: 12, weight: 400 }),
+      type: Object
+    },
+    selectedFontObj: {
+      default: () => ({ color: "#f00", size: 12, weight: 400 }),
+      type: Object
     }
   },
   data() {
@@ -58,6 +71,9 @@ export default {
     this.$emit("tabs-count-changed", this.tabsCount);
   },
   methods: {
+    computeFont(idx) {
+      return this.selectIdx === idx ? this.selectedFontObj : this.fontObj;
+    },
     switchTab() {
       this.selectIdx = (this.selectIdx + 1) % this.tabsCount;
     },

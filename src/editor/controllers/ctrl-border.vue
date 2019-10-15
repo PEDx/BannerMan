@@ -1,9 +1,6 @@
 <template>
   <div class="ctrl-border">
     <div class="left">
-      <el-color-picker v-model="color" show-alpha color-format="rgb"></el-color-picker>
-    </div>
-    <div class="right">
       <el-input-number
         v-model="width"
         @change="handleChange"
@@ -11,6 +8,9 @@
         :min="0"
         :max="400"
       ></el-input-number>
+    </div>
+    <div class="right">
+      <el-color-picker v-model="color" show-alpha color-format="rgb"></el-color-picker>
     </div>
   </div>
 </template>
@@ -55,11 +55,11 @@ export default {
 .ctrl-border {
   .left {
     float: left;
+    padding-top: 4px;
   }
   .right {
-    float: left;
-    padding-top: 3px;
     margin-left: 10px;
+    float: left;
   }
 }
 </style>
