@@ -592,10 +592,7 @@ export default {
         `${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`,
         this.componentsModelTree
       );
-      return reqUpdatePage(
-        "5d4abd630b241bb098cb5452",
-        this.componentsModelTree
-      );
+      return reqUpdatePage(this.pageId, this.componentsModelTree);
     },
     // 自动保存
     autoSave() {

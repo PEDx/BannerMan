@@ -4,7 +4,7 @@
       v-for="(item, idx) in components"
       :key="item.id"
       :class="{
-        'selected': selectedId === item.id,
+        'components-wrap-selected': selectedId === item.id,
         'component-item': true
       }"
     >
@@ -158,8 +158,8 @@ export default {
 </script>
 
 <style lang="scss">
-.selected {
-  box-sizing: border-box;
+.components-wrap-selected {
+  // box-sizing: border-box;
   .sort-container-mark {
     display: block !important;
   }

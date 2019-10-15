@@ -16,6 +16,11 @@ export default {
       label: '标签名称'
     },
     {
+      propName: 'tabHeight',
+      controllerType: 'CTRL_NUMBER_INPUT',
+      label: '标签高度'
+    },
+    {
       propName: 'fontObj',
       controllerType: 'CTRL_FONT',
       label: '标签文字(未选中)'
@@ -24,6 +29,31 @@ export default {
       propName: 'selectedFontObj',
       controllerType: 'CTRL_FONT',
       label: '标签文字(选中)'
+    },
+    {
+      propName: 'borderRadius',
+      controllerType: 'CTRL_SLIDER_INPUT',
+      label: '标签圆角'
+    },
+    {
+      propName: 'selectedBackgroundObj',
+      controllerType: 'CTRL_RESOURCE_DROP',
+      label: '标签背景(选中)'
+    },
+    {
+      propName: 'backgroundObj',
+      controllerType: 'CTRL_RESOURCE_DROP',
+      label: '标签背景(未选中)'
+    },
+    {
+      propName: 'selectedBorderObj',
+      controllerType: 'CTRL_BORDER',
+      label: '标签边框(选中)'
+    },
+    {
+      propName: 'borderObj',
+      controllerType: 'CTRL_BORDER',
+      label: '标签边框(未选中)'
     },
     // 由订阅者选择监听哪个组件的哪个事件, 订阅者需要提供对应触发的函数
     {
