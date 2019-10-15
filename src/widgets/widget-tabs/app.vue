@@ -16,7 +16,7 @@
             :class="{
               selected: selectIdx === idx
             }"
-          >标签{{ num }}</span>
+          >{{ tabsTextArr[idx] }}</span>
         </li>
       </ul>
     </div>
@@ -33,6 +33,10 @@ export default {
     tabsCount: {
       default: 1,
       type: Number
+    },
+    tabsTextArr: {
+      default: () => ["标签"],
+      type: Array
     },
     event: {
       default: () => [],

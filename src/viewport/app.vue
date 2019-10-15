@@ -110,7 +110,7 @@ export default {
     this.scrollEnd = debounce(() => {
       this.treeScrolling = false;
     }, 500);
-    this.updateWidgetProp = throttle(this._updateWidgetProp, 500);
+    this.updateWidgetProp = throttle(this._updateWidgetProp, 100);
     this._initDocumentListener();
     this._observerGeometric();
     this._observerStyle();
@@ -370,7 +370,9 @@ export default {
         const id = _containerModel.children[place].id;
         this._drawWidgetsTree();
         this._setImageNodeUndraggable();
-        this._selectComponentAndHighlightById(id);
+        if (!this.getSelectWidgetProfile().multContainer) {
+          this._selectComponentAndHighlightById(id);
+        }
       });
       this.dragingContainerId = null;
     },

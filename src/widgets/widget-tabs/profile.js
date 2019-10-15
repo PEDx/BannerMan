@@ -9,6 +9,12 @@ export default {
       controllerType: 'CTRL_NUMBER_INPUT',
       label: '标签数量'
     },
+    {
+      propName: 'tabsTextArr',
+      relation: 'tabsCount', // 关联的 propName, 会通过 relationValue 传入 controller
+      controllerType: 'CTRL_TEXT_MULT_INPUT',
+      label: '标签名称'
+    },
     // 由订阅者选择监听哪个组件的哪个事件, 订阅者需要提供对应触发的函数
     {
       propName: 'event', // 用作记录选中的监听事件

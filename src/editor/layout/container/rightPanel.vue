@@ -63,6 +63,7 @@
               :is="controllerTypeMap[val.controllerType]"
               slot="ctrl"
               :value="val.value"
+              :relation-value="val.relationValue"
               :events="val.events"
               :setting="val.setting"
               @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
@@ -72,6 +73,7 @@
             <component
               :is="val.customController"
               :value="val.value"
+              :relation-value="val.relationValue"
               :setting="val.setting"
               @submit-update="handleSubmitUpdate(val.propName, ...arguments)"
             ></component>
@@ -118,6 +120,7 @@ export default {
   data() {
     const editorSetting = this.$store.state.editor.setting;
     this.controllerMap = {};
+    this.relationValueMap = {};
     return {
       custom_component_type_name,
       splitPercent: +editorSetting.rightPanelSplit || 70,
@@ -145,6 +148,7 @@ export default {
             profile.controllers.forEach(val => {
               val.value = undefined;
               val.events = undefined;
+              val.relationValue = undefined;
             });
             this.controllerList = profile.controllers;
             this.name = profile.name;
@@ -153,9 +157,13 @@ export default {
               if (val.controllerType === "CTRL_ON_EVENT") {
                 val.events = clonedeep(ins.getWidgetEmitEventMap());
               }
+              if (val.relation) {
+                this.relationValueMap[val.propName] = val.relation;
+                val.relationValue = ins.getWidgetDataValue(val.relation);
+              }
               val.value = ins.getWidgetDataValue(val.propName);
-              this.controllerMap[val.propName] = val;
               val.id = getRandomStr(6);
+              this.controllerMap[val.propName] = val;
             });
           });
         }
@@ -225,6 +233,15 @@ export default {
       getViewportVueInstance().then(ins => {
         ins.updateWidgetProp(clonedeep({ key, value }));
         this.controllerMap[key].value = clonedeep(value);
+        // 更新关联值
+        Object.keys(this.relationValueMap).forEach(key2 => {
+          const val = this.relationValueMap[key2];
+          if (key === val) {
+            this.controllerMap[key2].relationValue = clonedeep(
+              this.controllerMap[val].value
+            );
+          }
+        });
       });
     },
     handleContentScroll(percent) {
