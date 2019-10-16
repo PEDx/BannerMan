@@ -6,8 +6,8 @@
     </div>
     <div class="function">
       <el-row style="height: 100%;">
-        <el-col :span="8"></el-col>
-        <el-col :span="8" style="text-align: center;">
+        <el-col :span="10"></el-col>
+        <el-col :span="4" style="text-align: center;">
           <el-select v-model="value" placeholder="请选择" style="width: 210px;" @change="handleChange">
             <template slot="prefix">
               <i class="el-icon-view"></i>
@@ -20,7 +20,7 @@
             ></el-option>
           </el-select>
         </el-col>
-        <el-col :span="8" style="text-align: right;">
+        <el-col :span="10" style="text-align: right;">
           <el-popover placement="top" width="160" v-model="clearConfirmVisible">
             <p>确认清空全部组件？</p>
             <div style="text-align: right; margin: 0">
@@ -40,6 +40,12 @@
             style="margin-left: 10px;"
             @click="saveViewportPage"
           >保存</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-sell"
+            style="margin-left: 10px;"
+            @click="deployPage"
+          >发布</el-button>
           <el-dropdown trigger="click">
             <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">
               预览
@@ -189,6 +195,11 @@ export default {
               type: "success"
             });
         });
+      });
+    },
+    deployPage() {
+      getViewportVueInstance().then(ins => {
+        ins.deployPage();
       });
     },
     handlePreviewPage() {

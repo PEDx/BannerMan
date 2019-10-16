@@ -25,6 +25,7 @@ import {
   debounce,
   throttle,
   parseQueryString,
+  generatePageString,
   getProfileByInstance,
   findRelatedContainerComponent,
   getRandomStr,
@@ -32,11 +33,12 @@ import {
   traversal
 } from "@utils/index";
 import storage from "@/storage";
-import { reqUpdatePage } from "@/api/page";
+import { reqUpdatePage, reqGetPageById } from "@/api/page";
 import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
 import SortElementMixin from "./sortble/SortElementMixin";
 import SortContainer from "./sortble/SortContainer";
+// import clonedeep from "lodash.clonedeep";
 import { WidgetContainerMixin } from "./components/widget-container-mixin";
 
 import widgets from "@/widgets";
@@ -593,6 +595,14 @@ export default {
         this.componentsModelTree
       );
       return reqUpdatePage(this.pageId, this.componentsModelTree);
+    },
+    deployPage() {
+      // reqUpdatePage(this.pageId, this.componentsModelTree).then(res => {
+      reqGetPageById(this.pageId).then(res => {
+        generatePageString(res.data.data, widgets);
+      });
+      // });
+      // generatePageString(clonedeep(this.componentsModelTree), widgets);
     },
     // 自动保存
     autoSave() {

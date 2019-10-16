@@ -1,6 +1,5 @@
 const isVue2 = true;
 
-/**                               公用方法开始                 **/
 function isPc() {
   var uaInfo = navigator.userAgent;
   var agents = ['Android', 'iPhone', 'Windows Phone', 'iPad', 'iPod'];

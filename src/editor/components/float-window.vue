@@ -103,7 +103,7 @@ export default {
 .draggable-resizable {
   background-color: #414146;
   color: #eee;
-  z-index: 999 !important;
+  z-index: 1999 !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
   border: 1px solid #313134;
   .draggable-resizable-handle {
