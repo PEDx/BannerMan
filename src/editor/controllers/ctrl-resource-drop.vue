@@ -41,7 +41,7 @@
 import EventBus from "@/bus";
 export default {
   props: {
-    value: Object
+    value: { type: Object, default: () => ({}) }
   },
   data() {
     this.options = [
@@ -80,7 +80,13 @@ export default {
       disabledTooltop: false,
       draging: false,
       droped: false,
-      resource: {},
+      resource: {
+        color: "#fff",
+        url: "",
+        imgRepeat: "",
+        imgSize: "",
+        imgMode: ""
+      },
       mode: []
     };
   },
@@ -97,7 +103,9 @@ export default {
     }
   },
   created() {
-    this.resource = this.value;
+    Object.keys(this.resource).forEach(key => {
+      this.resource[key] = this.value[key] || "";
+    });
     this.color = this.resource.color;
     if (this.resource.url) {
       this.mode = [this.resource.imgMode];
@@ -107,6 +115,10 @@ export default {
         this.mode[1] = "repeat";
       }
       this.droped = true;
+    } else {
+      this.resource.url = "";
+      this.mode = ["fixed", "full"];
+      this.handleChange();
     }
   },
   mounted() {
@@ -139,9 +151,8 @@ export default {
         this.resource.imgRepeat = "repeat";
         this.resource.imgSize = "";
       }
-      // debugger;
       this.resource.imgMode = this.mode[0];
-      this.$emit("submit-update", this.resource);
+      // this.$emit("submit-update", this.resource);
     },
     clearRes() {},
     handleClick() {

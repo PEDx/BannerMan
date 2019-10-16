@@ -5,6 +5,16 @@ export default {
   multContainer: true,
   controllers: [
     {
+      propName: 'containerBackgroundObj',
+      controllerType: 'CTRL_RESOURCE_DROP',
+      label: '标签容器背景'
+    },
+    {
+      propName: 'tabHeight',
+      controllerType: 'CTRL_NUMBER_INPUT',
+      label: '标签高度'
+    },
+    {
       propName: 'tabsCount',
       controllerType: 'CTRL_NUMBER_INPUT',
       label: '标签数量'
@@ -15,11 +25,7 @@ export default {
       controllerType: 'CTRL_TEXT_MULT_INPUT',
       label: '标签名称'
     },
-    {
-      propName: 'tabHeight',
-      controllerType: 'CTRL_NUMBER_INPUT',
-      label: '标签高度'
-    },
+
     {
       propName: 'fontObj',
       controllerType: 'CTRL_FONT',

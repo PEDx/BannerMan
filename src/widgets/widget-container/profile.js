@@ -4,14 +4,9 @@ export default {
   description: '描述',
   controllers: [
     {
-      propName: 'bgColor',
-      controllerType: 'CTRL_COLOR_PICKER',
-      label: '容器背景颜色'
-    },
-    {
-      propName: 'bgImg',
+      propName: 'backgroundObj',
       controllerType: 'CTRL_RESOURCE_DROP',
-      label: '容器背景图片'
+      label: '容器背景'
     },
     {
       propName: 'heightModel',
@@ -65,7 +60,7 @@ export default {
       controllerType: 'CTRL_SIZE_INPUT',
       label: '定位',
       setting: {
-        label: ['上', '左']
+        label: ['下', '左']
       }
     },
     {

@@ -1,5 +1,13 @@
 <template>
-  <div class="widget-tabs">
+  <div
+    class="widget-tabs"
+    :style="{
+      backgroundColor: containerBackgroundObj.color,
+      backgroundImage: containerBackgroundObj.url ? `url(${containerBackgroundObj.url})` : '',
+      backgroundRepeat: containerBackgroundObj.imgRepeat,
+      backgroundSize: containerBackgroundObj.imgSize,
+    }"
+  >
     <div class="tab-container">
       <ul>
         <li
@@ -44,6 +52,12 @@
 // fix: 文字小于 12 px ios 边框会上移
 export default {
   props: {
+    containerBackgroundObj: {
+      default: () => ({
+        color: "#fff"
+      }),
+      type: Object
+    },
     tabsCount: {
       default: 1,
       type: Number

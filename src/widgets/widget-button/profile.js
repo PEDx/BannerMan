@@ -33,19 +33,14 @@ export default {
       label: '边框'
     },
     {
-      propName: 'btnBgColor',
-      controllerType: 'CTRL_COLOR_PICKER',
-      label: '背景颜色'
+      propName: 'btnFontObj',
+      controllerType: 'CTRL_FONT',
+      label: '按钮文本'
     },
     {
-      propName: 'btnTextColor',
-      controllerType: 'CTRL_COLOR_PICKER',
-      label: '文本颜色'
-    },
-    {
-      propName: 'btnBgImg',
+      propName: 'backgroundObj',
       controllerType: 'CTRL_RESOURCE_DROP',
-      label: '背景图片'
+      label: '按钮背景'
     },
     {
       propName: 'events',

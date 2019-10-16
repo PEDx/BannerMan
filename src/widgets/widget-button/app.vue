@@ -4,8 +4,7 @@
       class="button"
       v-tap="{methods: handleClick}"
       :style="{
-        borderRadius: `${borderRadius}px`,
-        backgroundColor: btnBgImg.url ? 'transparent' : '#fff'
+        borderRadius: `${borderRadius}px`
       }"
     >
       <div
@@ -14,9 +13,13 @@
           width: `${size[0]}px`,
           height: `${size[1]}px`,
           lineHeight: `${size[1]}px`,
-          background: btnBgImg.url ? `url(${btnBgImg.url}) ${btnBgImg.imgRepeat || ''}` : btnBgColor,
-          backgroundSize: btnBgImg.imgSize || '',
-          color: btnTextColor,
+          backgroundColor: backgroundObj.color,
+          backgroundImage: backgroundObj.url ? `url(${backgroundObj.url})` : '',
+          backgroundRepeat: backgroundObj.imgRepeat,
+          backgroundSize: backgroundObj.imgSize,
+          fontSize: `${btnFontObj.size}px`,
+          fontWeight: `${btnFontObj.weight}`,
+          color: btnFontObj.color,
           borderRadius: `${borderRadius}px`,
           border: `${borderObj.width}px solid ${borderObj.color}`
         }"
@@ -47,17 +50,19 @@ export default {
       default: () => ({}),
       type: Object
     },
-    btnBgImg: {
-      default: () => ({}),
+    backgroundObj: {
+      default: () => ({
+        color: "#fff"
+      }),
       type: Object
     },
-    btnBgColor: {
-      default: "#fff",
-      type: String
-    },
-    btnTextColor: {
-      default: "#333",
-      type: String
+    btnFontObj: {
+      default: () => ({
+        color: "#000",
+        size: 14,
+        weight: 500
+      }),
+      type: Object
     },
     events: {
       default: () => ["WIDGET_BUTTON_CLICK"],

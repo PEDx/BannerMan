@@ -4,9 +4,11 @@
     :style="{
       width: '100%',
       height: heightModel === 'px' ? `${size[1]}px` : heightModel,
-      ...(bgImg.imgMode !== 'scroll' ? {
-        background: bgImg.url ? `url(${bgImg.url}) ${bgImg.imgRepeat || ''}` : bgColor,
-        backgroundSize: bgImg.imgSize || ''
+      ...(backgroundObj.imgMode !== 'scroll' ? {
+        backgroundColor: backgroundObj.color,
+        backgroundImage: backgroundObj.url ? `url(${backgroundObj.url})` : '',
+        backgroundRepeat: backgroundObj.imgRepeat,
+        backgroundSize: backgroundObj.imgSize,
       } : {}),
       position: positionModel,
       bottom: `${position[0]}px`,
@@ -27,9 +29,11 @@
       >
         <div
           class="bg-box"
-          :style="bgImg.imgMode === 'scroll' ? {
-            background: bgImg.url ? `url(${bgImg.url}) ${bgImg.imgRepeat || ''}` : bgColor,
-            backgroundSize: bgImg.imgSize || ''
+          :style="backgroundObj.imgMode === 'scroll' ? {
+            backgroundColor: backgroundObj.color,
+            backgroundImage: backgroundObj.url ? `url(${backgroundObj.url})` : '',
+            backgroundRepeat: backgroundObj.imgRepeat,
+            backgroundSize: backgroundObj.imgSize,
           } : {}"
         >
           <slot />
@@ -56,9 +60,11 @@
           <div class="container-scroll-container">
             <div
               class="bg-box"
-              :style="bgImg.imgMode === 'scroll' ? {
-                background: bgImg.url ? `url(${bgImg.url}) ${bgImg.imgRepeat || ''}` : bgColor,
-                backgroundSize: bgImg.imgSize || ''
+              :style="backgroundObj.imgMode === 'scroll' ? {
+                backgroundColor: backgroundObj.color,
+                backgroundImage: backgroundObj.url ? `url(${backgroundObj.url})` : '',
+                backgroundRepeat: backgroundObj.imgRepeat,
+                backgroundSize: backgroundObj.imgSize,
               } : {}"
             >
               <slot />
@@ -78,12 +84,11 @@ export default {
       default: () => [100, 300],
       type: Array
     },
-    bgColor: {
-      type: String
-    },
-    bgImg: {
+    backgroundObj: {
       type: Object,
-      default: () => ({})
+      default: () => ({
+        color: "#fff"
+      })
     },
     heightModel: {
       default: "px",
