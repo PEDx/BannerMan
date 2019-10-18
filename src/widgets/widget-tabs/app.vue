@@ -145,8 +145,8 @@ export default {
 <style lang="scss" scoped>
 .widget-tabs {
   box-sizing: border-box;
-  font-size: 0;
   .tab-container {
+    font-size: 0;
     .tab {
       display: inline-block;
       text-align: center;
@@ -154,7 +154,6 @@ export default {
       padding: 0 4px;
       cursor: pointer;
       overflow: hidden;
-      font-size: 0;
       .txt {
         display: block;
         width: 100%;

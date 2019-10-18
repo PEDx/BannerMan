@@ -157,8 +157,8 @@ export default {
       text: this.renderPageUrl,
       width: 128,
       height: 128,
-      colorDark: "#343438",
-      colorLight: "#ffffff",
+      colorDark: "#ffffff",
+      colorLight: "#343438",
       correctLevel: QRCode.CorrectLevel.H
     });
   },

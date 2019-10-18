@@ -8,7 +8,6 @@
 import {
   parseQueryString,
   traversal,
-  UNDEFINED,
   getProfileByInstance
 } from "@utils/index";
 import { reqGetPageById } from "@api/page";
@@ -58,10 +57,9 @@ export default {
         const _promiseMap = {};
         traversal(componentsModelTree, node => {
           if (!node.props) return;
-          node.isMultContainer = false;
           Object.keys(node.props).forEach(key => {
             const _val = node.props[key];
-            node.props[key] = _val === UNDEFINED ? undefined : _val;
+            node.props[key] = _val;
           });
           if (_promiseMap[node.name]) return;
           const promise = widgets[node.name]();
@@ -81,7 +79,6 @@ export default {
               if (!element) return;
               const instance = element.__vue__;
               const _profile = getProfileByInstance(instance);
-              node.isMultContainer = !!_profile.multContainer;
               this.collectEvent(_profile.controllers, node.id, instance);
             });
           });

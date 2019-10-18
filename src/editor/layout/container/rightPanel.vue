@@ -157,9 +157,9 @@ export default {
               if (val.controllerType === "CTRL_ON_EVENT") {
                 val.events = clonedeep(ins.getWidgetEmitEventMap());
               }
-              if (val.relation) {
-                this.relationValueMap[val.propName] = val.relation;
-                val.relationValue = ins.getWidgetDataValue(val.relation);
+              if (val.relationPropName) {
+                this.relationValueMap[val.propName] = val.relationPropName;
+                val.relationValue = ins.getWidgetDataValue(val.relationPropName);
               }
               val.value = ins.getWidgetDataValue(val.propName);
               val.id = getRandomStr(6);

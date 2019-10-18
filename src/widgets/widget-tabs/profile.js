@@ -21,7 +21,7 @@ export default {
     },
     {
       propName: 'tabsTextArr',
-      relation: 'tabsCount', // 关联的 propName, 会通过 relationValue 传入 controller
+      relationPropName: 'tabsCount', // 关联的 propName, 会通过 relationValue 将关联 propName 传入 controller
       controllerType: 'CTRL_TEXT_MULT_INPUT',
       label: '标签名称'
     },
