@@ -101,28 +101,25 @@ const webpackConfig = merge(baseWebpackConfig, {
   optimization: {
     splitChunks: {
       chunks: 'all',
-      maxAsyncRequests: 5, // 最大异步请求数， 默认5
-      maxInitialRequests: 4, // 最大初始化请求书，默认3
-      cacheGroups: {
-        libs: {
-          name: 'chunk-libs',
-          test: /[\\/]node_modules[\\/]/,
-          priority: 1,
-          chunks: 'initial' // 只打包初始时依赖的第三方
-        },
-        elementUI: {
-          name: 'chunk-elementUI', // 单独将 elementUI 拆包
-          priority: 2, // 权重要大于 libs 和 app 不然会被打包进 libs 或者 app
-          test: /[\\/]node_modules[\\/]element-ui[\\/]/
-        },
-        quill: {
-          name: 'chunk-quill',
-          priority: 3,
-          test: /[\\/]node_modules[\\/]quill[\\/]/
-        }
-      }
+      // cacheGroups: {
+        // libs: {
+        //   name: 'chunk-libs',
+        //   test: /[\\/]node_modules[\\/]/,
+        //   priority: 1,
+        //   chunks: 'initial' // 只打包初始时依赖的第三方
+        // },
+        // elementUI: {
+        //   name: 'chunk-elementUI', // 单独将 elementUI 拆包
+        //   priority: 2, // 权重要大于 libs 和 app 不然会被打包进 libs 或者 app
+        //   test: /[\\/]node_modules[\\/]element-ui[\\/]/
+        // },
+        // quill: {
+        //   name: 'chunk-quill',
+        //   priority: 3,
+        //   test: /[\\/]node_modules[\\/]quill[\\/]/
+        // }
+      // }
     },
-    runtimeChunk: 'single',
     minimizer: [
       new UglifyJsPlugin({
         uglifyOptions: {
