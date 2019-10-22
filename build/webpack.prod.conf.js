@@ -53,6 +53,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     ...config.pages.map(
       val =>
         new HtmlWebpackPlugin({
+          favicon: './favicon.ico',
           filename: val.output,
           template: val.template,
           inject: true,
@@ -100,24 +101,24 @@ const webpackConfig = merge(baseWebpackConfig, {
   ],
   optimization: {
     splitChunks: {
-      chunks: 'all',
+      chunks: 'all'
       // cacheGroups: {
-        // libs: {
-        //   name: 'chunk-libs',
-        //   test: /[\\/]node_modules[\\/]/,
-        //   priority: 1,
-        //   chunks: 'initial' // 只打包初始时依赖的第三方
-        // },
-        // elementUI: {
-        //   name: 'chunk-elementUI', // 单独将 elementUI 拆包
-        //   priority: 2, // 权重要大于 libs 和 app 不然会被打包进 libs 或者 app
-        //   test: /[\\/]node_modules[\\/]element-ui[\\/]/
-        // },
-        // quill: {
-        //   name: 'chunk-quill',
-        //   priority: 3,
-        //   test: /[\\/]node_modules[\\/]quill[\\/]/
-        // }
+      // libs: {
+      //   name: 'chunk-libs',
+      //   test: /[\\/]node_modules[\\/]/,
+      //   priority: 1,
+      //   chunks: 'initial' // 只打包初始时依赖的第三方
+      // },
+      // elementUI: {
+      //   name: 'chunk-elementUI', // 单独将 elementUI 拆包
+      //   priority: 2, // 权重要大于 libs 和 app 不然会被打包进 libs 或者 app
+      //   test: /[\\/]node_modules[\\/]element-ui[\\/]/
+      // },
+      // quill: {
+      //   name: 'chunk-quill',
+      //   priority: 3,
+      //   test: /[\\/]node_modules[\\/]quill[\\/]/
+      // }
       // }
     },
     minimizer: [
