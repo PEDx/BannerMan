@@ -144,7 +144,7 @@ export default {
   },
   created() {
     const id = parseQueryString(location.href).id;
-    this.renderPageUrl = `http://192.168.27.234:8080/render?id=${id}`;
+    this.renderPageUrl = `/render?id=${id}`;
   },
   mounted() {
     this.handleChange();
