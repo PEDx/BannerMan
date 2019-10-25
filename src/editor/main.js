@@ -32,6 +32,7 @@ import {
   Popover,
   Card,
   Cascader,
+  Loading,
   Message,
   Notification
 } from 'element-ui';
@@ -59,6 +60,7 @@ Vue.use(Row)
   .use(Card)
   .use(Cascader)
   .use(Button)
+  .use(Loading)
   .use(Select)
   .use(SvgIcon)
   .use(Option);

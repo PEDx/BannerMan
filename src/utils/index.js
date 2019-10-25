@@ -330,11 +330,4 @@ export function scaleLoop(callback) {
   };
   callback(next);
 }
-export function generatePageString(componentsTree, widgets) {
-  const widgetLoadMap = {};
-  traversal(componentsTree, node => {
-    if (widgetLoadMap[node.name]) return;
-    widgetLoadMap[node.name] = widgets[node.name];
-  });
-  console.log(widgetLoadMap['widget-button']());
-}
+

@@ -20,3 +20,17 @@ export function reqUpdatePage(id, data) {
     data: { data }
   });
 }
+// 获取最新组件版本信息
+export function reqGetWidgetList() {
+  return request({
+    url: `/api/v1/widgetList`,
+    method: 'get'
+  });
+}
+// 构建页面
+export function reqBuildPage(id) {
+  return request({
+    url: `/api/v1/build/${id}`,
+    method: 'get'
+  });
+}

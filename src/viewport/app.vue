@@ -25,7 +25,6 @@ import {
   debounce,
   throttle,
   parseQueryString,
-  generatePageString,
   getProfileByInstance,
   findRelatedContainerComponent,
   getRandomStr,
@@ -33,7 +32,7 @@ import {
   traversal
 } from "@utils/index";
 import storage from "@/storage";
-import { reqUpdatePage, reqGetPageById } from "@/api/page";
+import { reqUpdatePage, reqBuildPage } from "@/api/page";
 import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
 import SortElementMixin from "./sortble/SortElementMixin";
@@ -43,6 +42,7 @@ import { WidgetContainerMixin } from "./components/widget-container-mixin";
 
 import widgets from "@/widgets";
 import EventBus from "@/bus";
+
 const MutationObserver =
   window.MutationObserver ||
   window.WebKitMutationObserver ||
@@ -116,7 +116,7 @@ export default {
     this._initDocumentListener();
     this._observerGeometric();
     this._observerStyle();
-    this._renderPageFromLocal(); // 加载保存的组件数据
+    this._renderPageFromLocal();
   },
   provide() {
     return {
@@ -597,12 +597,7 @@ export default {
       return reqUpdatePage(this.pageId, this.componentsModelTree);
     },
     deployPage() {
-      // reqUpdatePage(this.pageId, this.componentsModelTree).then(res => {
-      reqGetPageById(this.pageId).then(res => {
-        generatePageString(res.data.data, widgets);
-      });
-      // });
-      // generatePageString(clonedeep(this.componentsModelTree), widgets);
+      return reqBuildPage(this.pageId);
     },
     // 自动保存
     autoSave() {

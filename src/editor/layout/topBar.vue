@@ -198,8 +198,21 @@ export default {
       });
     },
     deployPage() {
+      const loading = this.$loading({
+        lock: true,
+        text: "拼命构建中",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)"
+      });
       getViewportVueInstance().then(ins => {
-        ins.deployPage();
+        ins.deployPage().then(res => {
+          loading.close();
+          res.code === 0 &&
+            this.$message({
+              message: "构建成功",
+              type: "success"
+            });
+        });
       });
     },
     handlePreviewPage() {

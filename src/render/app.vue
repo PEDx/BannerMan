@@ -28,7 +28,7 @@ export default {
   },
   mounted() {
     const pageId = parseQueryString(location.href).id;
-    this._renderPageFromLocal(pageId);
+    this._renderPageFromRemote(pageId);
   },
   methods: {
     _handleWidgetEvent(event, id) {
@@ -47,8 +47,9 @@ export default {
         }
       });
     },
-    _renderPageFromLocal(pageId) {
+    _renderPageFromRemote(pageId) {
       console.time("renderPageFromRemote");
+      // 此处请求服务端数据可以使预览与端无关.
       reqGetPageById(pageId).then(res => {
         console.log(res);
         document.title = res.data.name;
