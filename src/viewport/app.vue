@@ -32,7 +32,7 @@ import {
   traversal
 } from "@utils/index";
 import storage from "@/storage";
-import { reqUpdatePage, reqBuildPage } from "@/api/page";
+import { reqUpdatePage, reqBuildPage, reqGetPageById } from "@/api/page";
 import { getInstanceOrVnodeRect } from "./selector/highlighter";
 import ComponentSelector from "./selector/component-selector";
 import SortElementMixin from "./sortble/SortElementMixin";
@@ -65,6 +65,7 @@ export default {
   data() {
     this.emitEventMap = {};
     this.onEventList = [];
+    this.widgetWersionMap = {};
     this.componentModelMap = {}; // id 对应数据模型
     this.componentProfileMap = {}; //  组件名对应 Profile
     this.loadingCompleteStatusMap = {};
@@ -329,22 +330,10 @@ export default {
         this._asyncAddComponent("widget-container", containersArr.length);
       }
     },
-    _test_() {
-      const promiseArr = [
-        "widget-search",
-        "widget-search",
-        "widget-search",
-        "widget-button",
-        "widget-search",
-        "widget-search",
-        "widget-search"
-      ].map(this._asyncLoadComponent);
-      return promiseArr;
-    },
     // 第一次添加组件会是异步加载
     _asyncAddComponent(widgetName, place) {
-      this._asyncLoadComponent(widgetName).then(ins => {
-        const profile = ins.default.extendOptions._profile_;
+      this._loadWidgetScript(widgetName).then(ins => {
+        const profile = ins.extendOptions._profile_;
         const _obj = {};
         const _id = `${getRandomStr(6)}-${widget_count++}-${widgetName}`;
         profile.controllers.forEach(val => {
@@ -401,30 +390,58 @@ export default {
         });
       });
     },
+    _loadWidgetScript(name, scope = "@banner-man") {
+      const verison = this.widgetWersionMap[`${scope}/${name}`];
+      return new Promise((resolve, reject) => {
+        var script = document.createElement("script");
+        script.src = `http://api.bannerman.club/packgages/${scope}/${name}@${verison}/index.js`;
+        script.id = `${name}@${verison}`;
+        var body_dom = document.body;
+        body_dom.appendChild(script);
+        // script 加载完毕后调用方法
+        script.onload = () => {
+          const ins = this.$root.$options.components[name];
+          if (!this.loadingCompleteStatusMap[name] && !!_BM_EDIT_RUNTIME_) {
+            ins.mixin(SortElementMixin);
+            this.loadingCompleteStatusMap[name] = true;
+          }
+          if (!this.componentProfileMap[name]) {
+            const profile = ins.extendOptions._profile_;
+            this.componentProfileMap[name] = profile;
+          }
+          resolve(ins);
+        };
+        script.onerror = reject;
+      });
+    },
     _renderPageFromLocal() {
       if (!this.pageId) return;
-      console.time("renderPageFromLocal");
-      const componentsModelTree =
-        storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
+      console.time("renderPageFromRemote");
+      // const componentsModelTree =
+      //   storage.get(`${LOCAL_SAVE_KEY_PREFIX}_${this.pageId}`) || [];
       const _promiseArr = [];
       const _promiseMap = {};
-      traversal(componentsModelTree, node => {
-        if (!node.props) return;
-        Object.keys(node.props).forEach(key => {
-          const _val = node.props[key];
-          node.props[key] = _val === UNDEFINED ? undefined : _val;
+      reqGetPageById(this.pageId).then(res => {
+        const componentsModelTree = res.data.data;
+        this.widgetWersionMap = res.data.widgets_version;
+        traversal(componentsModelTree, node => {
+          if (!node.props) return;
+          Object.keys(node.props).forEach(key => {
+            const _val = node.props[key];
+            node.props[key] = _val === UNDEFINED ? undefined : _val;
+          });
+          if (_promiseMap[node.name]) return;
+          const promise = this._loadWidgetScript(node.name);
+          _promiseMap[node.name] = true;
+          _promiseArr.push(promise);
         });
-        if (_promiseMap[node.name]) return;
-        const promise = this._asyncLoadComponent(node.name);
-        _promiseMap[node.name] = true;
-        _promiseArr.push(promise);
-      });
-      Promise.all(_promiseArr).then(res => {
-        this.componentsModelTree = componentsModelTree;
-        this.$nextTick(() => {
-          console.timeEnd("renderPageFromLocal");
-          this._setImageNodeUndraggable();
-          this._drawWidgetsTree();
+        Promise.all(_promiseArr).then(res => {
+          this.componentsModelTree = componentsModelTree;
+          this.$nextTick(() => {
+            console.timeEnd("renderPageFromRemote");
+            this._setImageNodeUndraggable();
+            this._drawWidgetsTree();
+          });
         });
       });
     },

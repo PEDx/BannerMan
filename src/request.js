@@ -3,8 +3,8 @@ import { Message, MessageBox } from 'element-ui';
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: 'http://192.168.27.234:6060/', // api 的 base_url
-  timeout: 10000 // 请求超时时间
+  baseURL: 'http://192.168.27.234:6060/' // api 的 base_url
+  // timeout: 10000 // 请求超时时间
 });
 
 // request拦截器
@@ -23,6 +23,16 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const res = response.data;
+
+    const headers = response.headers;
+    // 文件接口不需要判定 code
+    if (headers['content-type'].indexOf('application/octet-stream') !== -1) {
+      return response.data;
+    }
+    // 文件接口不需要判定 code
+    if (headers['content-type'].indexOf('application/javascript') !== -1) {
+      return response.data;
+    }
 
     if (res.code !== 0) {
       Message({
