@@ -39,8 +39,8 @@ server {
     location /viewport {
         try_files $uri $uri/ /viewport.html;
     }
-    location /render {
-        try_files $uri $uri/ /render.html;
+    location /preview {
+        try_files $uri $uri/ /preview.html;
     }
     location / {
         try_files $uri $uri/ /index.html;

@@ -11,11 +11,11 @@ import {
   getProfileByInstance
 } from "@utils/index";
 import { reqGetPageById } from "@api/page";
-import widgets from "@/widgets";
 const EVENT_CONTROLLER_TYPE = "CTRL_ON_EVENT";
 export default {
   data() {
     this.onEventMap = {};
+    this.widgetWersionMap = {};
     this.componentProfileMap = {};
     return {
       componentsModelTree: []
@@ -47,6 +47,22 @@ export default {
         }
       });
     },
+    _loadWidgetScript(name, scope = "@banner-man") {
+      const verison = this.widgetWersionMap[`${scope}/${name}`];
+      return new Promise((resolve, reject) => {
+        var script = document.createElement("script");
+        script.src = `http://api.bannerman.club/packgages/${scope}/${name}@${verison}/index.js`;
+        script.id = `${name}@${verison}`;
+        var body_dom = document.body;
+        body_dom.appendChild(script);
+        // script 加载完毕后调用方法
+        script.onload = () => {
+          const ins = this.$root.$options.components[name];
+          resolve(ins);
+        };
+        script.onerror = reject;
+      });
+    },
     _renderPageFromRemote(pageId) {
       console.time("renderPageFromRemote");
       // 此处请求服务端数据可以使预览与端无关.
@@ -54,6 +70,7 @@ export default {
         console.log(res);
         document.title = res.data.name;
         const componentsModelTree = res.data.data;
+        this.widgetWersionMap = res.data.widgets_version;
         const _promiseArr = [];
         const _promiseMap = {};
         traversal(componentsModelTree, node => {
@@ -63,14 +80,14 @@ export default {
             node.props[key] = _val;
           });
           if (_promiseMap[node.name]) return;
-          const promise = widgets[node.name]();
+          const promise = this._loadWidgetScript(node.name);
           _promiseMap[node.name] = true;
           _promiseArr.push(promise);
         });
         Promise.all(_promiseArr).then(res => {
           res.forEach(val => {
-            const profile = val.default.extendOptions._profile_;
-            const name = val.default.options.name;
+            const profile = val.extendOptions._profile_;
+            const name = val.options.name;
             this.componentProfileMap[name] = profile;
           });
           this.componentsModelTree = componentsModelTree;

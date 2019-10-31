@@ -144,7 +144,7 @@ export default {
   },
   created() {
     const id = parseQueryString(location.href).id;
-    this.renderPageUrl = `/render?id=${id}`;
+    this.renderPageUrl = `${location.origin}/preview?id=${id}`;
   },
   mounted() {
     this.handleChange();

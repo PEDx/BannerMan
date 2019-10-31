@@ -16,11 +16,11 @@ module.exports = [
     output: path.resolve(__dirname, '../dist/manager.html')
   },
   {
-    name: 'render',
-    title: '渲染器',
-    entry: './src/render/main.js',
-    template: './src/render/index.html',
-    output: path.resolve(__dirname, '../dist/render.html')
+    name: 'preview',
+    title: '预览',
+    entry: './src/preview/main.js',
+    template: './src/preview/index.html',
+    output: path.resolve(__dirname, '../dist/preview.html')
   },
   {
     name: 'viewport',
