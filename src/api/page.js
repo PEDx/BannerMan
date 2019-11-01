@@ -35,10 +35,18 @@ export function reqBuildPage(id) {
     method: 'get',
   });
 }
-// 获取组件
-export function reqWidgetPackage(name) {
+// 获取页面挂件当前版本
+export function reqPageWidgetsVersion(id) {
   return request({
-    url: `http://api.bannerman.club/packgages/${name}`,
+    url: `/api/v1/pageWidgetsVersion/${id}`,
     method: 'get',
+  });
+}
+// 升级页面挂件版本
+export function reqUpdateWidgetVersion(data) {
+  return request({
+    url: `/api/v1/updateWidgetVersion`,
+    method: 'post',
+    data,
   });
 }

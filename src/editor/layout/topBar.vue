@@ -21,6 +21,16 @@
           </el-select>
         </el-col>
         <el-col :span="10" style="text-align: right;">
+          <el-dropdown trigger="click">
+            <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">
+              预览
+              <i class="el-icon-caret-bottom el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-files" @click.native="handlePreviewPage">本地预览</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-s-grid" @click.native="handleScanPreview">扫码预览</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
           <el-popover placement="top" width="160" v-model="clearConfirmVisible">
             <p>确认清空全部组件？</p>
             <div style="text-align: right; margin: 0">
@@ -47,16 +57,6 @@
             @click="deployPage"
           >发布</el-button>
           <el-dropdown trigger="click">
-            <el-button type="primary" icon="el-icon-mobile-phone" style="margin-left: 10px;">
-              预览
-              <i class="el-icon-caret-bottom el-icon--right"></i>
-            </el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-files" @click.native="handlePreviewPage">本地预览</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-s-grid" @click.native="handleScanPreview">扫码预览</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-          <el-dropdown trigger="click">
             <el-button type="primary" style="margin-left: 10px;">
               更多
               <i class="el-icon-caret-bottom el-icon--right"></i>
@@ -66,7 +66,10 @@
                 icon="el-icon-coffee-cup"
                 @click.native="handleShowThemeWindow"
               >主题调色板</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-files">控件管理</el-dropdown-item>
+              <el-dropdown-item
+                icon="el-icon-files"
+                @click.native="handleShowWidgetVersionWindow"
+              >控件版本控制</el-dropdown-item>
               <el-dropdown-item icon="el-icon-cpu">燃烧 GPU</el-dropdown-item>
               <el-dropdown-item icon="el-icon-discover" @click.native="handleShowGuide">引导</el-dropdown-item>
               <el-dropdown-item icon="el-icon-user-solid">用户设置</el-dropdown-item>
@@ -77,6 +80,19 @@
     </div>
     <float-window :show.sync="showThemeWindow" :position="nodePos" :size="nodeSize" title="主题调色板">
       <theme-color-picker></theme-color-picker>
+    </float-window>
+    <float-window
+      :show.sync="showWidgetVersionWindow"
+      :position="nodePos"
+      :size="{
+        width: 400,
+        minWidth: 400,
+        minHeight: 600,
+        height: 600
+      }"
+      title="控件版本控制"
+    >
+      <widget-version-control :new-version="new_widget_version" :version="widget_version" @update-version="handleUpdateVersion"></widget-version-control>
     </float-window>
     <float-window
       :show.sync="showPreviewWindow"
@@ -111,9 +127,14 @@
   </div>
 </template>
 <script>
-// import { reqGetPageById } from "@api/page";
+import {
+  reqPageWidgetsVersion,
+  reqGetWidgetList,
+  reqUpdateWidgetVersion
+} from "@api/page";
 import floatWindow from "@editor/components/float-window";
 import themeColorPicker from "@editor/components/theme-color-picker";
+import widgetVersionControl from "@editor/components/widget-version-control";
 import deviceModelList from "./device";
 import EventBus from "@/bus";
 import clonedeep from "lodash.clonedeep";
@@ -121,7 +142,7 @@ import QRCode from "qrcodejs2";
 import { getViewportVueInstance, parseQueryString } from "@utils/index";
 
 export default {
-  components: { floatWindow, themeColorPicker },
+  components: { floatWindow, themeColorPicker, widgetVersionControl },
   data() {
     this.nodeSize = {
       width: 1040,
@@ -130,11 +151,15 @@ export default {
       height: 400
     };
     this.renderPageUrl = "";
+    this.pageID = "";
     return {
       clearConfirmVisible: false,
       showThemeWindow: false,
+      showWidgetVersionWindow: false,
       showPreviewWindow: false,
       options: deviceModelList,
+      widget_version: {},
+      new_widget_version: [],
       value: this.$store.state.editor.setting.deviceType || "iphone6",
       nodePos: {
         x: 0,
@@ -143,7 +168,7 @@ export default {
     };
   },
   created() {
-    const id = parseQueryString(location.href).id;
+    const id = (this.pageID = parseQueryString(location.href).id);
     this.renderPageUrl = `${location.origin}/preview?id=${id}`;
   },
   mounted() {
@@ -174,6 +199,28 @@ export default {
     },
     handleShowThemeWindow() {
       this.showThemeWindow = !this.showThemeWindow;
+    },
+    handleShowWidgetVersionWindow() {
+      if (!this.showWidgetVersionWindow) {
+        this.freshVersionInfo();
+      }
+      this.showWidgetVersionWindow = !this.showWidgetVersionWindow;
+    },
+    freshVersionInfo() {
+      reqPageWidgetsVersion(this.pageID).then(res => {
+        this.widget_version = res.data;
+      });
+      reqGetWidgetList().then(res => {
+        this.new_widget_version = res.data;
+      });
+    },
+    handleUpdateVersion(nameArr) {
+      reqUpdateWidgetVersion({
+        id: this.pageID,
+        widgetNameList: nameArr
+      }).then(() => {
+        this.freshVersionInfo();
+      });
     },
     handleShowGuide() {
       this.$store.dispatch("update_guide_visibility", true);
