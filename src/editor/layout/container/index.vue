@@ -20,7 +20,7 @@
           </transition>
           <iframe
             id="iframe-view"
-            ref="iframe"
+            ref="viewport"
             name="viewport"
             :style="`width: 100%;height: 100%;pointer-events: ${draging ? 'none': 'auto'};outline: 1px solid #6b6b6b;box-sizing: border-box;`"
             :src="`/viewport?id=${editPageId}`"
@@ -109,6 +109,10 @@ export default {
       setTimeout(() => {
         this.shotAnim = false;
       }, 500);
+    });
+    EventBus.$on("reload-viewport", () => {
+      this.viewportLoading = true;
+      this.$refs.viewport.contentWindow.location.reload(true);
     });
     window.addEventListener("message", e => {}, false);
     document.addEventListener(

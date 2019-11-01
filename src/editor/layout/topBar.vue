@@ -92,7 +92,11 @@
       }"
       title="控件版本控制"
     >
-      <widget-version-control :new-version="new_widget_version" :version="widget_version" @update-version="handleUpdateVersion"></widget-version-control>
+      <widget-version-control
+        :new-version="new_widget_version"
+        :version="widget_version"
+        @update-version="handleUpdateVersion"
+      ></widget-version-control>
     </float-window>
     <float-window
       :show.sync="showPreviewWindow"
@@ -190,7 +194,7 @@ export default {
   methods: {
     handleChange() {
       this.value && this.$store.dispatch("update_device_type", this.value);
-      EventBus.$emit("reload-viewport");
+
       getViewportVueInstance().then(ins => {
         ins.changeViewSize(
           clonedeep(deviceModelList[this.value || "iphone6"].resolution)
@@ -219,6 +223,7 @@ export default {
         id: this.pageID,
         widgetNameList: nameArr
       }).then(() => {
+        EventBus.$emit("reload-viewport");
         this.freshVersionInfo();
       });
     },
