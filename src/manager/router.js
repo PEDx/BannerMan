@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Skeleton from '@manager/skeleton/skeleton';
 import Layout from '@manager/layout/layout';
+import Pages from '@manager/pages/pages';
 import DateFlow from '@manager/pages/dateFlow';
 import Gallery from '@manager/pages/gallery';
 import Group from '@manager/pages/group';
@@ -21,9 +22,9 @@ export default new Router({
       root: true,
       children: [
         {
-          path: 'page',
-          name: 'page',
-          component: Skeleton,
+          path: 'pages',
+          name: 'pages',
+          component: Pages,
           meta: { title: '页面', icon: 'tools' }
         },
 

@@ -67,7 +67,6 @@ export default {
       console.time("renderPageFromRemote");
       // 此处请求服务端数据可以使预览与端无关.
       reqGetPageById(pageId).then(res => {
-        console.log(res);
         document.title = res.data.name;
         const componentsModelTree = res.data.data;
         this.widgetWersionMap = res.data.widgets_version;
