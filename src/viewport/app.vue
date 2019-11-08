@@ -422,7 +422,7 @@ export default {
       const _promiseArr = [];
       const _promiseMap = {};
       reqGetPageById(this.pageId).then(res => {
-        const componentsModelTree = res.data.data;
+        const componentsModelTree = res.data.data || [];
         this.widgetWersionMap = res.data.widgets_version;
         traversal(componentsModelTree, node => {
           if (!node.props) return;

@@ -17,16 +17,27 @@
         </el-table-column>
       </el-table-column>
       <el-table-column label="创建者" align="center">
-        <el-table-column prop="creater_name" width="280" align="center">
+        <el-table-column prop="creater_name" width="180" align="center">
           <template slot="header" slot-scope="scope">
             <el-input v-model="search" placeholder="输入创建者搜索" clearable />
+            <el-select v-model="form.permission" placeholder="请选择页面编辑权限">
+              <el-option label="本人" title="private" :value="0"></el-option>
+              <el-option label="同组" title="internal" :value="1"></el-option>
+              <el-option label="所有" title="public" :value="2"></el-option>
+            </el-select>
           </template>
         </el-table-column>
       </el-table-column>
       <el-table-column label="有效期" align="center">
         <el-table-column align="center">
           <template slot="header" slot-scope="scope">
-            <el-input v-model="search" placeholder="输入有效期搜索" clearable />
+            <el-date-picker
+              v-model="form.expiry"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            ></el-date-picker>
           </template>
           <template slot-scope="scope">
             {{ scope.row.expiry_start | parseTime }}
@@ -72,7 +83,7 @@
               </div>
               <el-button slot="reference" type="text" @click="handleClear">删除</el-button>
             </el-popover>-->
-            <el-button type="text" @click="handleClear">
+            <el-button type="text" @click="handleEditorEntry(scope.row.id)">
               进入编辑器
               <i class="el-icon-d-arrow-right"></i>
             </el-button>
@@ -190,6 +201,9 @@ export default {
       });
     },
     handleClear() {},
+    handleEditorEntry(pageID) {
+      window.open(`${location.origin}/editor?id=${pageID}`, "_blank");
+    },
     handleCreateNewPage() {
       this.dialogNewPageVisible = true;
     },

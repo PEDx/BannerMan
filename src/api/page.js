@@ -58,3 +58,33 @@ export function reqUpdateWidgetVersion(data) {
     data
   });
 }
+// 获取上传 token
+export function reqGetUploadToken() {
+  return request({
+    url: `/api/v1/getUploadToken`,
+    method: 'get'
+  });
+}
+// 上传页面资源
+export function reqPushPageResource(id, data) {
+  return request({
+    url: `/api/v1/pushPageResource/${id}`,
+    method: 'post',
+    data
+  });
+}
+// 删除页面资源
+export function reqPullPageResource(id, key) {
+  return request({
+    url: `/api/v1/pullPageResource/${id}`,
+    method: 'post',
+    data: { key }
+  });
+}
+// 获取页面资源
+export function reqGetPageResource(id) {
+  return request({
+    url: `/api/v1/getPageResource/${id}`,
+    method: 'get'
+  });
+}

@@ -79,22 +79,28 @@
             @click.native.stop
             class="upload-btn"
             style="display: inline-block;"
-            action="https://jsonplaceholder.typicode.com/posts/"
-            multiple
-            :limit="3"
+            :action="UPLOAD_URL"
+            :multiple="true"
+            :data="{token: uploadToken}"
             :show-file-list="false"
             :file-list="fileList"
-            @on-progress="handleUploadProgress"
-            @on-success="handleUploadSuccess"
-            @on-error="handleUploadError"
+            :before-upload="handleUploadBefore"
+            :on-success="handleUploadSuccess"
+            :on-error="handleUploadError"
           >
-            <el-button type="text" icon="el-icon-upload2" title="上传资源" style="padding: 4px 5px;"></el-button>
+            <el-button
+              type="text"
+              icon="el-icon-upload2"
+              title="上传资源"
+              style="padding: 4px 5px;"
+              @click="handleUploadClick"
+            ></el-button>
           </el-upload>
         </template>
         <div class="file-list" style="padding: 8px 0;">
           <div
             :class="{'file-list-item': true, active: currentPickResItemIdx == idx}"
-            v-for="(val, idx) in fileList"
+            v-for="(val, idx) in readFileList"
             :key="`${val.name }-${idx}`"
             :draggable="true"
             @dragstart="handleResDragstart(...arguments, val)"
@@ -129,7 +135,7 @@
                 type="text"
                 class="item-icon delete-img f-fr"
                 icon="el-icon-delete"
-                @click="handleDelete(idx)"
+                @click="handleDelete(val.key)"
               ></el-button>
             </p>
           </div>
@@ -141,9 +147,17 @@
 <script>
 import foldBar from "@editor/components/split-pane/fold-bar";
 import splitPane from "@editor/components/split-pane/split-pane";
-import { getViewportVueInstance } from "@utils/index";
+import { getViewportVueInstance, parseQueryString } from "@utils/index";
+import {
+  reqGetUploadToken,
+  reqPushPageResource,
+  reqPullPageResource,
+  reqGetPageResource
+} from "@api/page";
 import EventBus from "@/bus";
 const URL_REG = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/gi;
+const UPLOAD_URL = "https://upload-z2.qiniup.com";
+const DOWNLOAD_URL = "http://q0jje1naa.bkt.clouddn.com";
 const widgets = [
   {
     group: "BASICS",
@@ -203,12 +217,14 @@ export default {
   },
   data() {
     const editorSetting = this.$store.state.editor.setting;
+    this.UPLOAD_URL = UPLOAD_URL;
+    this.editPageId = "";
     return {
       widgets,
+      uploadToken: "",
       searchValue: "",
       checkImgSrc: "",
       checkImgResolution: "",
-      deleteConfirmVisible: false,
       addLinkPopovervisible: false,
       checkImgName: "",
       splitPercent: +editorSetting.leftPanelSplit || 70,
@@ -220,22 +236,21 @@ export default {
         name: "",
         url: ""
       },
-      fileList: [
-        {
-          name: "food.jpeg",
-          url:
-            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
-        },
-        {
-          name: "lizhi.png",
-          url: "http://fepublic.lizhi.fm/logos/logo_with_name_horizon.png"
-        }
-      ],
+      fileList: [],
+      readFileList: [],
       currentPickResItemIdx: -1
     };
   },
-  mounted() {},
+  created() {
+    this.editPageId = parseQueryString(location.href).id;
+    this.freshResList();
+  },
   methods: {
+    freshResList() {
+      reqGetPageResource(this.editPageId).then(res => {
+        this.readFileList = res.data;
+      });
+    },
     handleWidgetDragstart(e, widget) {
       getViewportVueInstance().then(ins => {
         ins.setDragType("drag_widget");
@@ -265,14 +280,37 @@ export default {
     handleClick(idx) {
       this.currentPickResItemIdx = idx;
     },
-    handleDelete(idx) {
-      this.deleteConfirmVisible = false;
-      this.fileList.splice(idx, 1);
+    handleDelete(key) {
+      reqPullPageResource(this.editPageId, key).then(res => {
+        this.freshResList();
+      });
     },
-    handleUploadSuccess() {},
-    handleUploadProgress() {},
+    handleUploadSuccess(response, file, fileList) {
+      const _obj = {
+        ...file,
+        url: `${DOWNLOAD_URL}/${response.key}`
+      };
+      this.fileList = fileList;
+      reqPushPageResource(this.editPageId, {
+        name: _obj.name,
+        url: _obj.url,
+        key: response.key,
+        info: {}
+      }).then(res => {
+        this.freshResList();
+      });
+    },
+    handleUploadBefore(file) {},
     handleUploadError(e) {
       console.log(e);
+    },
+    handleUploadClick(e) {
+      reqGetUploadToken().then(res => {
+        this.uploadToken = res.data;
+      });
+    },
+    handleUploadProgress(event, file, fileList) {
+      // console.log(event, file, fileList);
     },
     handleSplitChange(data) {
       this.$store.dispatch("update_lf_spt", data.split);
