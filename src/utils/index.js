@@ -7,7 +7,7 @@ function toUpper(_, c) {
 function basename(filename, ext) {
   return path.basename(
     filename.replace(/^[a-zA-Z]:/, '').replace(/\\/g, '/'),
-    ext,
+    ext
   );
 }
 function cached(fn) {
@@ -326,7 +326,7 @@ export function traversal(root, callback) {
 
 export function scaleLoop(callback) {
   const next = gap => {
-    setTimeout(callback, gap);
+    setTimeout(callback, gap, next);
   };
   callback(next);
 }

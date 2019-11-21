@@ -51,7 +51,7 @@ export default {
       const verison = this.widgetWersionMap[`${scope}/${name}`];
       return new Promise((resolve, reject) => {
         var script = document.createElement("script");
-        script.src = `http://api.bannerman.club/packgages/${scope}/${name}@${verison}/index.js`;
+        script.src = `http://122.51.85.144:6060/packgages/${scope}/${name}@${verison}/index.js`;
         script.id = `${name}@${verison}`;
         var body_dom = document.body;
         body_dom.appendChild(script);

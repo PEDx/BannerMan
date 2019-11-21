@@ -70,7 +70,11 @@
                 icon="el-icon-files"
                 @click.native="handleShowWidgetVersionWindow"
               >控件版本控制</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-cpu">燃烧 GPU</el-dropdown-item>
+              <el-dropdown-item
+                icon="el-icon-s-cooperation"
+                @click.native="dialogVisible = true"
+              >组件开发模式</el-dropdown-item>
+              <!-- <el-dropdown-item icon="el-icon-cpu">燃烧 GPU</el-dropdown-item> -->
               <el-dropdown-item icon="el-icon-discover" @click.native="handleShowGuide">引导</el-dropdown-item>
               <el-dropdown-item icon="el-icon-user-solid">用户设置</el-dropdown-item>
             </el-dropdown-menu>
@@ -81,6 +85,20 @@
     <float-window :show.sync="showThemeWindow" :position="nodePos" :size="nodeSize" title="主题调色板">
       <theme-color-picker></theme-color-picker>
     </float-window>
+    <el-dialog title="组件开发模式" :visible.sync="dialogVisible" width="50%">
+      <el-form ref="createPageForm" :model="form" label-width="80px">
+        <el-form-item label="组件名称" required>
+          <el-input clearable v-model="form.name" placeholder="组件名称, 默认: widget-dev"></el-input>
+        </el-form-item>
+        <el-form-item label="组件地址" prop="name" required>
+          <el-input v-model="form.src" clearable placeholder="请输入开发组件的 js 文件地址"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
     <float-window
       :show.sync="showWidgetVersionWindow"
       :position="nodePos"
@@ -157,7 +175,9 @@ export default {
     this.renderPageUrl = "";
     this.pageID = "";
     return {
+      form: {},
       clearConfirmVisible: false,
+      dialogVisible: false,
       showThemeWindow: false,
       showWidgetVersionWindow: false,
       showPreviewWindow: false,

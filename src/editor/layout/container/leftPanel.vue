@@ -194,6 +194,12 @@ const widgets = [
         widgetName: "widget-example",
         widget: "",
         icon: "el-icon-guide"
+      },
+      {
+        name: "幻灯片",
+        widgetName: "widget-banner",
+        widget: "",
+        icon: "el-icon-guide"
       }
     ]
   },

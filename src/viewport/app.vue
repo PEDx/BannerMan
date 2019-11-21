@@ -392,11 +392,14 @@ export default {
     },
     _loadWidgetScript(name, scope = "@banner-man") {
       const verison = this.widgetWersionMap[`${scope}/${name}`];
+      const body_dom = document.body;
       return new Promise((resolve, reject) => {
         var script = document.createElement("script");
-        script.src = `http://api.bannerman.club/packgages/${scope}/${name}@${verison}/index.js`;
+        script.src = `http://122.51.85.144:6060/packgages/${scope}/${name}@${verison}/index.js`;
+        if (name === "widget-banner") {
+          script.src = "http://localhost:8800/index.js";
+        }
         script.id = `${name}@${verison}`;
-        var body_dom = document.body;
         body_dom.appendChild(script);
         // script 加载完毕后调用方法
         script.onload = () => {

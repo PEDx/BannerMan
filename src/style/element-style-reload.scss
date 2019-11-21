@@ -287,9 +287,12 @@
 .el-switch__core {
   border-color: #252525 !important;
 }
-
+.el-dialog{
+  background-color: #414146;
+}
 .el-dialog__title {
   font-size: 16px;
+  color: #fff;
 }
 
 .el-form-item__label {
